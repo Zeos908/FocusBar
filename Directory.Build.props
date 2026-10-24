@@ -1,0 +1,12 @@
+<Project>
+  <PropertyGroup>
+    <LangVersion>latest</LangVersion>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Company>FocusBar</Company>
+    <Product>FocusBar</Product>
+    <Version>0.1.0</Version>
+    <!-- Lets the Windows-only app compile on Linux/macOS CI. It still only runs on Windows. -->
+    <EnableWindowsTargeting>true</EnableWindowsTargeting>
+  </PropertyGroup>
+</Project>

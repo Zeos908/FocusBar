@@ -1,0 +1,59 @@
+<appbar:AppBarWindow x:Class="FocusBar.App.Shell.MainBar"
+                     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                     xmlns:appbar="clr-namespace:ManagedShell.AppBar;assembly=ManagedShell.AppBar"
+                     Title="FocusBar"
+                     Background="{StaticResource BarBackground}"
+                     FontFamily="{StaticResource BarFont}"
+                     Foreground="{StaticResource BarForeground}"
+                     KeyboardNavigation.TabNavigation="Cycle">
+    <appbar:AppBarWindow.ContextMenu>
+        <ContextMenu>
+            <MenuItem Header="Restore Windows taskbar and exit" Click="RestoreAndExit_Click" InputGestureText="Ctrl+Alt+Shift+F" />
+            <Separator />
+            <MenuItem Header="Open log folder" Click="OpenLogFolder_Click" />
+            <MenuItem x:Name="DeveloperMenu" Header="Developer" Visibility="Collapsed">
+                <MenuItem Header="Throw test exception (UI thread)" Click="ThrowUiException_Click" />
+                <MenuItem Header="Throw test exception (background thread)" Click="ThrowBackgroundException_Click" />
+            </MenuItem>
+        </ContextMenu>
+    </appbar:AppBarWindow.ContextMenu>
+
+    <!-- Left to right: Start | pinned apps | open windows | ticker (fills the rest) | tray | clock -->
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto" />
+            <ColumnDefinition Width="Auto" />
+            <ColumnDefinition Width="Auto" />
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="Auto" />
+            <ColumnDefinition Width="Auto" />
+        </Grid.ColumnDefinitions>
+
+        <Button Grid.Column="0" x:Name="StartButton" Style="{StaticResource BarButton}"
+                ToolTip="Start (Phase 2)" AutomationProperties.Name="Start">
+            <TextBlock Text="&#xE80F;" FontFamily="{StaticResource IconFont}" FontSize="18" />
+        </Button>
+
+        <Border Grid.Column="1" Style="{StaticResource Placeholder}" ToolTip="Pinned apps arrive in Phase 2">
+            <TextBlock Style="{StaticResource PlaceholderText}" Text="Pinned apps" />
+        </Border>
+
+        <Border Grid.Column="2" Style="{StaticResource Placeholder}" ToolTip="Open windows arrive in Phase 2">
+            <TextBlock Style="{StaticResource PlaceholderText}" Text="Open windows" />
+        </Border>
+
+        <Border Grid.Column="3" Style="{StaticResource Placeholder}" ToolTip="The deadline ticker arrives in Phase 3">
+            <TextBlock Style="{StaticResource PlaceholderText}" Text="Upcoming deadlines will scroll here" HorizontalAlignment="Center" />
+        </Border>
+
+        <Border Grid.Column="4" Style="{StaticResource Placeholder}" ToolTip="Tray icons, Wi-Fi, volume, and battery arrive in Phase 2">
+            <TextBlock Style="{StaticResource PlaceholderText}" Text="Tray" />
+        </Border>
+
+        <StackPanel Grid.Column="5" Margin="8,0,12,0" VerticalAlignment="Center" AutomationProperties.Name="Clock">
+            <TextBlock x:Name="TimeText" FontSize="12" HorizontalAlignment="Right" />
+            <TextBlock x:Name="DateText" FontSize="12" HorizontalAlignment="Right" />
+        </StackPanel>
+    </Grid>
+</appbar:AppBarWindow>
