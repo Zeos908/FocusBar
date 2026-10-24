@@ -1,0 +1,54 @@
+<flyouts:FlyoutWindow x:Class="FocusBar.App.Ticker.DeadlineDetailsFlyout"
+                      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                      xmlns:flyouts="clr-namespace:FocusBar.App.Flyouts"
+                      Title="Deadline details">
+    <Border Style="{StaticResource FlyoutChrome}">
+        <StackPanel Margin="16" Width="320">
+            <Border x:Name="UrgencyPill" CornerRadius="4" Padding="8,2" HorizontalAlignment="Left">
+                <TextBlock x:Name="CountdownText" FontSize="12" FontWeight="SemiBold" />
+            </Border>
+
+            <TextBlock x:Name="TitleText" Style="{StaticResource FlyoutHeading}" FontSize="16" TextWrapping="Wrap" Margin="0,10,0,0" />
+
+            <StackPanel x:Name="ClassRow" Orientation="Horizontal" Margin="0,8,0,0">
+                <TextBlock Text="&#xE7BE;" Style="{StaticResource IconText}" FontSize="13" Margin="0,0,8,0"
+                           Foreground="{DynamicResource FlyoutMutedForeground}" />
+                <TextBlock x:Name="ClassText" TextWrapping="Wrap" />
+            </StackPanel>
+
+            <StackPanel Orientation="Horizontal" Margin="0,6,0,0">
+                <TextBlock Text="&#xE787;" Style="{StaticResource IconText}" FontSize="13" Margin="0,0,8,0"
+                           Foreground="{DynamicResource FlyoutMutedForeground}" />
+                <TextBlock x:Name="DueText" TextWrapping="Wrap" />
+            </StackPanel>
+
+            <ScrollViewer x:Name="DescriptionArea" MaxHeight="160" VerticalScrollBarVisibility="Auto" Margin="0,10,0,0">
+                <TextBlock x:Name="DescriptionText" TextWrapping="Wrap" Foreground="{DynamicResource FlyoutForeground}" />
+            </ScrollViewer>
+
+            <TextBlock x:Name="SourceText" Style="{StaticResource FlyoutMuted}" Margin="0,10,0,0" />
+
+            <WrapPanel Margin="0,14,0,0">
+                <Button x:Name="CompleteButton" Style="{StaticResource AccentButton}" Click="Complete_Click" Margin="0,0,8,0">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="&#xE73E;" Style="{StaticResource IconText}" FontSize="12" Margin="0,0,6,0" />
+                        <TextBlock Text="Mark complete" />
+                    </StackPanel>
+                </Button>
+                <Button Style="{StaticResource FlyoutButton}" Click="Edit_Click" Margin="0,0,4,0">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="&#xE70F;" Style="{StaticResource IconText}" FontSize="12" Margin="0,0,6,0" />
+                        <TextBlock Text="Edit" />
+                    </StackPanel>
+                </Button>
+                <Button Style="{StaticResource FlyoutButton}" Click="AllDeadlines_Click">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="&#xE8FD;" Style="{StaticResource IconText}" FontSize="12" Margin="0,0,6,0" />
+                        <TextBlock Text="All deadlines" />
+                    </StackPanel>
+                </Button>
+            </WrapPanel>
+        </StackPanel>
+    </Border>
+</flyouts:FlyoutWindow>

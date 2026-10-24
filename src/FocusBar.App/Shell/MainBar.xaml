@@ -5,6 +5,7 @@
                      xmlns:shell="clr-namespace:FocusBar.App.Shell"
                      xmlns:tray="clr-namespace:FocusBar.App.Tray"
                      xmlns:controls="clr-namespace:FocusBar.App.Controls"
+                     xmlns:ticker="clr-namespace:FocusBar.App.Ticker"
                      Title="FocusBar"
                      Background="{DynamicResource BarBackground}"
                      FontFamily="{StaticResource BarFont}"
@@ -44,11 +45,10 @@
 
         <shell:PinnedStrip Grid.Column="1" x:Name="Pinned" />
 
-        <controls:BarMiddlePanel Grid.Column="2" ReservedWidth="240" Margin="4,0">
+        <!-- The window list gets what it needs; the ticker always keeps at least ReservedWidth. -->
+        <controls:BarMiddlePanel Grid.Column="2" ReservedWidth="300" Margin="4,0">
             <shell:TaskStrip x:Name="Tasks" />
-            <Border Style="{StaticResource Placeholder}" ToolTip="The deadline ticker arrives in Phase 3">
-                <TextBlock Style="{StaticResource PlaceholderText}" Text="Upcoming deadlines will scroll here" HorizontalAlignment="Center" />
-            </Border>
+            <ticker:TickerView x:Name="Ticker" Margin="8,0,0,0" />
         </controls:BarMiddlePanel>
 
         <tray:TrayArea Grid.Column="3" x:Name="Tray" />

@@ -21,4 +21,12 @@
     <SolidColorBrush x:Key="InputBorder" Color="#40FFFFFF" />
     <SolidColorBrush x:Key="ItemHover" Color="#14FFFFFF" />
     <SolidColorBrush x:Key="ItemSelected" Color="#29FFFFFF" />
+    <SolidColorBrush x:Key="DangerForeground" Color="#FFFF8A80" />
+
+    <!-- Deadline urgency: green, yellow, red, and a dark red pill for overdue. -->
+    <SolidColorBrush x:Key="UrgencyLow" Color="#FF6CCB5F" />
+    <SolidColorBrush x:Key="UrgencyMedium" Color="#FFF2C94C" />
+    <SolidColorBrush x:Key="UrgencyHigh" Color="#FFFF6B6B" />
+    <SolidColorBrush x:Key="UrgencyOverdue" Color="#FFB3261E" />
+    <SolidColorBrush x:Key="UrgencyOverdueForeground" Color="#FFFFFFFF" />
 </ResourceDictionary>

@@ -1,0 +1,51 @@
+<UserControl x:Class="FocusBar.App.Ticker.TickerView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <!-- [current/next class] [scrolling deadlines .................] [+] [list] -->
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto" />
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="Auto" />
+        </Grid.ColumnDefinitions>
+
+        <Border x:Name="ClassChip" Grid.Column="0" CornerRadius="4" Padding="8,0" Margin="2,10,6,10"
+                Background="{DynamicResource BarHover}" Visibility="Collapsed" MaxWidth="260">
+            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                <TextBlock Text="&#xE7BE;" Style="{StaticResource IconText}" FontSize="13" Margin="0,0,6,0" />
+                <TextBlock x:Name="ClassText" FontSize="12" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" />
+            </StackPanel>
+        </Border>
+
+        <Border x:Name="Viewport" Grid.Column="1" ClipToBounds="True" Background="Transparent"
+                MouseEnter="Viewport_MouseEnter" MouseLeave="Viewport_MouseLeave" SizeChanged="Viewport_SizeChanged">
+            <Grid>
+                <!-- A Canvas so the strip keeps its full width (and isn't cut off) while it slides left. -->
+                <Canvas x:Name="Track">
+                    <StackPanel x:Name="Strip" Orientation="Horizontal"
+                                Height="{Binding ActualHeight, ElementName=Viewport}">
+                        <StackPanel.RenderTransform>
+                            <TranslateTransform x:Name="Shift" />
+                        </StackPanel.RenderTransform>
+                    </StackPanel>
+                </Canvas>
+                <Button x:Name="EmptyButton" Style="{StaticResource BarButton}" HorizontalAlignment="Left" Visibility="Collapsed"
+                        Click="AddButton_Click" AutomationProperties.Name="No upcoming deadlines. Add a deadline.">
+                    <TextBlock FontSize="12" Foreground="{DynamicResource BarMutedForeground}"
+                               Text="No upcoming deadlines · click to add one" />
+                </Button>
+            </Grid>
+        </Border>
+
+        <StackPanel Grid.Column="2" Orientation="Horizontal">
+            <Button x:Name="AddButton" Style="{StaticResource BarIconButton}" Width="36" Click="AddButton_Click"
+                    ToolTip="Add a deadline" AutomationProperties.Name="Add a deadline">
+                <TextBlock Text="&#xE710;" Style="{StaticResource IconText}" FontSize="14" />
+            </Button>
+            <Button x:Name="ListButton" Style="{StaticResource BarIconButton}" Width="36" Click="ListButton_Click"
+                    ToolTip="All deadlines" AutomationProperties.Name="All deadlines">
+                <TextBlock Text="&#xE8FD;" Style="{StaticResource IconText}" FontSize="14" />
+            </Button>
+        </StackPanel>
+    </Grid>
+</UserControl>

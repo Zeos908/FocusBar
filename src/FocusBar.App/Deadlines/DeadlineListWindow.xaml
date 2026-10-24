@@ -1,0 +1,107 @@
+<Window x:Class="FocusBar.App.Deadlines.DeadlineListWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="FocusBar Deadlines"
+        Width="560" Height="620" MinWidth="440" MinHeight="360"
+        WindowStartupLocation="CenterScreen"
+        Background="{DynamicResource FlyoutBackground}"
+        Foreground="{DynamicResource FlyoutForeground}"
+        FontFamily="{StaticResource BarFont}">
+    <Window.InputBindings>
+        <KeyBinding Key="N" Modifiers="Control" Command="{x:Static ApplicationCommands.New}" />
+    </Window.InputBindings>
+    <Window.CommandBindings>
+        <CommandBinding Command="{x:Static ApplicationCommands.New}" Executed="New_Executed" />
+    </Window.CommandBindings>
+
+    <DockPanel Margin="20,16,20,16">
+        <DockPanel DockPanel.Dock="Top" Margin="0,0,0,12">
+            <Button DockPanel.Dock="Right" Style="{StaticResource AccentButton}" Click="Add_Click" ToolTip="Add a deadline (Ctrl+N)">
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Text="&#xE710;" Style="{StaticResource IconText}" FontSize="12" Margin="0,0,6,0" />
+                    <TextBlock Text="Add deadline" />
+                </StackPanel>
+            </Button>
+            <StackPanel Orientation="Horizontal">
+                <RadioButton x:Name="UpcomingTab" GroupName="View" IsChecked="True" Checked="Tab_Checked"
+                             Style="{StaticResource TabButton}" />
+                <RadioButton x:Name="CompletedTab" GroupName="View" Checked="Tab_Checked"
+                             Style="{StaticResource TabButton}" />
+            </StackPanel>
+        </DockPanel>
+
+        <Grid>
+            <ScrollViewer VerticalScrollBarVisibility="Auto" Focusable="False">
+                <ItemsControl x:Name="Rows" Focusable="False">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Border x:Name="Card" CornerRadius="6" Padding="0,10,8,10" Margin="0,0,0,6"
+                                    Background="{DynamicResource ItemHover}" ToolTip="{Binding ToolTip}">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto" />
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="Auto" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+
+                                    <Border x:Name="UrgencyBar" Width="4" CornerRadius="2" Margin="8,0,12,0" />
+
+                                    <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                        <TextBlock x:Name="TitleText" Text="{Binding Title}" FontWeight="SemiBold" FontSize="14" TextWrapping="Wrap" />
+                                        <TextBlock Text="{Binding Meta}" Style="{StaticResource FlyoutMuted}" TextWrapping="Wrap" Margin="0,2,0,0" />
+                                    </StackPanel>
+
+                                    <TextBlock x:Name="CountdownText" Grid.Column="2" Text="{Binding Countdown}" FontWeight="SemiBold"
+                                               VerticalAlignment="Center" Margin="12,0,8,0" />
+
+                                    <StackPanel Grid.Column="3" Orientation="Horizontal" VerticalAlignment="Center">
+                                        <Button x:Name="CompleteButton" Style="{StaticResource FlyoutButton}" Padding="8,6" Click="ToggleComplete_Click"
+                                                ToolTip="Mark complete" AutomationProperties.Name="{Binding CompleteLabel}">
+                                            <TextBlock x:Name="CompleteGlyph" Text="&#xE73E;" Style="{StaticResource IconText}" FontSize="14" />
+                                        </Button>
+                                        <Button Style="{StaticResource FlyoutButton}" Padding="8,6" Click="Edit_Click"
+                                                ToolTip="Edit" AutomationProperties.Name="{Binding EditLabel}">
+                                            <TextBlock Text="&#xE70F;" Style="{StaticResource IconText}" FontSize="14" />
+                                        </Button>
+                                        <Button Style="{StaticResource FlyoutButton}" Padding="8,6" Click="Delete_Click"
+                                                ToolTip="Delete" AutomationProperties.Name="{Binding DeleteLabel}">
+                                            <TextBlock Text="&#xE74D;" Style="{StaticResource IconText}" FontSize="14" />
+                                        </Button>
+                                    </StackPanel>
+                                </Grid>
+                            </Border>
+                            <DataTemplate.Triggers>
+                                <DataTrigger Binding="{Binding Urgency}" Value="Low">
+                                    <Setter TargetName="UrgencyBar" Property="Background" Value="{DynamicResource UrgencyLow}" />
+                                    <Setter TargetName="CountdownText" Property="Foreground" Value="{DynamicResource UrgencyLow}" />
+                                </DataTrigger>
+                                <DataTrigger Binding="{Binding Urgency}" Value="Medium">
+                                    <Setter TargetName="UrgencyBar" Property="Background" Value="{DynamicResource UrgencyMedium}" />
+                                    <Setter TargetName="CountdownText" Property="Foreground" Value="{DynamicResource UrgencyMedium}" />
+                                </DataTrigger>
+                                <DataTrigger Binding="{Binding Urgency}" Value="High">
+                                    <Setter TargetName="UrgencyBar" Property="Background" Value="{DynamicResource UrgencyHigh}" />
+                                    <Setter TargetName="CountdownText" Property="Foreground" Value="{DynamicResource UrgencyHigh}" />
+                                </DataTrigger>
+                                <DataTrigger Binding="{Binding Urgency}" Value="Overdue">
+                                    <Setter TargetName="UrgencyBar" Property="Background" Value="{DynamicResource UrgencyOverdue}" />
+                                    <Setter TargetName="CountdownText" Property="Foreground" Value="{DynamicResource UrgencyHigh}" />
+                                </DataTrigger>
+                                <DataTrigger Binding="{Binding IsComplete}" Value="True">
+                                    <Setter TargetName="UrgencyBar" Property="Background" Value="{DynamicResource FlyoutDivider}" />
+                                    <Setter TargetName="CountdownText" Property="Foreground" Value="{DynamicResource FlyoutMutedForeground}" />
+                                    <Setter TargetName="TitleText" Property="Foreground" Value="{DynamicResource FlyoutMutedForeground}" />
+                                    <Setter TargetName="CompleteGlyph" Property="Text" Value="&#xE7A7;" />
+                                    <Setter TargetName="CompleteButton" Property="ToolTip" Value="Mark not complete" />
+                                </DataTrigger>
+                            </DataTemplate.Triggers>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </ScrollViewer>
+            <TextBlock x:Name="EmptyText" Style="{StaticResource FlyoutMuted}" FontSize="14" TextAlignment="Center"
+                       HorizontalAlignment="Center" VerticalAlignment="Center" TextWrapping="Wrap" Visibility="Collapsed" />
+        </Grid>
+    </DockPanel>
+</Window>

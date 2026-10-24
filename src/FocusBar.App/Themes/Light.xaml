@@ -21,4 +21,12 @@
     <SolidColorBrush x:Key="InputBorder" Color="#40000000" />
     <SolidColorBrush x:Key="ItemHover" Color="#0D000000" />
     <SolidColorBrush x:Key="ItemSelected" Color="#1A000000" />
+    <SolidColorBrush x:Key="DangerForeground" Color="#FFB3261E" />
+
+    <!-- Deadline urgency, darker than in dark mode so it reads on a light bar. -->
+    <SolidColorBrush x:Key="UrgencyLow" Color="#FF107C10" />
+    <SolidColorBrush x:Key="UrgencyMedium" Color="#FF9D5D00" />
+    <SolidColorBrush x:Key="UrgencyHigh" Color="#FFC42B1C" />
+    <SolidColorBrush x:Key="UrgencyOverdue" Color="#FF8B0000" />
+    <SolidColorBrush x:Key="UrgencyOverdueForeground" Color="#FFFFFFFF" />
 </ResourceDictionary>

@@ -5,6 +5,7 @@ using FocusBar.App.Services;
 using FocusBar.App.Shell;
 using FocusBar.App.Themes;
 using FocusBar.App.Tray;
+using FocusBar.Core.Deadlines;
 using FocusBar.Core.Diagnostics;
 using FocusBar.Core.Pins;
 using FocusBar.Core.Storage;
@@ -128,7 +129,9 @@ public partial class App : Application
         var apps = new AppCatalog(_log);
         _ = apps.RefreshAsync(); // so the Start launcher's first open is instant
 
-        return new BarServices(shell, new PinService(new PinStore(store), _log), apps, _status, trayIcons, _log);
+        var deadlines = new DeadlineService(new DeadlineStore(store), new ScheduleStore(store), _log);
+
+        return new BarServices(shell, new PinService(new PinStore(store), _log), apps, _status, trayIcons, deadlines, _log);
     }
 
     private void OpenBar()

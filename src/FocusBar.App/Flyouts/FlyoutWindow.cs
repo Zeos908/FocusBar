@@ -14,6 +14,8 @@ public class FlyoutWindow : Window
     private const double GapAboveBar = 0;
 
     private bool _closing;
+    private int _keepOpen;
+    private double? _bottomEdge;
 
     public FlyoutWindow()
     {
@@ -28,8 +30,10 @@ public class FlyoutWindow : Window
         SetResourceReference(FontFamilyProperty, "BarFont");
         SetResourceReference(ForegroundProperty, "FlyoutForeground");
 
-        Deactivated += (_, _) => CloseFlyout();
+        Deactivated += (_, _) => { if (_keepOpen == 0) CloseFlyout(); };
         PreviewKeyDown += OnPreviewKeyDown;
+        // Stay attached to the bar when the content grows or shrinks (for example the date picker opening).
+        SizeChanged += (_, _) => { if (_bottomEdge is { } bottom) Top = Math.Max(SystemParameters.WorkArea.Top, bottom - ActualHeight); };
         Closed += (_, _) => FlyoutClosed?.Invoke(this, EventArgs.Empty);
     }
 
@@ -64,7 +68,8 @@ public class FlyoutWindow : Window
             : anchorTopLeft.X;
 
         Left = Math.Max(barTopLeft.X, Math.Min(left, barRight - ActualWidth));
-        Top = barTopLeft.Y - ActualHeight - GapAboveBar;
+        _bottomEdge = barTopLeft.Y - GapAboveBar;
+        Top = Math.Max(SystemParameters.WorkArea.Top, _bottomEdge.Value - ActualHeight);
 
         Activate();
     }
@@ -73,6 +78,28 @@ public class FlyoutWindow : Window
     {
         var fromDevice = PresentationSource.FromVisual(visual)?.CompositionTarget?.TransformFromDevice ?? Matrix.Identity;
         return fromDevice.Transform(devicePoint);
+    }
+
+    /// <summary>
+    /// Keeps the flyout open while a message box from it is showing (the message box takes focus, which
+    /// would otherwise count as clicking elsewhere). Dispose to go back to normal.
+    /// </summary>
+    public IDisposable KeepOpen()
+    {
+        _keepOpen++;
+        return new Release(() => _keepOpen--);
+    }
+
+    private sealed class Release(Action release) : IDisposable
+    {
+        private bool _done;
+
+        public void Dispose()
+        {
+            if (_done) return;
+            _done = true;
+            release();
+        }
     }
 
     public void CloseFlyout()

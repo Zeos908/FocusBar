@@ -108,3 +108,43 @@ These are good candidates for the technical-challenge answer.
 - **Store apps** without Start Menu shortcuts aren't in the launcher (the instructions say to scan shortcut folders); the **Windows Start menu** button covers them.
 - **Old-style tray balloon pop-ups** aren't shown yet.
 - **Wi-Fi click opens Wi-Fi settings** (or network status when not on Wi-Fi), **battery opens Battery saver / Power & battery**, **volume opens Sound**. These are the `ms-settings:` pages the build instructions call for. Opening the Windows quick-settings panel instead is a possible change.
+
+---
+
+## Phase 3: Manual deadlines and the ticker
+
+**Status:** Compiles (Debug and Release, no warnings) and all 169 `FocusBar.Core` unit tests pass. The GitHub Actions Windows build passed for Phase 2. **Not yet run on Windows**: see the Phase 3 checklist in `docs/testing.md`.
+
+### What the developer wrote, changed, or decided
+- Asked to keep building (Phase 3) before testing earlier phases on Windows.
+- *(Add anything you change after testing on Windows.)*
+
+### What the AI generated
+- `FocusBar.Core` (all unit-tested):
+  - `DeadlineList` / `DeadlineStore`: add, edit, complete, delete; soonest-first "upcoming" order; recent class names for quick picking; saved to `deadlines.json`.
+  - `Countdown`: short ticker text ("2d 4h", "45m", "3h overdue") and longer wording for tooltips.
+  - `DueInput`: understands typed dates ("fri", "10/31", "Oct 31", "tomorrow") and times ("3pm", "15:30", "noon", "midnight"), using the computer's region settings.
+  - `ScheduleLookup` / `ScheduleStore`: the class happening now or next, from the weekly schedule (`schedule.json`, filled by the school sync in Phase 5).
+- `FocusBar.App`:
+  - **Ticker** (`Ticker/TickerView`): scrolls the deadlines as a seamless loop at 30 frames per second, with live countdowns and urgency colors. It only scrolls when the deadlines don't fit, pauses on hover, while details are open, and behind full-screen apps, and follows the Windows "Animation effects" setting.
+  - **Details** (`Ticker/DeadlineDetailsFlyout`): opens when an entry is clicked, with Mark complete, Edit, and All deadlines.
+  - **Add/edit form** (`Deadlines/DeadlineForm`): shown above the bar from **+** or in a dialog from the list. It has class chips, date chips (Today, Tomorrow, In a week), a pop-out calendar, time chips, a preview of the date it understood, and inline error hints.
+  - **Deadline list** (`Deadlines/DeadlineListWindow`): Upcoming and Completed tabs; complete/undo, edit, delete; Ctrl+N to add; dark title bar in dark mode.
+  - `Controls/MonthCalendar`: the calendar from Phase 2 turned into a reusable control, used by both the clock flyout and the date picker.
+
+### Problems found and how they were solved
+1. **Making the ticker loop seamlessly.** A plain slide-to-the-left leaves a gap and then a jump when it restarts. The ticker draws three copies of the deadlines side by side and slides by exactly one copy's width, then repeats. Because the content repeats, the end of one loop looks identical to the start of the next.
+2. **The ticker jumped every minute.** Countdowns change every minute, which rebuilds the strip and restarted the animation from the beginning. Fix: read where the strip currently is and start the new loop from that same spot.
+3. **Keeping CPU low.** The animation runs at 30 frames per second instead of WPF's default 60, only runs when the deadlines don't fit, and stops while the mouse is over it, while details are open, and while a full-screen app covers the bar.
+4. **Overdue text was hard to read.** Dark red text on the dark bar had poor contrast, so overdue countdowns are white text on a dark red pill.
+5. **Pop-ups closing the form.** The Delete confirmation took focus, which the form treated as "clicked elsewhere" and closed itself. Flyouts now stay open while their own confirmation box is showing.
+6. **Typed dates.** "1/15" typed in October means next January, so a date with no year that has already passed is moved to next year. A weekday ("fri") means the next one after today, and the form always shows the full date it understood so mistakes are easy to spot. Region settings decide whether "3/11" is March 11 (US) or 3 November (UK).
+7. **Test failure:** a schedule test failed because .NET's US time format puts a special narrow space before "AM". The test now builds its expected text with the same formatting instead of hard-coding it.
+
+### Decisions the AI made that the developer should review
+- **Default due time is 11:59 PM** (common for online assignments). "midnight" also means 11:59 PM on the due date, so that "Friday at midnight" isn't read as the very start of Friday.
+- **A weekday name means the next one after today** ("fri" typed on a Friday means next Friday).
+- **Overdue deadlines stay in the ticker** until they're marked complete or deleted.
+- **Ticker speed is 40 pixels per second.** Easy to change (`Speed` in `TickerView.xaml.cs`).
+- **Deleting asks for confirmation.** There's no undo for delete, but completing can be undone from the list.
+- **The current/next class chip** only appears once a schedule exists (Phase 5). There's no way to type in a schedule by hand yet.

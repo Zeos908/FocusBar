@@ -3,6 +3,7 @@ using System.Runtime.InteropServices;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Threading;
+using FocusBar.App.Deadlines;
 using FocusBar.App.Flyouts;
 using FocusBar.App.Services;
 using FocusBar.App.Themes;
@@ -25,6 +26,7 @@ internal sealed record BarServices(
     AppCatalog Apps,
     StatusIndicators Status,
     TrayIcons? TrayIcons,
+    DeadlineService Deadlines,
     ErrorLog Log);
 
 /// <summary>
@@ -61,6 +63,7 @@ public partial class MainBar : AppBarWindow
         Pinned.Initialize(services.Pins, services.Log);
         Tasks.Initialize(services.Shell, services.Pins);
         Tray.Initialize(services.Status, services.TrayIcons);
+        Ticker.Initialize(services.Deadlines, () => DeadlineListWindow.ShowSingle(services.Deadlines));
         TrayIconView.BeforeClick = UpdateTrayHost;
 
         _clockTimer.Tick += (_, _) => UpdateClock();
@@ -130,10 +133,24 @@ public partial class MainBar : AppBarWindow
         return base.WndProc(hwnd, msg, wParam, lParam, ref handled);
     }
 
+    /// <summary>A full-screen app (game, video) covers the bar: stop the ticker so it uses no CPU.</summary>
+    protected override void OnFullScreenEnter(FullScreenApp app)
+    {
+        base.OnFullScreenEnter(app);
+        Ticker.SetPaused("fullscreen", true);
+    }
+
+    protected override void OnFullScreenLeave()
+    {
+        base.OnFullScreenLeave();
+        Ticker.SetPaused("fullscreen", false);
+    }
+
     protected override void CustomClosing()
     {
         if (!AllowClose) return;
         _clockTimer.Stop();
+        Ticker.Shutdown();
         _launcher.Close();
         _calendar.Close();
         Tray.CloseFlyouts();

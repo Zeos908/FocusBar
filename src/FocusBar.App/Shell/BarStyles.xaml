@@ -200,6 +200,141 @@
         </Setter>
     </Style>
 
+    <!-- Filled button for the main action (Save, Mark complete). -->
+    <Style x:Key="AccentButton" TargetType="ButtonBase" BasedOn="{StaticResource FlyoutButton}">
+        <Setter Property="Foreground" Value="{DynamicResource AccentForeground}" />
+        <Setter Property="Background" Value="{DynamicResource Accent}" />
+        <Setter Property="Padding" Value="14,6" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="ButtonBase">
+                    <Border x:Name="Chrome" Background="{TemplateBinding Background}" CornerRadius="4"
+                            BorderBrush="{DynamicResource FlyoutForeground}" BorderThickness="0" Padding="{TemplateBinding Padding}">
+                        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="Chrome" Property="Opacity" Value="0.9" />
+                        </Trigger>
+                        <Trigger Property="IsPressed" Value="True">
+                            <Setter TargetName="Chrome" Property="Opacity" Value="0.8" />
+                        </Trigger>
+                        <Trigger Property="IsKeyboardFocused" Value="True">
+                            <Setter TargetName="Chrome" Property="BorderThickness" Value="2" />
+                        </Trigger>
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter Property="Opacity" Value="0.4" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- Small rounded quick-pick buttons ("Tomorrow", "Biology"). -->
+    <Style x:Key="ChipButton" TargetType="ButtonBase" BasedOn="{StaticResource FlyoutButton}">
+        <Setter Property="Padding" Value="10,3" />
+        <Setter Property="Margin" Value="0,0,6,6" />
+        <Setter Property="FontSize" Value="12" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="ButtonBase">
+                    <Border x:Name="Chrome" Background="{TemplateBinding Background}" CornerRadius="12"
+                            BorderBrush="{DynamicResource InputBorder}" BorderThickness="1" Padding="{TemplateBinding Padding}">
+                        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="Chrome" Property="Background" Value="{DynamicResource ItemHover}" />
+                        </Trigger>
+                        <Trigger Property="IsKeyboardFocused" Value="True">
+                            <Setter TargetName="Chrome" Property="BorderBrush" Value="{DynamicResource Accent}" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- "Upcoming" / "Completed" tabs in the deadline list. -->
+    <Style x:Key="TabButton" TargetType="RadioButton">
+        <Setter Property="Foreground" Value="{DynamicResource FlyoutMutedForeground}" />
+        <Setter Property="FontSize" Value="14" />
+        <Setter Property="Margin" Value="0,0,16,0" />
+        <Setter Property="FocusVisualStyle" Value="{x:Null}" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="RadioButton">
+                    <Border x:Name="Chrome" Background="Transparent" BorderBrush="Transparent" BorderThickness="0,0,0,2" Padding="2,6">
+                        <ContentPresenter VerticalAlignment="Center" />
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsChecked" Value="True">
+                            <Setter Property="Foreground" Value="{DynamicResource FlyoutForeground}" />
+                            <Setter Property="FontWeight" Value="SemiBold" />
+                            <Setter TargetName="Chrome" Property="BorderBrush" Value="{DynamicResource Accent}" />
+                        </Trigger>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter Property="Foreground" Value="{DynamicResource FlyoutForeground}" />
+                        </Trigger>
+                        <Trigger Property="IsKeyboardFocused" Value="True">
+                            <Setter TargetName="Chrome" Property="Background" Value="{DynamicResource ItemHover}" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style x:Key="FieldLabel" TargetType="TextBlock">
+        <Setter Property="Foreground" Value="{DynamicResource FlyoutForeground}" />
+        <Setter Property="FontSize" Value="12" />
+        <Setter Property="FontWeight" Value="SemiBold" />
+        <Setter Property="Margin" Value="0,10,0,4" />
+    </Style>
+
+    <Style x:Key="FieldError" TargetType="TextBlock">
+        <Setter Property="Foreground" Value="{DynamicResource DangerForeground}" />
+        <Setter Property="FontSize" Value="12" />
+        <Setter Property="Margin" Value="0,3,0,0" />
+        <Setter Property="TextWrapping" Value="Wrap" />
+        <Setter Property="Visibility" Value="Collapsed" />
+    </Style>
+
+    <!-- A plain text field for forms (no search icon). -->
+    <Style x:Key="FormTextBox" TargetType="TextBox">
+        <Setter Property="Foreground" Value="{DynamicResource FlyoutForeground}" />
+        <Setter Property="CaretBrush" Value="{DynamicResource FlyoutForeground}" />
+        <Setter Property="SelectionBrush" Value="{DynamicResource Accent}" />
+        <Setter Property="Background" Value="{DynamicResource InputBackground}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource InputBorder}" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="FontSize" Value="13" />
+        <Setter Property="Padding" Value="8,6" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="TextBox">
+                    <Border x:Name="Chrome" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="4">
+                        <Grid>
+                            <TextBlock x:Name="Hint" Text="{TemplateBinding Tag}" Margin="{TemplateBinding Padding}" Visibility="Collapsed"
+                                       Foreground="{DynamicResource FlyoutMutedForeground}" IsHitTestVisible="False" />
+                            <ScrollViewer x:Name="PART_ContentHost" Margin="{TemplateBinding Padding}" />
+                        </Grid>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="Text" Value="">
+                            <Setter TargetName="Hint" Property="Visibility" Value="Visible" />
+                        </Trigger>
+                        <Trigger Property="IsKeyboardFocused" Value="True">
+                            <Setter TargetName="Chrome" Property="BorderBrush" Value="{DynamicResource Accent}" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
     <Style x:Key="FlyoutList" TargetType="ListBox">
         <Setter Property="Background" Value="Transparent" />
         <Setter Property="BorderThickness" Value="0" />

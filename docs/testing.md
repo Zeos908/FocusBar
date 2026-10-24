@@ -121,3 +121,54 @@ Known Phase 2 limits (expected, not bugs):
 - The launcher lists apps that have Start Menu shortcuts. Microsoft Store apps without one (such as Calculator or Settings) are reached through the **Windows Start menu** button.
 - Old-style tray "balloon" pop-ups from apps aren't shown. Modern Windows notifications (toasts) work normally.
 - Multiple windows from the same app each get their own button (not grouped).
+
+## Phase 3: Manual deadlines and the ticker
+
+**Adding deadlines**
+
+| # | Test | Expected |
+|---|---|---|
+| 3.1 | With no deadlines, look at the middle of the bar | "No upcoming deadlines · click to add one". Clicking it opens the add form. |
+| 3.2 | Click **+** on the bar | Form opens above it with the cursor in "What's due?". Due date is tomorrow, time is 11:59 PM. |
+| 3.3 | Type `Bio lab`, class `Biology`, press **Enter** | Form closes; "● Bio lab · Biology  1d …" appears on the bar. |
+| 3.4 | Add another and pick the class from the chip under the Class box | Chip fills in the class. |
+| 3.5 | In Due date try `fri`, `10/31`, `Oct 31`, `tomorrow`, `1/15` | The line under the box shows the full date each time (`1/15` means next January). |
+| 3.6 | In Due date type `t`, or `xyz`, and press Enter | Red hint "Try a date like 10/31, Fri, or tomorrow."; nothing saved. |
+| 3.7 | In Due time try `3pm`, `3:30 pm`, `15:30`, `noon`, `midnight` | All accepted (`midnight` = 11:59 PM). `25:00` shows a red hint on Enter. |
+| 3.8 | Click the calendar icon next to the date and pick a day | Date box fills in and the calendar closes. |
+| 3.9 | Set a date/time in the past | Note says it will show as overdue; it still saves and shows as a dark red "… overdue" pill. |
+| 3.10 | Leave the title empty and press Enter | Red hint under the title; nothing saved. |
+| 3.11 | In Notes, press Enter, then Ctrl+Enter | Enter adds a new line; Ctrl+Enter saves. |
+| 3.12 | Open the form and press Esc, or click elsewhere | Form closes without saving. |
+
+**Ticker**
+
+| # | Test | Expected |
+|---|---|---|
+| 3.13 | Add deadlines due in 5 days, 2 days, 5 hours, and one overdue | Colors: green (more than 3 days), yellow (1–3 days), red (under 24 hours), dark red pill (overdue). Soonest/most overdue first. |
+| 3.14 | Add enough deadlines that they don't fit | The ticker scrolls slowly and smoothly from right to left in a seamless loop, with faded edges. With only one or two short ones, it stays still. |
+| 3.15 | Hover over the ticker | Scrolling pauses; moving away resumes it from the same spot. |
+| 3.16 | Watch a deadline due in under an hour across a minute change | Countdown ticks down each minute ("45m" → "44m") without the ticker jumping. |
+| 3.17 | Click a ticker entry | Details open: countdown, title, class, full due date and time, notes, "Added by you". |
+| 3.18 | In details click **Mark complete** | Entry disappears from the ticker. |
+| 3.19 | In details click **Edit**, change the title, press Enter | Ticker shows the new title. |
+| 3.20 | Play a full-screen video or game for a minute, then check Task Manager | FocusBar uses ~0% CPU while hidden behind the full-screen app; ticker resumes after. |
+| 3.21 | Turn off **Animation effects** (Windows 11: Settings → Accessibility → Visual effects; Windows 10: Settings → Ease of Access → Display → "Show animations in Windows") | Within a minute the ticker stops scrolling and shows the first deadlines with a fade on the right. Turning it back on resumes scrolling. |
+| 3.22 | With the ticker scrolling, watch Task Manager for a few minutes | FocusBar's CPU stays under about 2%. |
+
+**Deadline list**
+
+| # | Test | Expected |
+|---|---|---|
+| 3.23 | Click the list button (next to +) | "FocusBar Deadlines" window opens with Upcoming (n) and Completed (n) tabs. Clicking the list button again brings the same window to the front. |
+| 3.24 | Click ✓ on a row; switch to Completed; click undo on it | Moves to Completed, then back to Upcoming. The ticker updates each time. |
+| 3.25 | Click the pencil on a row, change the due date, Save | Row and ticker update; order follows the new date. |
+| 3.26 | Click the trash can on a row, answer Yes | Deleted from the list and the ticker. Answering No keeps it. |
+| 3.27 | Press **Ctrl+N** in the list window | Add form opens as a small dialog. |
+| 3.28 | Exit FocusBar and start it again | All deadlines (and which ones are complete) are still there (`%AppData%\FocusBar\deadlines.json`). |
+| 3.29 | Check the list window and forms in both light and dark mode | Readable colors; the window's title bar is dark in dark mode. |
+| 3.30 | Repeat the Phase 0 tests | All still pass. |
+
+Known Phase 3 limits (expected, not bugs):
+- The current/next class only appears once a class schedule exists, which comes from the school API sync in Phase 5.
+- Reminders arrive in Phase 4.

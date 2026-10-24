@@ -1,0 +1,53 @@
+<UserControl x:Class="FocusBar.App.Controls.MonthCalendar"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <UserControl.Resources>
+        <!-- A day that can be clicked (when picking a due date). -->
+        <Style x:Key="DayButton" TargetType="Button">
+            <Setter Property="Width" Value="34" />
+            <Setter Property="Height" Value="34" />
+            <Setter Property="Foreground" Value="{DynamicResource FlyoutForeground}" />
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="BorderBrush" Value="Transparent" />
+            <Setter Property="FocusVisualStyle" Value="{x:Null}" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="Chrome" Background="{TemplateBinding Background}" CornerRadius="17"
+                                BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="1.5">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Chrome" Property="Opacity" Value="0.8" />
+                            </Trigger>
+                            <Trigger Property="IsKeyboardFocused" Value="True">
+                                <Setter TargetName="Chrome" Property="BorderBrush" Value="{DynamicResource Accent}" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </UserControl.Resources>
+
+    <StackPanel>
+        <DockPanel Margin="0,0,0,8">
+            <Button DockPanel.Dock="Right" Style="{StaticResource FlyoutButton}" Padding="8,4" Click="NextMonth_Click"
+                    ToolTip="Next month" AutomationProperties.Name="Next month">
+                <TextBlock Text="&#xE70D;" Style="{StaticResource IconText}" FontSize="12" />
+            </Button>
+            <Button DockPanel.Dock="Right" Style="{StaticResource FlyoutButton}" Padding="8,4" Click="PreviousMonth_Click"
+                    ToolTip="Previous month" AutomationProperties.Name="Previous month">
+                <TextBlock Text="&#xE70E;" Style="{StaticResource IconText}" FontSize="12" />
+            </Button>
+            <Button Style="{StaticResource FlyoutButton}" HorizontalContentAlignment="Left" Padding="6,4" Click="ThisMonth_Click"
+                    ToolTip="Back to this month">
+                <TextBlock x:Name="MonthText" Style="{StaticResource FlyoutHeading}" />
+            </Button>
+        </DockPanel>
+
+        <UniformGrid x:Name="WeekdayHeader" Columns="7" Margin="0,0,0,4" />
+        <UniformGrid x:Name="DayGrid" Columns="7" Rows="6" />
+    </StackPanel>
+</UserControl>

@@ -6,7 +6,7 @@
 **Developer:** Suhaas
 **Platform:** Windows 10 / 11
 **Audience:** Middle and high school students
-**Status:** 🟠 In development: Phases 0–2 built (safety net, docked bar, Start launcher, pinned apps, window list, tray, calendar), awaiting testing on Windows
+**Status:** 🟠 In development: Phases 0–3 built (safety net, docked bar, taskbar features, manual deadlines and the scrolling ticker), awaiting testing on Windows
 
 ---
 
@@ -51,10 +51,13 @@ FocusBar hides the default Windows taskbar and replaces every core feature:
 - One click (or Ctrl+Alt+Shift+F) restores the standard Windows taskbar at any time
 
 ### 📅 Deadline Ticker
-- A **scrolling ticker** cycles through all upcoming deadlines with live countdowns
-- **Color-coded urgency** — green → yellow → red as each deadline approaches
-- Hover or click a deadline to pause the ticker and see details (class, description, due time)
+- A **scrolling ticker** cycles through all upcoming deadlines with live countdowns ("Bio lab · Biology 2d 4h")
+- **Color-coded urgency** — green (more than 3 days) → yellow (1–3 days) → red (under a day) → dark red when overdue
+- Hover to pause; click a deadline for details (class, notes, due time) and **Mark complete**
+- **Quick add** (➕): type "fri" or "10/31" for the date and "3pm" for the time, or pick on a calendar
+- A **deadline list** window to edit, delete, and complete deadlines
 - Shows the student's **current/next class** from their schedule
+- Light on the computer: only scrolls when the deadlines don't fit, pauses behind full-screen games and videos, and stays still if Windows animations are turned off
 
 ### 🔄 Deadline Sources
 Deadlines flow in from three places and merge into one list:
@@ -172,7 +175,7 @@ While FocusBar runs, it hides the Windows taskbar and takes its place. To get th
 
 Debug builds add a **Developer** submenu to the right-click menu, with options that throw a test exception. Use them to check that a crash brings the Windows taskbar back.
 
-FocusBar's files live in `%AppData%\FocusBar\`: `pins.json` (pinned apps), `tray.json` (tray icons shown on the bar), and error logs in the `logs` folder (right-click the bar → **Open log folder**).
+FocusBar's files live in `%AppData%\FocusBar\`: `deadlines.json` (your deadlines), `pins.json` (pinned apps), `tray.json` (tray icons shown on the bar), and error logs in the `logs` folder (right-click the bar → **Open log folder**).
 
 The step-by-step Windows test checklist for each phase is in [docs/testing.md](docs/testing.md).
 

@@ -1,0 +1,68 @@
+<UserControl x:Class="FocusBar.App.Deadlines.DeadlineForm"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:controls="clr-namespace:FocusBar.App.Controls"
+             Width="340"
+             PreviewKeyDown="Form_PreviewKeyDown">
+    <!-- Add or edit one deadline. Enter saves (Ctrl+Enter in the notes box); Esc cancels. -->
+    <StackPanel>
+        <TextBlock x:Name="Heading" Text="Add a deadline" Style="{StaticResource FlyoutHeading}" FontSize="16" />
+
+        <TextBlock Text="What's due?" Style="{StaticResource FieldLabel}" />
+        <TextBox x:Name="TitleBox" Style="{StaticResource FormTextBox}" Tag="e.g. Bio lab report"
+                 MaxLength="120" AutomationProperties.Name="What's due" />
+        <TextBlock x:Name="TitleError" Style="{StaticResource FieldError}" Text="Give it a name, like &quot;Bio lab report&quot;." />
+
+        <TextBlock Text="Class (optional)" Style="{StaticResource FieldLabel}" />
+        <TextBox x:Name="ClassBox" Style="{StaticResource FormTextBox}" Tag="e.g. Biology"
+                 MaxLength="60" AutomationProperties.Name="Class" />
+        <WrapPanel x:Name="ClassChips" Margin="0,6,0,0" />
+
+        <TextBlock Text="Due date" Style="{StaticResource FieldLabel}" />
+        <DockPanel>
+            <ToggleButton x:Name="CalendarToggle" DockPanel.Dock="Right" Style="{StaticResource FlyoutButton}" Margin="6,0,0,0"
+                          Padding="8,4" Checked="CalendarToggle_Changed" Unchecked="CalendarToggle_Changed"
+                          ToolTip="Pick on a calendar" AutomationProperties.Name="Pick the due date on a calendar">
+                <TextBlock Text="&#xE787;" Style="{StaticResource IconText}" FontSize="14" />
+            </ToggleButton>
+            <TextBox x:Name="DateBox" Style="{StaticResource FormTextBox}" Tag="e.g. 10/31, Fri, tomorrow"
+                     TextChanged="DateOrTime_TextChanged" AutomationProperties.Name="Due date" />
+        </DockPanel>
+        <TextBlock x:Name="DatePreview" Style="{StaticResource FlyoutMuted}" Margin="0,3,0,0" />
+        <TextBlock x:Name="DateError" Style="{StaticResource FieldError}" Text="Try a date like 10/31, Fri, or tomorrow." />
+        <WrapPanel Margin="0,6,0,0">
+            <Button Style="{StaticResource ChipButton}" Content="Today" Click="DateChip_Click" Tag="0" />
+            <Button Style="{StaticResource ChipButton}" Content="Tomorrow" Click="DateChip_Click" Tag="1" />
+            <Button Style="{StaticResource ChipButton}" Content="In a week" Click="DateChip_Click" Tag="7" />
+        </WrapPanel>
+        <controls:MonthCalendar x:Name="Calendar" IsSelectable="True" Visibility="Collapsed" Margin="0,4,0,0"
+                                DateSelected="Calendar_DateSelected" />
+
+        <TextBlock Text="Due time" Style="{StaticResource FieldLabel}" />
+        <TextBox x:Name="TimeBox" Style="{StaticResource FormTextBox}" Tag="e.g. 3:30 PM"
+                 TextChanged="DateOrTime_TextChanged" AutomationProperties.Name="Due time" />
+        <TextBlock x:Name="TimeError" Style="{StaticResource FieldError}" Text="Try a time like 3:30 PM or 15:30." />
+        <WrapPanel x:Name="TimeChips" Margin="0,6,0,0" />
+        <TextBlock x:Name="PastNote" Style="{StaticResource FlyoutMuted}" TextWrapping="Wrap" Visibility="Collapsed"
+                   Text="That's already past, so it will show as overdue." />
+
+        <TextBlock Text="Notes (optional)" Style="{StaticResource FieldLabel}" />
+        <TextBox x:Name="DescriptionBox" Style="{StaticResource FormTextBox}" Tag="Pages, instructions, links…"
+                 AcceptsReturn="True" TextWrapping="Wrap" Height="64" MaxLength="2000"
+                 VerticalScrollBarVisibility="Auto" AutomationProperties.Name="Notes" />
+
+        <DockPanel Margin="0,14,0,0">
+            <Button x:Name="DeleteButton" DockPanel.Dock="Left" Style="{StaticResource FlyoutButton}" Visibility="Collapsed"
+                    Click="Delete_Click" Foreground="{DynamicResource DangerForeground}">
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Text="&#xE74D;" Style="{StaticResource IconText}" FontSize="12" Margin="0,0,6,0" />
+                    <TextBlock Text="Delete" />
+                </StackPanel>
+            </Button>
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                <Button Style="{StaticResource FlyoutButton}" Content="Cancel" Click="Cancel_Click" IsCancel="True" Margin="0,0,8,0" />
+                <Button x:Name="SaveButton" Style="{StaticResource AccentButton}" Content="Add" Click="Save_Click" />
+            </StackPanel>
+        </DockPanel>
+    </StackPanel>
+</UserControl>
