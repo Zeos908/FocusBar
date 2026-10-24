@@ -1,10 +1,11 @@
 using System.Globalization;
-using System.IO;
 using System.Windows;
 using System.Windows.Input;
-using System.Windows.Media.Imaging;
+using System.Windows.Media;
 using System.Windows.Threading;
+using FocusBar.App.Themes;
 using FocusBar.Core.Deadlines;
+using FocusBar.Core.Diagnostics;
 using FocusBar.Core.Focus;
 using FocusBar.Core.Models;
 
@@ -32,6 +33,8 @@ internal interface IFocusScreenActions
 public partial class FocusScreen : Window
 {
     private readonly DispatcherTimer _timer = new(DispatcherPriority.Background) { Interval = TimeSpan.FromSeconds(1) };
+    private readonly ErrorLog _log;
+    private string? _imagePath;
     private IFocusScreenActions? _actions;
     private FocusSession? _session;
     private string _appName = "";
@@ -39,8 +42,9 @@ public partial class FocusScreen : Window
     private bool _overridable;
     private bool _gentle;
 
-    public FocusScreen()
+    internal FocusScreen(ErrorLog log)
     {
+        _log = log;
         InitializeComponent();
 
         // Cover the whole primary screen, including the bar.
@@ -102,29 +106,71 @@ public partial class FocusScreen : Window
         BackButton.Focus();
     }
 
-    private void SetImage(string? path)
+    /// <summary>
+    /// The theme's Focus screen image, or the built-in gradient. Loaded off the UI thread at the screen's real
+    /// pixel size, so the screen appears at once and the picture fades in sharp.
+    /// </summary>
+    private async void SetImage(string? path)
     {
-        BitmapImage? image = null;
-        if (!string.IsNullOrWhiteSpace(path) && File.Exists(path))
+        if (path == _imagePath) return;
+        _imagePath = path;
+
+        if (path is null)
         {
-            try
-            {
-                image = new BitmapImage();
-                image.BeginInit();
-                image.CacheOption = BitmapCacheOption.OnLoad; // don't keep the file locked
-                image.UriSource = new Uri(path);
-                image.EndInit();
-                image.Freeze();
-            }
-            catch (Exception ex) when (ex is IOException or NotSupportedException or ArgumentException)
-            {
-                image = null;
-            }
+            ShowImage(null);
+            return;
         }
 
-        BackgroundImage.Source = image;
+        var (width, height) = (Width, Height);
+        var dpi = VisualTreeHelper.GetDpi(this).DpiScaleX;
+        var log = _log;
+        LoadedImage? image = null;
+        try
+        {
+            image = await Task.Run(() => ThemeImageLoader.Load(path, width, height, dpi, ImageFit.Fill, log));
+        }
+        catch (Exception ex)
+        {
+            log.Write(ex, "Could not load the Focus screen image.");
+        }
+        if (path == _imagePath) ShowImage(image);
+    }
+
+    private void ShowImage(LoadedImage? image)
+    {
+        BackgroundImage.Source = image?.Bitmap;
+        if (image is not null)
+        {
+            BackgroundImage.Width = image.Width;
+            BackgroundImage.Height = image.Height;
+        }
         BackgroundImage.Visibility = image is null ? Visibility.Collapsed : Visibility.Visible;
         Scrim.Visibility = BackgroundImage.Visibility;
+    }
+
+    /// <summary>
+    /// Settings → Appearance → Preview: what the Focus screen looks like with this image, using made-up details.
+    /// Only "Back to work" (or Esc) is shown.
+    /// </summary>
+    internal void ShowPreview(string? imagePath)
+    {
+        _actions = null;
+        _overridable = false;
+        _gentle = false;
+        _session = new FocusSession(FocusReason.Manual, DateTimeOffset.Now, DateTimeOffset.Now.AddMinutes(25), null);
+        SetImage(imagePath);
+
+        HeadingText.Text = "Time to focus";
+        MessageText.Text = "This is a preview. When a blocked app opens during Focus Mode, this screen appears.";
+        UnlockText.Text = "Press Esc or Back to work to close it.";
+        ContinueButton.Visibility = Visibility.Collapsed;
+        OverrideButton.Visibility = Visibility.Collapsed;
+
+        UpdateCountdown();
+        _timer.Start();
+        Show();
+        Activate();
+        BackButton.Focus();
     }
 
     private void UpdateCountdown()

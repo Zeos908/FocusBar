@@ -275,3 +275,46 @@ These are good candidates for the technical-challenge answer.
 - **The Focus screen uses a built-in gradient for now.** Phase 7 adds the student's own image.
 - **Antivirus programs may flag hosts file changes.** That's expected for this kind of feature; the README mentions it.
 - **Secure DNS (DNS over HTTPS)** in browsers can bypass the hosts file. FocusBar doesn't change browser settings; the README explains how to turn it off.
+
+## Phase 7: Customization
+
+**Status:** Compiles (no warnings) and all 376 `FocusBar.Core` unit tests pass (64 new: colors, reading image sizes, the pixel math that keeps pictures sharp, the image folder, and themes, including "a custom theme survives restart"). **Not yet run on Windows**, so nothing has been seen on screen at 100%, 125%, or 150% yet. That's the build instructions' "done when" for this phase, so tests 7.18 and 7.19 in `docs/testing.md` matter most.
+
+### What the developer wrote, changed, or decided
+- *(Add your own theme ideas, which pictures you used for the demo, and anything that looked wrong at 125% or 150%.)*
+
+### What the AI generated
+- `FocusBar.Core` (all unit-tested):
+  - `Theme`: the record from the build instructions plus `BackgroundFit` (Fill / Fit / Center), `BarColor` (or follow Windows' light/dark mode), and `FontFamily`.
+  - `Appearance/ThemeLibrary`: the 3 built-in themes (Default, Midnight, Sunrise), cleanup of out-of-range values, save as / apply / delete, and `themes.json`.
+  - `Appearance/ThemeImages`: copies pictures into `%AppData%\FocusBar\images`, named after their contents, and removes pictures no theme uses any more.
+  - `Appearance/ImageInfo`: reads a picture's real format and size from its first bytes.
+  - `Appearance/ImageLayout`: works out exactly how many screen pixels a picture will cover at the current scaling, for Fill, Fit, and Center.
+  - `Appearance/ColorMath`: color codes and readable text colors (the WCAG contrast formula).
+- `FocusBar.App`:
+  - `AppearanceService`: the current theme. Changes show at once; saving waits half a second.
+  - `ThemeImageLoader`: decodes each picture once, straight to the planned pixel size, turns phone photos upright, and keeps only the visible part.
+  - The bar (`MainBar.Appearance.cs`): background picture with a dark tint, bar color with matching text colors, opacity, height (re-reserving screen space), font, and the Start picture. It reloads pictures when the scaling or screen size changes.
+  - The accent color applies to every window. The Focus screen shows the theme's picture.
+  - **Settings → Appearance**: theme cards (Use / Undo changes / Delete), Save as, the three pictures with Choose / Remove / Fill-Fit-Center / Preview, color swatches plus color codes, opacity and height sliders, a font search, and Reset.
+
+### Problems found and how they were solved
+1. **Sharp at 125% and 150%.** WPF normally draws a picture at whatever size the layout asks and scales it on the fly, which blurs a thin, wide bar. FocusBar works out the bar's real size in screen pixels (for example 2880 × 72 at 150%), decodes the picture straight to that size with Windows' high-quality scaler, and draws it at exactly one picture pixel per screen pixel. It does this again whenever the scaling or screen size changes.
+2. **Memory.** A 12-megapixel phone photo filling a 150%-scaled bar would keep about 25 MB in memory if loaded whole. Only the visible 2880 × 72 strip is kept (under 1 MB), and the full decode is thrown away. Pictures over 25 MB, over 10,000 pixels on a side, or over 40 megapixels are refused up front, using the size read from the file's first bytes.
+3. **Fake pictures.** A file named `.png` might not be one. FocusBar checks the first bytes for real PNG, JPG, or GIF headers and names its copy after the real format.
+4. **Sideways phone photos.** JPGs from phones often store "rotate 90°" as a tag instead of rotating the pixels, and WPF ignores the tag. FocusBar reads it and turns the picture upright.
+5. **Readable text on any picture.** The build instructions ask for a subtle dark scrim. With a background picture, the bar always uses white text and a 35% dark tint (and a dark base color for the empty sides in Fit and Center).
+6. **Readable text on any color.** A bar color picks white or black text by the WCAG contrast formula, and so does the accent color's button text. That's why yellow gets black text and blue gets white.
+7. **See-through needs a different kind of window.** WPF can only make a window see-through when it's created, so switching between 100% and below reopens the bar once (the same way it already reopens when Explorer restarts).
+8. **Height changes move other windows.** Each height change makes Windows resize maximized windows, so the height slider only applies when it's let go (or on each arrow-key step), not on every pixel while dragging.
+9. **Clock at small heights.** Two lines of text don't fit in a 32-pixel bar, so below 40 pixels the clock shows only the time.
+10. **Theme files edited by hand** could point at any file on the computer. Themes store only file names that FocusBar itself created in its images folder; anything else is ignored.
+
+### Decisions the AI made that the developer should review
+- **Added to the `Theme` record:** Fill/Fit/Center, a bar color (or "Match Windows"), and the font. Without a bar color, the three built-in themes would only differ in accent color.
+- **Ranges:** height 32–72 px (48 is the default from the build instructions), opacity 40–100% (lower makes text hard to read), names up to 40 characters, up to 30 saved themes.
+- **The font applies to the bar only.** Flyouts and Settings keep Windows' font so they stay readable whatever you pick.
+- **Animated GIFs show their first frame.** Animating would cost CPU all day (the build instructions' limit is about 2%).
+- **Changes save automatically**, like the other Settings pages. "Save as" is for keeping a named copy to switch back to; Reset goes back to Default.
+- **Built-in themes can't be overwritten or deleted**, but you can use one, change it, and save it under a new name.
+- **Opacity below 100% may use a little more CPU** while the ticker scrolls, because see-through windows are drawn differently. Test 7.20 measures it; if it's too much, we could pause the ticker sooner or limit transparency.

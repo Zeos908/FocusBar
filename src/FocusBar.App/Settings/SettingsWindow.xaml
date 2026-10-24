@@ -13,7 +13,7 @@
             <ColumnDefinition Width="*" />
         </Grid.ColumnDefinitions>
 
-        <!-- Page list. Phase 7 adds Appearance here. -->
+        <!-- Page list. -->
         <Border Background="{DynamicResource ItemHover}">
             <ListBox x:Name="Pages" Style="{StaticResource FlyoutList}" Margin="10,16" SelectionChanged="Pages_SelectionChanged"
                      AutomationProperties.Name="Settings pages">
@@ -33,6 +33,12 @@
                     <StackPanel Orientation="Horizontal">
                         <TextBlock Text="&#xE708;" Style="{StaticResource IconText}" FontSize="14" Margin="0,0,10,0" />
                         <TextBlock Text="Focus Mode" />
+                    </StackPanel>
+                </ListBoxItem>
+                <ListBoxItem Tag="Appearance">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="&#xE790;" Style="{StaticResource IconText}" FontSize="14" Margin="0,0,10,0" />
+                        <TextBlock Text="Appearance" />
                     </StackPanel>
                 </ListBoxItem>
             </ListBox>

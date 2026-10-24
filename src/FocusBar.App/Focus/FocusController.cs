@@ -37,6 +37,7 @@ internal sealed class FocusController : IFocusScreenActions, IDisposable
     private readonly DeadlineService _deadlines;
     private readonly FocusStateStore _store;
     private readonly ErrorLog _log;
+    private readonly Func<string?> _screenImage;
     private readonly FocusState _state;
     private readonly DispatcherTimer _evaluateTimer;
     private readonly DispatcherTimer _scanTimer;
@@ -49,11 +50,14 @@ internal sealed class FocusController : IFocusScreenActions, IDisposable
     private Task<WebsiteBlockResult>? _helperTask; // the latest helper run
     private bool _disposed;
 
-    public FocusController(SettingsService settings, DeadlineService deadlines, FocusStateStore store, ErrorLog log, Dispatcher dispatcher)
+    /// <param name="screenImage">The current theme's Focus screen image (a full path), if it has one.</param>
+    public FocusController(SettingsService settings, DeadlineService deadlines, FocusStateStore store, Func<string?> screenImage,
+        ErrorLog log, Dispatcher dispatcher)
     {
         _settings = settings;
         _deadlines = deadlines;
         _store = store;
+        _screenImage = screenImage;
         _log = log;
         _state = store.Load();
 
@@ -226,11 +230,10 @@ internal sealed class FocusController : IFocusScreenActions, IDisposable
     {
         if (_screen is null)
         {
-            _screen = new FocusScreen();
+            _screen = new FocusScreen(_log);
             _screen.Closed += (_, _) => _screen = null;
         }
-        // Phase 7 adds the student's own Focus screen image here.
-        _screen.ShowFor(app, session, strictness, Settings.SoftOverrideDelay, this, imagePath: null);
+        _screen.ShowFor(app, session, strictness, Settings.SoftOverrideDelay, this, _screenImage());
     }
 
     void IFocusScreenActions.AllowForSession(string appName)

@@ -28,7 +28,7 @@
     </appbar:AppBarWindow.ContextMenu>
 
     <!-- Left to right: Start | pinned apps | open windows | ticker (fills the rest) | Focus Mode | tray | clock -->
-    <Grid>
+    <Grid ClipToBounds="True">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="Auto" />
             <ColumnDefinition Width="Auto" />
@@ -38,12 +38,23 @@
             <ColumnDefinition Width="Auto" />
         </Grid.ColumnDefinitions>
 
+        <!-- The theme's background image, with a dark scrim so text stays readable on any picture. Sized in code
+             to exactly the screen pixels it covers, so it's sharp at any scaling. -->
+        <Grid x:Name="BackgroundLayer" Grid.ColumnSpan="6" Visibility="Collapsed" IsHitTestVisible="False">
+            <Image x:Name="BackgroundImage" Stretch="Fill" HorizontalAlignment="Center" VerticalAlignment="Center"
+                   RenderOptions.BitmapScalingMode="HighQuality" />
+            <Border Background="#59000000" />
+        </Grid>
+
         <Button Grid.Column="0" x:Name="StartButton" Style="{StaticResource BarIconButton}" Margin="4,4,2,4"
                 Click="StartButton_Click" ContextMenuOpening="StartButton_ContextMenuOpening"
                 ToolTip="Start" AutomationProperties.Name="Start">
-            <!-- Four tiles; replaceable with the student's own image in Phase 7. -->
-            <Path Fill="{DynamicResource Accent}" Width="18" Height="18" Stretch="Uniform"
-                  Data="M0,0 H8 V8 H0 Z M10,0 H18 V8 H10 Z M0,10 H8 V18 H0 Z M10,10 H18 V18 H10 Z" />
+            <Grid>
+                <!-- Four tiles, or the theme's own Start icon. -->
+                <Path x:Name="StartGlyph" Fill="{DynamicResource Accent}" Width="18" Height="18" Stretch="Uniform"
+                      Data="M0,0 H8 V8 H0 Z M10,0 H18 V8 H10 Z M0,10 H8 V18 H0 Z M10,10 H18 V18 H10 Z" />
+                <Image x:Name="StartImage" Stretch="Fill" Visibility="Collapsed" RenderOptions.BitmapScalingMode="HighQuality" />
+            </Grid>
         </Button>
 
         <shell:PinnedStrip Grid.Column="1" x:Name="Pinned" />

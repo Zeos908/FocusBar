@@ -1,0 +1,165 @@
+<UserControl x:Class="FocusBar.App.Settings.AppearancePage"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <StackPanel>
+        <TextBlock Text="Appearance" Style="{StaticResource FlyoutHeading}" FontSize="20" />
+        <TextBlock Style="{StaticResource FlyoutMuted}" TextWrapping="Wrap" Margin="0,4,0,0"
+                   Text="Changes show on the bar right away and are kept when FocusBar restarts." />
+
+        <!-- ===== Themes ===== -->
+        <TextBlock Text="Themes" Style="{StaticResource FlyoutHeading}" Margin="0,20,0,4" />
+        <TextBlock x:Name="ThemeStatus" Style="{StaticResource FlyoutMuted}" TextWrapping="Wrap" Margin="0,0,0,8" />
+        <WrapPanel x:Name="ThemeCards" />
+        <TextBlock Text="Save the current look as a theme" Style="{StaticResource FieldLabel}" />
+        <DockPanel>
+            <Button DockPanel.Dock="Right" Style="{StaticResource FlyoutButton}" Content="Save" Margin="8,0,0,0" Click="SaveTheme_Click" />
+            <TextBox x:Name="SaveNameBox" Style="{StaticResource FormTextBox}" Tag="Theme name, e.g. Space" MaxLength="40"
+                     AutomationProperties.Name="Theme name" KeyDown="SaveNameBox_KeyDown" />
+        </DockPanel>
+        <TextBlock x:Name="SaveError" Style="{StaticResource FieldError}" />
+
+        <!-- ===== Pictures ===== -->
+        <TextBlock Text="Pictures" Style="{StaticResource FlyoutHeading}" Margin="0,22,0,4" />
+        <TextBlock Style="{StaticResource FlyoutMuted}" TextWrapping="Wrap" Margin="0,0,0,8"
+                   Text="PNG, JPG, or GIF. FocusBar keeps its own copy, so you can move or delete the original. Animated GIFs show their first frame." />
+
+        <Border CornerRadius="6" Background="{DynamicResource ItemHover}" Padding="12" Margin="0,0,0,8">
+            <StackPanel>
+                <DockPanel>
+                    <Border DockPanel.Dock="Left" Width="120" Height="40" CornerRadius="4" ClipToBounds="True" Margin="0,0,12,0"
+                            Background="{DynamicResource InputBackground}">
+                        <Image x:Name="BackgroundThumb" Stretch="UniformToFill" />
+                    </Border>
+                    <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" VerticalAlignment="Center">
+                        <Button Style="{StaticResource FlyoutButton}" Content="Choose…" Tag="Background" Click="ChooseImage_Click" Margin="0,0,6,0"
+                                AutomationProperties.Name="Choose bar background picture" />
+                        <Button x:Name="RemoveBackground" Style="{StaticResource FlyoutButton}" Content="Remove" Tag="Background" Click="RemoveImage_Click"
+                                AutomationProperties.Name="Remove bar background picture" />
+                    </StackPanel>
+                    <StackPanel VerticalAlignment="Center">
+                        <TextBlock Text="Bar background" FontWeight="SemiBold" />
+                        <TextBlock Style="{StaticResource FlyoutMuted}" Text="A wide picture works best." TextWrapping="Wrap" />
+                    </StackPanel>
+                </DockPanel>
+                <WrapPanel x:Name="FitChips" Margin="0,10,0,0">
+                    <RadioButton x:Name="FillOption" GroupName="Fit" Style="{StaticResource ChipRadio}" Content="Fill" Tag="Fill" Checked="Fit_Checked"
+                                 ToolTip="Covers the whole bar; the top and bottom are cropped" />
+                    <RadioButton x:Name="FitOption" GroupName="Fit" Style="{StaticResource ChipRadio}" Content="Fit" Tag="Fit" Checked="Fit_Checked"
+                                 ToolTip="Shows the whole picture, with the bar color at the sides" />
+                    <RadioButton x:Name="CenterOption" GroupName="Fit" Style="{StaticResource ChipRadio}" Content="Center" Tag="Center" Checked="Fit_Checked"
+                                 ToolTip="Real size, in the middle of the bar" />
+                </WrapPanel>
+            </StackPanel>
+        </Border>
+
+        <Border CornerRadius="6" Background="{DynamicResource ItemHover}" Padding="12" Margin="0,0,0,8">
+            <DockPanel>
+                <Border DockPanel.Dock="Left" Width="120" Height="40" CornerRadius="4" Margin="0,0,12,0" Background="{DynamicResource InputBackground}">
+                    <Image x:Name="StartThumb" Width="28" Height="28" Stretch="Uniform" />
+                </Border>
+                <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" VerticalAlignment="Center">
+                    <Button Style="{StaticResource FlyoutButton}" Content="Choose…" Tag="StartIcon" Click="ChooseImage_Click" Margin="0,0,6,0"
+                            AutomationProperties.Name="Choose Start button picture" />
+                    <Button x:Name="RemoveStart" Style="{StaticResource FlyoutButton}" Content="Remove" Tag="StartIcon" Click="RemoveImage_Click"
+                            AutomationProperties.Name="Remove Start button picture" />
+                </StackPanel>
+                <StackPanel VerticalAlignment="Center">
+                    <TextBlock Text="Start button" FontWeight="SemiBold" />
+                    <TextBlock Style="{StaticResource FlyoutMuted}" Text="A square picture or logo works best." TextWrapping="Wrap" />
+                </StackPanel>
+            </DockPanel>
+        </Border>
+
+        <Border CornerRadius="6" Background="{DynamicResource ItemHover}" Padding="12" Margin="0,0,0,4">
+            <DockPanel>
+                <Border DockPanel.Dock="Left" Width="120" Height="40" CornerRadius="4" ClipToBounds="True" Margin="0,0,12,0">
+                    <Border.Background>
+                        <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                            <GradientStop Color="#FF0F172A" Offset="0" />
+                            <GradientStop Color="#FF1E3A8A" Offset="0.6" />
+                            <GradientStop Color="#FF4F46E5" Offset="1" />
+                        </LinearGradientBrush>
+                    </Border.Background>
+                    <Image x:Name="FocusThumb" Stretch="UniformToFill" />
+                </Border>
+                <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" VerticalAlignment="Center">
+                    <Button Style="{StaticResource FlyoutButton}" Content="Preview" Click="PreviewFocus_Click" Margin="0,0,6,0"
+                            AutomationProperties.Name="Preview the Focus screen" />
+                    <Button Style="{StaticResource FlyoutButton}" Content="Choose…" Tag="FocusScreen" Click="ChooseImage_Click" Margin="0,0,6,0"
+                            AutomationProperties.Name="Choose Focus screen picture" />
+                    <Button x:Name="RemoveFocus" Style="{StaticResource FlyoutButton}" Content="Remove" Tag="FocusScreen" Click="RemoveImage_Click"
+                            AutomationProperties.Name="Remove Focus screen picture" />
+                </StackPanel>
+                <StackPanel VerticalAlignment="Center">
+                    <TextBlock Text="Focus Mode screen" FontWeight="SemiBold" />
+                    <TextBlock Style="{StaticResource FlyoutMuted}" Text="Shown when a blocked app opens." TextWrapping="Wrap" />
+                </StackPanel>
+            </DockPanel>
+        </Border>
+        <TextBlock x:Name="ImageError" Style="{StaticResource FieldError}" />
+
+        <!-- ===== Colors ===== -->
+        <TextBlock Text="Colors" Style="{StaticResource FlyoutHeading}" Margin="0,22,0,0" />
+        <TextBlock Text="Accent color" Style="{StaticResource FieldLabel}" />
+        <WrapPanel x:Name="AccentSwatches" />
+        <DockPanel Width="220" HorizontalAlignment="Left">
+            <Button DockPanel.Dock="Right" Style="{StaticResource FlyoutButton}" Content="Use" Margin="8,0,0,0" Click="AccentHex_Click" />
+            <TextBox x:Name="AccentBox" Style="{StaticResource FormTextBox}" Tag="#4F8EF7" MaxLength="7" KeyDown="AccentBox_KeyDown"
+                     AutomationProperties.Name="Accent color code" />
+        </DockPanel>
+
+        <TextBlock Text="Bar color" Style="{StaticResource FieldLabel}" Margin="0,14,0,4" />
+        <RadioButton x:Name="MatchWindowsOption" GroupName="BarColor" Style="{StaticResource ChipRadio}" HorizontalAlignment="Left"
+                     Content="Match Windows (light or dark)" Checked="MatchWindows_Checked" />
+        <WrapPanel x:Name="BarSwatches" Margin="0,4,0,0" />
+        <DockPanel Width="220" HorizontalAlignment="Left">
+            <Button DockPanel.Dock="Right" Style="{StaticResource FlyoutButton}" Content="Use" Margin="8,0,0,0" Click="BarHex_Click" />
+            <TextBox x:Name="BarColorBox" Style="{StaticResource FormTextBox}" Tag="#1F1F23" MaxLength="7" KeyDown="BarColorBox_KeyDown"
+                     AutomationProperties.Name="Bar color code" />
+        </DockPanel>
+        <TextBlock x:Name="ColorError" Style="{StaticResource FieldError}" />
+
+        <!-- ===== Size and text ===== -->
+        <TextBlock Text="Size and text" Style="{StaticResource FlyoutHeading}" Margin="0,22,0,0" />
+
+        <DockPanel Margin="0,10,0,4">
+            <TextBlock x:Name="OpacityValue" DockPanel.Dock="Right" Style="{StaticResource FlyoutMuted}" />
+            <TextBlock Text="Opacity" Style="{StaticResource FieldLabel}" Margin="0" />
+        </DockPanel>
+        <Slider x:Name="OpacitySlider" Minimum="40" Maximum="100" SmallChange="5" LargeChange="10" TickFrequency="5"
+                IsSnapToTickEnabled="True" ValueChanged="OpacitySlider_ValueChanged" AutomationProperties.Name="Bar opacity" />
+        <TextBlock Style="{StaticResource FlyoutMuted}" TextWrapping="Wrap" FontSize="12"
+                   Text="Below 100%, your wallpaper shows through the bar. 100% uses the least battery." />
+
+        <DockPanel Margin="0,12,0,4">
+            <TextBlock x:Name="HeightValue" DockPanel.Dock="Right" Style="{StaticResource FlyoutMuted}" />
+            <TextBlock Text="Bar height" Style="{StaticResource FieldLabel}" Margin="0" />
+        </DockPanel>
+        <Slider x:Name="HeightSlider" Minimum="32" Maximum="72" SmallChange="2" LargeChange="8" TickFrequency="2"
+                IsSnapToTickEnabled="True" ValueChanged="HeightSlider_ValueChanged"
+                Thumb.DragStarted="HeightSlider_DragStarted" Thumb.DragCompleted="HeightSlider_DragCompleted"
+                AutomationProperties.Name="Bar height in pixels" />
+
+        <TextBlock Text="Font" Style="{StaticResource FieldLabel}" Margin="0,12,0,4" />
+        <TextBox x:Name="FontSearch" Style="{StaticResource SearchBox}" Tag="Search fonts" TextChanged="FontSearch_TextChanged"
+                 AutomationProperties.Name="Search fonts" />
+        <Border CornerRadius="4" BorderThickness="1" BorderBrush="{DynamicResource InputBorder}" Margin="0,6,0,0">
+            <ListBox x:Name="FontList" Style="{StaticResource FlyoutList}" Height="180" SelectionChanged="FontList_SelectionChanged"
+                     AutomationProperties.Name="Fonts">
+                <ListBox.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <VirtualizingStackPanel />
+                    </ItemsPanelTemplate>
+                </ListBox.ItemsPanel>
+                <ListBox.ItemTemplate>
+                    <DataTemplate>
+                        <TextBlock Text="{Binding}" FontFamily="{Binding}" FontSize="14" />
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+            </ListBox>
+        </Border>
+
+        <Button Style="{StaticResource FlyoutButton}" Content="Reset to the Default theme" HorizontalAlignment="Left" Margin="0,20,0,0"
+                Click="Reset_Click" />
+    </StackPanel>
+</UserControl>

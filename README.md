@@ -6,7 +6,7 @@
 **Developer:** Suhaas
 **Platform:** Windows 10 / 11
 **Audience:** Middle and high school students
-**Status:** 🟠 In development: Phases 0–6 built (safety net, docked bar, taskbar features, deadlines and the ticker, reminders, school and calendar sync, Focus Mode), awaiting testing on Windows
+**Status:** 🟠 In development: Phases 0–7 built (safety net, docked bar, taskbar features, deadlines and the ticker, reminders, school and calendar sync, Focus Mode, customization), awaiting testing on Windows
 
 ---
 
@@ -108,6 +108,13 @@ Students can upload their own images for:
 
 Plus colors, fonts, transparency, and bar height — saved as switchable themes.
 
+**How to use it:** right-click the bar → **FocusBar settings** → **Appearance**. Every change shows on the bar right away. Start from one of the three built-in themes (**Default**, which follows Windows' light/dark mode; **Midnight**; **Sunrise**), change what you like, and **Save** it under your own name to switch back to it later.
+
+- Pictures can be PNG, JPG, or GIF (animated GIFs show their first frame). FocusBar keeps its own copy in `%AppData%\FocusBar\images`, so you can move or delete the original.
+- The bar background can **Fill** the bar (cropping the top and bottom), **Fit** inside it, or sit in the **Center** at real size. Pictures are resized once, with high quality, to the exact screen pixels they cover, so they stay sharp at 100%, 125%, and 150% scaling. Phone photos are turned the right way up.
+- On a background picture, the bar adds a subtle dark tint and uses white text so it's always readable. With a plain bar color, the text turns white or black depending on which reads better.
+- Opacity below 100% lets the wallpaper show through (the bar reopens once when you switch between see-through and solid).
+
 ---
 
 ## How It Works
@@ -192,7 +199,7 @@ While FocusBar runs, it hides the Windows taskbar and takes its place. To get th
 
 Debug builds add a **Developer** submenu to the right-click menu, with options that throw a test exception. Use them to check that a crash brings the Windows taskbar back.
 
-FocusBar's files live in `%AppData%\FocusBar\`: `deadlines.json` (your deadlines), `settings.json` (settings), `reminders.json` (which reminders were already shown), `school-api.json` (school site settings), `school-session.json` and `calendars.json` (encrypted), `schedule.json` (this week's classes), `focus-state.json` (a running focus session), `pins.json` (pinned apps), `tray.json` (tray icons shown on the bar), and error logs in the `logs` folder (right-click the bar → **Open log folder**).
+FocusBar's files live in `%AppData%\FocusBar\`: `deadlines.json` (your deadlines), `settings.json` (settings), `reminders.json` (which reminders were already shown), `school-api.json` (school site settings), `school-session.json` and `calendars.json` (encrypted), `schedule.json` (this week's classes), `focus-state.json` (a running focus session), `themes.json` (your look and saved themes) and the `images` folder (your pictures), `pins.json` (pinned apps), `tray.json` (tray icons shown on the bar), and error logs in the `logs` folder (right-click the bar → **Open log folder**).
 
 The step-by-step Windows test checklist for each phase is in [docs/testing.md](docs/testing.md).
 

@@ -17,6 +17,7 @@ public partial class SettingsWindow : Window
     public const string RemindersPageName = "Reminders";
     public const string SourcesPageName = "Sources";
     public const string FocusPageName = "Focus";
+    public const string AppearancePageName = "Appearance";
 
     private SettingsWindow(BarServices services)
     {
@@ -27,6 +28,7 @@ public partial class SettingsWindow : Window
             [RemindersPageName] = () => new RemindersPage(services.Settings, services.Reminders),
             [SourcesPageName] = () => new SourcesPage(services.Sync, services.Log),
             [FocusPageName] = () => new FocusPage(services.Settings, services.Apps, services.Focus),
+            [AppearancePageName] = () => new AppearancePage(services.Appearance, services.Log),
         };
 
         SourceInitialized += (_, _) => DarkTitleBar.Apply(this, !ThemeManager.IsLight);

@@ -293,3 +293,33 @@ Set up first: right-click the bar → **FocusBar settings** → **Focus Mode**. 
 | 6.24 | Something went wrong and sites stay blocked | Run `FocusBar.Blocker.exe clear` from FocusBar's folder (asks for permission), or `FocusBar.exe --restore-taskbar`. Both remove only FocusBar's block. |
 | 6.25 | Check `%ProgramData%\FocusBar\blocker.log` | One line each time sites were blocked or unblocked (how many, not which). |
 | 6.26 | Repeat the Phase 0 tests | All still pass. |
+
+## Phase 7: Customization
+
+Everything here is under right-click the bar → **FocusBar settings** → **Appearance**. Have three pictures ready: a wide
+one (a landscape photo or a banner), a square one (a logo), and any photo taken with a phone (to check rotation).
+
+| # | Test | Expected |
+|---|---|---|
+| 7.1 | Under Themes, click **Use** on **Midnight**, then **Sunrise**, then **Default** | The bar changes at once each time: Midnight is dark purple with a purple accent and you can faintly see the wallpaper through it; Sunrise is light cream with dark text, an orange accent, and slightly shorter; Default follows Windows' light/dark mode. Accent-colored things (Start tiles, Focus button when on, buttons in flyouts and Settings) follow. |
+| 7.2 | Pictures → Bar background → **Choose…** the wide picture | It appears behind the bar with a slight dark tint; all text and icons are white and readable. The thumbnail shows in Settings. |
+| 7.3 | Try **Fill**, **Fit**, and **Center** | Fill covers the whole bar (top and bottom cropped). Fit shows the whole picture with plain bar color at the sides. Center shows it at real size in the middle. |
+| 7.4 | Choose a picture that's very light (mostly white) | Text is still readable (the tint is there). |
+| 7.5 | Choose the phone photo | It's the right way up (not sideways). |
+| 7.6 | Start button → **Choose…** the square picture | It replaces the four tiles; Start still opens the launcher. **Remove** brings the tiles back. |
+| 7.7 | Focus Mode screen → **Choose…** a picture, then **Preview** | Full-screen preview with your picture (darkened a little) and readable text. Esc closes it. Then start a Focus session and open a blocked app: same picture. |
+| 7.8 | Choose a file that isn't a picture (rename a .txt to .png), and a picture over 25 MB if you have one | A clear message; nothing changes. |
+| 7.9 | Move or delete the original picture files, then restart FocusBar | The pictures are still there (FocusBar uses its own copies in `%AppData%\FocusBar\images`). |
+| 7.10 | Accent color: click a few swatches; type `#ff00aa` and press Enter; type `banana` | Changes show at once; `banana` shows "Type a color code like #4F8EF7." |
+| 7.11 | Bar color: pick **Plum**, then the light **Sky**, then **Match Windows** | Text switches between white (dark colors) and black (light colors) so it's always readable. Match Windows follows light/dark mode again (try switching Windows' mode in Settings → Personalization → Colors). |
+| 7.12 | Drag **Opacity** from 100% to 70% | The bar flickers once as it reopens see-through, then changes smoothly as you drag. The wallpaper shows through. Back to 100%: it reopens solid. |
+| 7.13 | Drag **Bar height** to 32, let go; then 72 | The bar changes height when you let go; maximized windows move to stay above it. At 32 the clock shows just the time. Window icons, tray, and ticker still fit. Arrow keys on the slider also work. |
+| 7.14 | Search fonts for "Comic" (or "Bahnschrift"), pick one | The bar's clock, window titles, and ticker switch font. |
+| 7.15 | Type a name like "Space" and **Save** | A "Space" card appears and is marked In use. Change something: the status says "with your changes" and the card button says **Undo changes** (which goes back to the saved version). |
+| 7.16 | Save as "Default" or "midnight" | "is a built-in theme. Pick another name." Saving as "Space" again asks before replacing. |
+| 7.17 | **Delete** a saved theme | Asks first. The bar keeps its current look; built-in themes have no Delete. |
+| 7.18 | Set up a custom theme (picture, colors, height, font), then exit FocusBar and start it again | Everything comes back exactly the same. |
+| 7.19 | **Scaling:** with a background picture and Start picture set, change Windows Settings → System → Display → Scale to **100%**, **125%**, and **150%** (no restart needed) | At each level the bar keeps its proportions, the pictures stay sharp (not blurry or jagged), text is crisp, and the Fill crop looks the same. If anything looks wrong, take a screenshot and note it in the AI log. |
+| 7.20 | Watch Task Manager for a minute with the ticker scrolling, at 100% opacity and then at 70% | CPU stays under about 2% at 100%. Note what it is at 70% (see-through windows cost a little more). |
+| 7.21 | **Reset to the Default theme** | Back to the original look; your saved themes are still listed. |
+| 7.22 | Repeat the Phase 0 tests | All still pass. |

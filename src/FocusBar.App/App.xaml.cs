@@ -8,6 +8,7 @@ using FocusBar.App.Services;
 using FocusBar.App.Shell;
 using FocusBar.App.Themes;
 using FocusBar.App.Tray;
+using FocusBar.Core.Appearance;
 using FocusBar.Core.Deadlines;
 using FocusBar.Core.Diagnostics;
 using FocusBar.Core.Focus;
@@ -36,6 +37,7 @@ public partial class App : Application
     private ReminderService? _reminders;
     private SyncService? _sync;
     private FocusController? _focus;
+    private AppearanceService? _appearance;
     private BarServices? _services;
     private MainBar? _bar;
     private bool _crashing;
@@ -154,10 +156,31 @@ public partial class App : Application
             OpenList = () => DeadlineListWindow.ShowSingle(deadlines, sync),
         };
 
-        _focus = new FocusController(settings, deadlines, new FocusStateStore(store), _log, Dispatcher);
+        var appearance = _appearance = new AppearanceService(new ThemeStore(store), new ThemeImages(AppDataPaths.Default), _log, Dispatcher);
+        ThemeManager.ApplyAccent(appearance.Theme.AccentColor);
+        appearance.Changed += OnAppearanceChanged;
+
+        _focus = new FocusController(settings, deadlines, new FocusStateStore(store),
+            () => appearance.ImagePath(appearance.Theme.FocusScreenImagePath), _log, Dispatcher);
 
         return new BarServices(shell, new PinService(new PinStore(store), _log), apps, _status, trayIcons, deadlines,
-            settings, _reminders, _sync, _focus, _log);
+            settings, _reminders, _sync, _focus, appearance, _log);
+    }
+
+    /// <summary>
+    /// The accent color is used by every window, so it's set app-wide. Switching between a see-through and a solid
+    /// bar needs a new bar window; everything else the bar applies itself.
+    /// </summary>
+    private void OnAppearanceChanged(object? sender, EventArgs e)
+    {
+        if (_cleanedUp || _appearance is null) return;
+        ThemeManager.ApplyAccent(_appearance.Theme.AccentColor);
+        if (_bar is not null && _bar.NeedsNewWindow(_appearance.Theme))
+        {
+            _log.Info("Theme switched between see-through and solid; reopening the bar.");
+            CloseBar();
+            OpenBar();
+        }
     }
 
     private void OpenBar()
@@ -185,6 +208,7 @@ public partial class App : Application
 
         Try(() => _panicHotkey?.Dispose(), "dispose panic hotkey");
         Try(() => _focus?.Dispose(), "stop Focus Mode");
+        Try(() => _appearance?.Flush(), "save theme");
         Try(CloseBar, "close bar");
         Try(() => _status?.Dispose(), "stop Wi-Fi, volume, and battery monitors");
         Try(() => _reminders?.Dispose(), "stop reminders");

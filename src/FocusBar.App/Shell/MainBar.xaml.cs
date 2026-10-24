@@ -33,6 +33,7 @@ internal sealed record BarServices(
     ReminderService Reminders,
     SyncService Sync,
     FocusController Focus,
+    AppearanceService Appearance,
     ErrorLog Log);
 
 /// <summary>
@@ -53,10 +54,13 @@ public partial class MainBar : AppBarWindow
 
     internal MainBar(App app, BarServices services, AppBarScreen screen)
         : base(services.Shell.AppBarManager, services.Shell.ExplorerHelper, services.Shell.FullScreenHelper,
-               screen, AppBarEdge.Bottom, AppBarMode.Normal, Theme.DefaultBarHeight)
+               screen, AppBarEdge.Bottom, AppBarMode.Normal, services.Appearance.Theme.BarHeight)
     {
         _app = app;
         _services = services;
+        // A see-through bar needs a layered window, which can only be chosen before the window opens. The app opens
+        // a new bar when a theme switches between see-through and solid (see NeedsNewWindow).
+        AllowsTransparency = services.Appearance.Theme.Opacity < 1;
         InitializeComponent();
 
 #if DEBUG
@@ -82,6 +86,8 @@ public partial class MainBar : AppBarWindow
 
         LocationChanged += (_, _) => UpdateTrayHost();
         SizeChanged += (_, _) => UpdateTrayHost();
+
+        InitializeAppearance();
     }
 
     /// <summary>
@@ -133,7 +139,11 @@ public partial class MainBar : AppBarWindow
         else if (msg == WM_SETTINGCHANGE && lParam != IntPtr.Zero && Marshal.PtrToStringUni(lParam) == "ImmersiveColorSet")
         {
             // Windows switched between light and dark mode.
-            Dispatcher.BeginInvoke(ThemeManager.Apply);
+            Dispatcher.BeginInvoke(() =>
+            {
+                ThemeManager.Apply();
+                ApplyTheme();
+            });
         }
         else if (msg == WM_POWERBROADCAST)
         {
@@ -160,6 +170,7 @@ public partial class MainBar : AppBarWindow
     {
         if (!AllowClose) return;
         _clockTimer.Stop();
+        ShutdownAppearance();
         Ticker.Shutdown();
         FocusMode.Shutdown();
         _launcher.Close();
