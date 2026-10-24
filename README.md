@@ -45,8 +45,8 @@ FocusBar replaces the Windows taskbar entirely — the one part of the screen st
 ### 🖥️ Full Taskbar Replacement
 FocusBar hides the default Windows taskbar and replaces every core feature. Deadlines get the left side of the bar; app icons sit on the right with the Focus Mode button, tray, and clock.
 - **Start button / app launcher** — type to search installed apps, Enter to open, right-click to pin; a button opens the regular Windows Start menu
-- **Open-windows switcher** — click to switch, click the active window to minimize, right-click or middle-click to close
-- **Pinned apps** — one-click shortcuts to favorite programs, pinned from the launcher or from a running window
+- **One button per app**, like the Windows taskbar — an app with several windows shows a count badge; click it to pick a window, or right-click to open a new one or close them all. Click a single window to switch to it or minimize it; middle-click closes it
+- **Pinned apps** — one-click shortcuts to favorite programs, pinned from the launcher or from a running window; an open pinned app shares its pinned button
 - **Clock and system tray** — time and date with a calendar, Wi-Fi, volume (scroll to adjust), battery, and other apps' tray icons
 - Follows Windows light and dark mode
 - One click (or Ctrl+Alt+Shift+F) restores the standard Windows taskbar at any time

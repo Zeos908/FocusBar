@@ -70,8 +70,7 @@ public partial class MainBar : AppBarWindow
         _launcher = new FlyoutToggle<StartLauncher>(() => new StartLauncher(services.Apps, services.Pins, services.Log));
         _calendar = new FlyoutToggle<CalendarFlyout>(() => new CalendarFlyout(services.Log));
 
-        Pinned.Initialize(services.Pins, services.Log);
-        Tasks.Initialize(services.Shell, services.Pins);
+        Apps.Initialize(services.Shell, services.Pins, services.Log);
         Tray.Initialize(services.Status, services.TrayIcons);
         Ticker.Initialize(services.Deadlines, services.Sync,
             openList: () => DeadlineListWindow.ShowSingle(services.Deadlines, services.Sync),
@@ -173,6 +172,7 @@ public partial class MainBar : AppBarWindow
         ShutdownAppearance();
         Ticker.Shutdown();
         FocusMode.Shutdown();
+        Apps.Shutdown();
         _launcher.Close();
         _calendar.Close();
         Tray.CloseFlyouts();

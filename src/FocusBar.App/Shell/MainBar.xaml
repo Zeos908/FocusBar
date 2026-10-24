@@ -27,8 +27,8 @@
         </ContextMenu>
     </appbar:AppBarWindow.ContextMenu>
 
-    <!-- Left to right: Start | deadline ticker (fills the rest) | pinned apps | open windows | Focus Mode | tray | clock.
-         The left side belongs to the deadlines; app icons sit on the right with the other buttons. -->
+    <!-- Left to right: Start | deadline ticker (fills the rest) | app buttons (pinned apps, then other open apps; one
+         button per app) | Focus Mode | tray | clock. The left side belongs to the deadlines. -->
     <Grid ClipToBounds="True">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="Auto" />
@@ -60,10 +60,7 @@
         <!-- The ticker always keeps at least ReservedWidth; the app icons get the rest of what they need. -->
         <controls:BarMiddlePanel Grid.Column="1" ReservedWidth="300" Margin="4,0">
             <ticker:TickerView x:Name="Ticker" Margin="0,0,8,0" />
-            <DockPanel>
-                <shell:PinnedStrip DockPanel.Dock="Left" x:Name="Pinned" />
-                <shell:TaskStrip x:Name="Tasks" />
-            </DockPanel>
+            <shell:AppStrip x:Name="Apps" />
         </controls:BarMiddlePanel>
 
         <focus:FocusButton Grid.Column="2" x:Name="FocusMode" />

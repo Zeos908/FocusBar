@@ -392,3 +392,19 @@ These are good candidates for the technical-challenge answer.
 - **The editor sets the background to Fill**, since lining up a part only matters when the picture is cropped. Fit and Center are still there and ignore the crop.
 - **Maximum zoom is 1000%.** Past "real size" a picture gets softer, like any enlarged photo.
 - **The editor preview** loads the picture at up to 4096 pixels on its long side: sharp enough to line things up without holding a huge photo in memory. The bar itself always loads from the full-size file.
+
+### Second piece of feedback: one button per app
+- **What the developer reported:** with several windows of the same app open, the app showed up on the bar several times.
+- **What the AI generated:**
+  - `Core/Pins/TaskbarButtons` (8 new tests, 413 total) decides the buttons: pinned apps first, in pin order, each collecting its own open windows; then every other open app in the order it was opened, with all its windows on one button. A pinned shortcut collects the windows of the program it opens, and Store apps match by app ID.
+  - `Shell/AppStrip` replaces the separate pinned-apps and open-windows strips with one strip of app buttons:
+    - A count badge appears when an app has 2+ windows.
+    - The line under a button is hidden when the app isn't open, a dot when it's open, wide accent when it has the focused window, and orange when it wants attention.
+    - `Shell/AppButtons` keeps the buttons in step, rebuilding once per batch of changes and updating buttons in place so they don't flicker.
+  - `Shell/WindowListFlyout`: clicking an app with several windows lists them (icon, title, the current one in bold, × to close).
+  - The right-click menu is built for each app: Open / Open new window, Pin or Unpin, Move left/right (pinned), and Close window / Close all N windows.
+- **Decisions the AI made that the developer should review:**
+  - **A pinned app's windows join its pinned button**, so a pinned app that's open doesn't show twice. This goes a step beyond what was reported, to match how the Windows taskbar works.
+  - **Clicking an app with several windows shows a list** rather than cycling through the windows. Windows 11 shows thumbnails there; titles are simpler and work on every PC. Live thumbnails could be added later.
+  - **Middle-click on an app with several windows opens the list** instead of closing anything, so a stray click can't close several windows. With one window it still closes it, as before.
+  - **Windows are grouped by the program they come from** (the .exe, or the Store app's ID). Apps that run everything through one program are grouped together; for example, some Java or Python apps all show as one "Java" or "Python" button.

@@ -36,7 +36,7 @@ Before each test, start FocusBar and check that the Windows taskbar is hidden an
 |---|---|---|
 | 1.1 | Start FocusBar | Bar is docked at the bottom of the primary monitor, full width, 48 px tall at 100% scaling. Windows taskbar is hidden. |
 | 1.2 | Maximize a window (for example File Explorer or a browser) | The window stops right above the bar and doesn't cover it. |
-| 1.3 | Layout | Left to right: Start icon, the deadline ticker filling the left side, then on the right: pinned apps, open windows, the Focus Mode moon, the tray, and the clock with time and date. |
+| 1.3 | Layout | Left to right: Start icon, the deadline ticker filling the left side, then on the right: the app buttons (pinned apps first, then other open apps), the Focus Mode moon, the tray, and the clock with time and date. |
 | 1.4 | Clock | Shows the right time and date in your region's format, and changes at the start of each minute. |
 | 1.5 | Display scaling at 125%, then 150% (Settings → System → Display → Scale), with FocusBar running and after restarting it | Bar stays docked, text is sharp, and the bar gets taller in proportion. Maximized windows still don't overlap it. |
 | 1.6 | Restart Explorer (Task Manager → Windows Explorer → Restart) while FocusBar is running | Windows taskbar flickers back for a moment, then hides again. FocusBar's bar is still docked and maximized windows still stop above it. |
@@ -67,8 +67,8 @@ Goal: you can do a normal day's work using only FocusBar. Try it in both light a
 | # | Test | Expected |
 |---|---|---|
 | 2.10 | In the launcher, right-click an app → **Pin to FocusBar** | Its icon appears next to Start; the launcher row shows a pin mark. |
-| 2.11 | Open an app that isn't pinned, right-click its button in the open-windows area → **Pin to FocusBar** | Its icon appears in the pinned area. |
-| 2.12 | Pin Chrome (or any app) from the launcher, then right-click Chrome's open window | Menu says **Unpin from FocusBar** (it knows it's already pinned). |
+| 2.11 | Open an app that isn't pinned, right-click its button → **Pin to FocusBar** | Its button moves in with the pinned apps (and stays when the app closes). |
+| 2.12 | Pin Chrome (or any app) from the launcher, then open Chrome | Chrome's window joins its pinned button (no second Chrome button). Right-clicking it says **Unpin from FocusBar**. |
 | 2.13 | Click a pinned icon | The app opens. |
 | 2.14 | Right-click a pinned icon → **Move left / Move right**, then **Unpin from FocusBar** | Order changes; unpin removes it. |
 | 2.15 | Exit FocusBar and start it again | Pins and their order are kept (`%AppData%\FocusBar\pins.json`). |
@@ -78,11 +78,11 @@ Goal: you can do a normal day's work using only FocusBar. Try it in both light a
 
 | # | Test | Expected |
 |---|---|---|
-| 2.17 | Open a few apps | Each window gets a button with its icon; hover shows the window title. The active window has a wide accent line under it. |
+| 2.17 | Open a few apps | Each app gets a button with its icon; hover shows the window title. The app you're in has a wide accent line under it. |
 | 2.18 | Click a background window's button | That window comes to the front. |
 | 2.19 | Click the active window's button | It minimizes. Click again: it comes back. |
 | 2.20 | Right-click a window button → **Close window**; middle-click another | Both windows close (apps may ask to save first). |
-| 2.21 | Open 20+ windows (for example 20 Notepad windows) | Buttons shrink to fit; the deadline area keeps some room; nothing overlaps the tray. |
+| 2.21 | Open 20+ different apps' windows | Buttons shrink to fit; the deadline area keeps some room; nothing overlaps the tray. |
 | 2.22 | Start something that flashes for attention (for example a finished download in some apps, or a message in Discord) | Its line turns orange until you switch to it. |
 
 **Tray**
@@ -116,6 +116,19 @@ Goal: you can do a normal day's work using only FocusBar. Try it in both light a
 | 2.37 | Exit FocusBar normally | Taskbar comes back with all tray icons. |
 | 2.38 | Leave it running for 10 minutes | CPU near 0%; memory well under 150 MB. |
 | 2.39 | Repeat all Phase 0 and Phase 1 tests | All still pass. |
+
+**One button per app** (added after Phase 8)
+
+| # | Test | Expected |
+|---|---|---|
+| 2.40 | Open three Notepad windows (or three File Explorer windows) | One Notepad button with a small "3" badge. Hover: "Notepad · 3 windows". |
+| 2.41 | Click that button | A list of the three windows (icon and title) opens above it; the one you were in is bold. Click one: it comes to the front and the list closes. Click the button again while the list is open: it closes. Esc closes it too. |
+| 2.42 | In the list, click × on one window | That window closes (it may ask to save); the list updates and the badge shows 2. |
+| 2.43 | Close windows until one is left | The badge disappears; clicking the button switches to that window, and clicking again minimizes it, like before. |
+| 2.44 | Right-click the grouped button | **Open new window** (starts another Notepad), **Pin to FocusBar**, and **Close all 3 windows**. |
+| 2.45 | Middle-click a button with one window; with several windows; on a pinned app that isn't open | One window: it closes. Several: the window list opens (nothing closes by surprise). Pinned, not open: the app starts. |
+| 2.46 | Pin Notepad, then close all Notepad windows | The pinned button stays, with no line under it. Open Notepad from the button: the line comes back and there's still only one Notepad button. |
+| 2.47 | Open two Chrome windows and two Edge windows | Chrome and Edge each get one button with a "2" badge, in the order you first opened them. |
 
 Known Phase 2 limits (expected, not bugs):
 - The launcher lists apps that have Start Menu shortcuts. Microsoft Store apps without one (such as Calculator or Settings) are reached through the **Windows Start menu** button.
@@ -394,4 +407,4 @@ Status as of version 0.9.0. "Automated" means it's covered by the unit tests tha
 | Hosts file is cleaned up after normal exit and after a crash | Automated (hosts file editing tests); tests 6.13, 6.21–6.24, 8.17 | Partly automated; needs Windows |
 | Custom images look right at 100%, 125%, and 150% scaling | Automated (pixel-size math for each scale); test 7.19 | Partly automated; needs Windows |
 | Works on both Windows 10 and Windows 11 | Run the whole list on one PC of each | Needs Windows |
-| All `FocusBar.Core` unit tests pass | `dotnet test` (405 tests), and on every push in GitHub Actions | ✅ Passing |
+| All `FocusBar.Core` unit tests pass | `dotnet test` (413 tests), and on every push in GitHub Actions | ✅ Passing |
