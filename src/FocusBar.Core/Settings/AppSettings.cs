@@ -6,11 +6,15 @@ using FocusBar.Core.Storage;
 namespace FocusBar.Core.Settings;
 
 /// <summary>
-/// The user's settings, saved to <c>settings.json</c>: reminders and Focus Mode (appearance arrives in Phase 7).
+/// The user's settings, saved to <c>settings.json</c>: reminders, Focus Mode, and whether the setup guide has run.
+/// (The look of the bar is in <c>themes.json</c>.)
 /// </summary>
 public record AppSettings(ReminderSettings Reminders, FocusSettings Focus)
 {
     public const string FileName = "settings.json";
+
+    /// <summary>The first-run setup guide was finished or skipped. False in a new (or pre-Phase 8) settings file.</summary>
+    public bool SetupCompleted { get; init; }
 
     public static AppSettings Default => new(ReminderSettings.Default, FocusSettings.Default);
 }

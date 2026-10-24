@@ -1,0 +1,41 @@
+<UserControl x:Class="FocusBar.App.Settings.GeneralPage"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <StackPanel>
+        <TextBlock Text="General" Style="{StaticResource FlyoutHeading}" FontSize="20" />
+
+        <!-- ===== Startup ===== -->
+        <TextBlock Text="Startup" Style="{StaticResource FlyoutHeading}" Margin="0,20,0,6" />
+        <CheckBox x:Name="StartupBox" Style="{StaticResource FlyoutCheckBox}" Content="Start FocusBar when I sign in to Windows"
+                  Checked="StartupBox_Changed" Unchecked="StartupBox_Changed" />
+        <TextBlock x:Name="StartupNote" Style="{StaticResource FlyoutMuted}" TextWrapping="Wrap" Margin="0,4,0,0" />
+
+        <!-- ===== Setup ===== -->
+        <TextBlock Text="Setup guide" Style="{StaticResource FlyoutHeading}" Margin="0,22,0,6" />
+        <TextBlock Style="{StaticResource FlyoutMuted}" TextWrapping="Wrap"
+                   Text="Walks through deadlines, reminders, Focus Mode, and the look of the bar. Nothing is lost by running it again." />
+        <Button Style="{StaticResource FlyoutButton}" Content="Run the setup guide" HorizontalAlignment="Left" Margin="0,8,0,0"
+                Click="RunSetup_Click" />
+
+        <!-- ===== Safety ===== -->
+        <TextBlock Text="If the taskbar goes missing" Style="{StaticResource FlyoutHeading}" Margin="0,22,0,6" />
+        <Border CornerRadius="6" Background="{DynamicResource ItemHover}" Padding="12,10">
+            <TextBlock TextWrapping="Wrap" LineHeight="20">
+                FocusBar gives the Windows taskbar back whenever it closes, even after a crash. To exit and get it back yourself:
+                <LineBreak />• Press <Run FontWeight="SemiBold">Ctrl+Alt+Shift+F</Run> (works any time), or
+                <LineBreak />• Right-click the bar and choose <Run FontWeight="SemiBold">Restore Windows taskbar and exit</Run>.
+                <LineBreak />If it's still missing, start FocusBar again, or run <Run FontFamily="Consolas">FocusBar.exe --restore-taskbar</Run>.
+            </TextBlock>
+        </Border>
+
+        <!-- ===== About ===== -->
+        <TextBlock Text="About" Style="{StaticResource FlyoutHeading}" Margin="0,22,0,6" />
+        <TextBlock x:Name="VersionText" />
+        <TextBlock Style="{StaticResource FlyoutMuted}" TextWrapping="Wrap" Margin="0,4,0,0"
+                   Text="Everything stays on this computer: no accounts, no ads, no tracking. Your school sign-in and private calendar links are encrypted for your Windows account." />
+        <WrapPanel Margin="0,10,0,0">
+            <Button Style="{StaticResource FlyoutButton}" Content="Open my FocusBar data folder" Margin="0,0,8,8" Click="OpenData_Click" />
+            <Button Style="{StaticResource FlyoutButton}" Content="Open log folder" Margin="0,0,8,8" Click="OpenLogs_Click" />
+        </WrapPanel>
+    </StackPanel>
+</UserControl>

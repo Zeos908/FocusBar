@@ -1,6 +1,7 @@
 using System.Windows;
 using System.Windows.Controls;
 using FocusBar.App.Native;
+using FocusBar.App.Setup;
 using FocusBar.App.Shell;
 using FocusBar.App.Themes;
 
@@ -14,6 +15,7 @@ public partial class SettingsWindow : Window
     private readonly Dictionary<string, Func<FrameworkElement>> _pageFactories;
 
     /// <summary>Page names for <see cref="ShowSingle"/>.</summary>
+    public const string GeneralPageName = "General";
     public const string RemindersPageName = "Reminders";
     public const string SourcesPageName = "Sources";
     public const string FocusPageName = "Focus";
@@ -25,6 +27,7 @@ public partial class SettingsWindow : Window
 
         _pageFactories = new()
         {
+            [GeneralPageName] = () => new GeneralPage(services.Log, () => SetupWizard.ShowSingle(services)),
             [RemindersPageName] = () => new RemindersPage(services.Settings, services.Reminders),
             [SourcesPageName] = () => new SourcesPage(services.Sync, services.Log),
             [FocusPageName] = () => new FocusPage(services.Settings, services.Apps, services.Focus),

@@ -10,7 +10,12 @@
     <AssemblyName>FocusBar</AssemblyName>
     <StartupObject>FocusBar.App.Program</StartupObject>
     <ApplicationManifest>app.manifest</ApplicationManifest>
+    <ApplicationIcon>Assets\FocusBar.ico</ApplicationIcon>
     <PlatformTarget>x64</PlatformTarget>
+    <!-- English only: skips the translated WPF resource folders in the published app. -->
+    <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
+    <!-- Libraries' XML documentation isn't needed next to the app. -->
+    <AllowedReferenceRelatedFileExtensions>.pdb</AllowedReferenceRelatedFileExtensions>
   </PropertyGroup>
 
   <ItemGroup>
@@ -40,6 +45,17 @@
       <BlockerFiles Include="..\FocusBar.Blocker\bin\$(Configuration)\net8.0\FocusBar.Blocker.*" />
     </ItemGroup>
     <Copy SourceFiles="@(BlockerFiles)" DestinationFolder="$(OutDir)" SkipUnchangedFiles="true" />
+  </Target>
+
+  <!--
+    Publishing (the zip and the installer): the blocker becomes one self-contained file, so it runs on PCs without
+    .NET installed, like the rest of the published app. See "Building the zip and installer" in README.md.
+  -->
+  <Target Name="PublishBlocker" AfterTargets="Publish" Condition="'$(RuntimeIdentifier)' != ''">
+    <!-- Leftovers from the normal build of the blocker; the single file below carries its own. -->
+    <Delete Files="$(PublishDir)FocusBar.Blocker.deps.json;$(PublishDir)FocusBar.Blocker.runtimeconfig.json;$(PublishDir)FocusBar.Blocker.dll" />
+    <MSBuild Projects="..\FocusBar.Blocker\FocusBar.Blocker.csproj" Targets="Publish"
+             Properties="Configuration=$(Configuration);RuntimeIdentifier=$(RuntimeIdentifier);PublishDir=$(PublishDir)" />
   </Target>
 
 </Project>

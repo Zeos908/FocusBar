@@ -318,3 +318,44 @@ These are good candidates for the technical-challenge answer.
 - **Changes save automatically**, like the other Settings pages. "Save as" is for keeping a named copy to switch back to; Reset goes back to Default.
 - **Built-in themes can't be overwritten or deleted**, but you can use one, change it, and save it under a new name.
 - **Opacity below 100% may use a little more CPU** while the ticker scrolls, because see-through windows are drawn differently. Test 7.20 measures it; if it's too much, we could pause the ticker sooner or limit transparency.
+
+## Phase 8: Polish (setup guide, Start with Windows, installer)
+
+**Status:** Compiles (no warnings) and all 392 `FocusBar.Core` unit tests pass (16 new: the Start with Windows entry and the setup-guide flag). A self-contained Windows build (version 0.9.0) was published from the build server. Its files were checked to contain the right Windows manifests (FocusBar.exe asks for per-monitor DPI awareness, FocusBar.Blocker.exe asks for administrator), and it was zipped for the developer to test. **Not yet run on Windows.** The installer script compiles only on Windows, so GitHub Actions builds it; it hasn't been run either. The §9 checklist status is at the end of `docs/testing.md`.
+
+### What the developer wrote, changed, or decided
+- Asked for a .zip of the finished build to test.
+- *(Add your test results, what you changed, and whether you want your own icon.)*
+
+### What the AI generated
+- **Setup guide** (`Setup/SetupWizard`): Welcome → deadlines (add one yourself, or school/calendar/demo through the Deadline sources page) → reminders → Focus Mode → appearance → done. The middle steps reuse the Settings pages, so every choice saves as it's made. It opens by itself once (`SetupCompleted` in `settings.json`), Skip or closing counts as done, and Settings → General can run it again.
+- **Start with Windows** (`Core/Settings/StartupCommand`, `Services/StartWithWindows`): the `FocusBar` value under the current user's `Run` key, written only when the student turns it on (in the guide's last step or Settings → General) and deleted when they turn it off. It notices when Task Manager's Startup apps page has it turned off.
+- **Settings → General**: Start with Windows, run the setup guide, the ways to get the taskbar back, version, a privacy note, and buttons to open the data and log folders.
+- **App icon** (`Assets/FocusBar.ico`): a blue rounded square with a moon and a bar, drawn by a short Python script at 9 sizes. Used for FocusBar.exe, the blocker (so Windows' permission prompt shows it), the installer, and shortcuts.
+- **Packaging**:
+  - `dotnet publish -r win-x64 --self-contained` makes a folder that runs without .NET installed; publishing also makes `FocusBar.Blocker.exe` a single trimmed 12 MB file.
+  - `packaging/FocusBar.iss` is the Inno Setup installer.
+  - `packaging/README-FIRST.txt` goes in the zip.
+  - GitHub Actions now builds the portable zip and the installer on every push and attaches them to the run as artifacts.
+- **README**: Install section, Easy Setup feature list, tech stack (pictures, Start with Windows, packaging), development plan status, future ideas (including the out-of-scope list from §10), and a draft AI disclosure based on this log.
+
+### Problems found and how they were solved
+1. **The blocker needed .NET installed.** In the self-contained build, FocusBar.exe carries its own .NET, but the separate blocker was still built to use a system-wide .NET, which test PCs may not have. Publishing now makes the blocker one self-contained, trimmed file (12 MB).
+2. **Trimming didn't happen at first.** The blocker came out at 67 MB because the settings were passed in a way that skipped the trimming step's setup. Moving them into the blocker's project file (only for published builds) fixed it.
+3. **Leftover files.** The normal build of the blocker left its `.deps.json` and `.runtimeconfig.json` in the published folder next to the single-file version, which could confuse Windows' .NET host. Publishing deletes them first.
+4. **Building Windows files on Linux.** Windows checks an .exe's built-in manifest for "needs admin" and for DPI awareness. The published files were inspected to confirm both manifests are embedded, so they don't depend on a Windows build machine.
+5. **Never running as administrator.** An installer that runs as admin would normally start "Start FocusBar now" as admin too. The installer starts it as the signed-in user instead (`runasoriginaluser`), so FocusBar never runs elevated and its settings land in the right account.
+
+### Decisions the AI made that the developer should review
+- **Installer: "for all users" by default, "just for me" allowed.** All-users installs to Program Files (admin once), where only admins can change files. That matters because the website blocker runs with admin rights. "Just for me" needs no admin, for school-managed laptops, but then website blocking still needs an admin to approve each time.
+- **Uninstalling cleans up:**
+  - It closes FocusBar (which gives the taskbar back).
+  - It removes a leftover website block (Windows asks permission) and the Start with Windows entry.
+  - It asks before deleting `%AppData%\FocusBar`; the default answer is No.
+  - It keeps `hosts.focusbar-backup`, your original hosts file, as a safety copy.
+- **The installer never turns on Start with Windows**; that choice lives in FocusBar's guide and settings, off by default, as the build instructions say.
+- **Version 0.9.0** for this test build. Change `Version` in `Directory.Build.props` to 1.0.0 after testing.
+- **Not code-signed.** Windows SmartScreen will warn on first run ("More info" → "Run anyway"). Signing needs a paid certificate; listed under Future Ideas.
+- **Screenshots** for the README need a real Windows PC, so the Screenshots section explains how to add them.
+- **The icon is a placeholder you may want to redesign.** It's generated by a script, so it's easy to change.
+- **The setup guide doesn't open again after "Skip"**, so it never nags. Settings → General has "Run the setup guide".

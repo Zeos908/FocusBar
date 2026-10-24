@@ -11,6 +11,15 @@
     <AssemblyName>FocusBar.Blocker</AssemblyName>
     <RootNamespace>FocusBar.Blocker</RootNamespace>
     <ApplicationManifest>app.manifest</ApplicationManifest>
+    <!-- Same icon as FocusBar, so Windows' permission prompt shows a familiar picture. -->
+    <ApplicationIcon>..\FocusBar.App\Assets\FocusBar.ico</ApplicationIcon>
+  </PropertyGroup>
+
+  <!-- Published for a specific Windows (the zip and installer): one self-contained file, trimmed to what it uses. -->
+  <PropertyGroup Condition="'$(RuntimeIdentifier)' != ''">
+    <SelfContained>true</SelfContained>
+    <PublishSingleFile>true</PublishSingleFile>
+    <PublishTrimmed>true</PublishTrimmed>
   </PropertyGroup>
 
   <ItemGroup>

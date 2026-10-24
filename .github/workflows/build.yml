@@ -19,3 +19,36 @@ jobs:
 
       - name: Test
         run: dotnet test tests/FocusBar.Core.Tests -c Release --no-build
+
+      # Everything below packages FocusBar for testers: a portable zip and an installer, both self-contained
+      # (no .NET needed on the PC). Download them from this run's "Artifacts" section.
+      - name: Publish
+        run: dotnet publish src/FocusBar.App -c Release -r win-x64 --self-contained -o publish
+
+      - name: Read version
+        id: version
+        shell: pwsh
+        run: |
+          $version = (Select-Xml -Path Directory.Build.props -XPath '//Version').Node.InnerText
+          "value=$version" >> $env:GITHUB_OUTPUT
+
+      - name: Portable zip
+        shell: pwsh
+        run: |
+          Copy-Item packaging/README-FIRST.txt publish/
+          New-Item -ItemType Directory -Force dist | Out-Null
+          Compress-Archive -Path publish/* -DestinationPath "dist/FocusBar-${{ steps.version.outputs.value }}-portable.zip"
+
+      - name: Installer
+        shell: pwsh
+        run: |
+          $iscc = "${env:ProgramFiles(x86)}\Inno Setup 6\ISCC.exe"
+          if (-not (Test-Path $iscc)) { choco install innosetup --no-progress -y | Out-Null }
+          & $iscc "/DAppVersion=${{ steps.version.outputs.value }}" packaging/FocusBar.iss
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: FocusBar-${{ steps.version.outputs.value }}-windows
+          path: dist/
+          if-no-files-found: error

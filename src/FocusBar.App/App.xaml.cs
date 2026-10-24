@@ -5,6 +5,7 @@ using FocusBar.App.Focus;
 using FocusBar.App.Safety;
 using FocusBar.App.Security;
 using FocusBar.App.Services;
+using FocusBar.App.Setup;
 using FocusBar.App.Shell;
 using FocusBar.App.Themes;
 using FocusBar.App.Tray;
@@ -74,6 +75,12 @@ public partial class App : Application
         _services = CreateServices(_shell, store);
         OpenBar();
         _focus!.Start();
+
+        // First run: the setup guide, once the bar is up (so the student sees what's being set up).
+        if (!_services.Settings.Current.SetupCompleted)
+        {
+            Dispatcher.BeginInvoke(() => { if (!_cleanedUp) SetupWizard.ShowSingle(_services); }, DispatcherPriority.ApplicationIdle);
+        }
     }
 
     /// <summary>Used by the panic hotkey and the "Restore Windows taskbar and exit" menu item.</summary>

@@ -318,4 +318,15 @@ public sealed class FocusPlannerTests : IDisposable
         Assert.Equal(["Discord"], loaded.BlockedApps);
         Assert.Equal(["youtube.com"], loaded.BlockedSites);
     }
+
+    [Fact]
+    public void Setup_guide_flag_starts_false_and_is_remembered()
+    {
+        var store = new SettingsStore(new JsonFileStore(_temp.Paths));
+        Assert.False(store.Load().SetupCompleted);
+
+        store.Save(store.Load() with { SetupCompleted = true });
+
+        Assert.True(new SettingsStore(new JsonFileStore(_temp.Paths)).Load().SetupCompleted);
+    }
 }

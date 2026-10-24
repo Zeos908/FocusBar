@@ -6,7 +6,7 @@
 **Developer:** Suhaas
 **Platform:** Windows 10 / 11
 **Audience:** Middle and high school students
-**Status:** 🟠 In development: Phases 0–7 built (safety net, docked bar, taskbar features, deadlines and the ticker, reminders, school and calendar sync, Focus Mode, customization), awaiting testing on Windows
+**Status:** 🟡 Version 0.9.0 test build: all eight build phases are done (safety net, docked bar, taskbar features, deadlines and the ticker, reminders, school and calendar sync, Focus Mode, customization, setup guide and installer). Next: testing on real Windows PCs with classmates, then the demo video.
 
 ---
 
@@ -17,15 +17,16 @@
 3. [Features](#features)
 4. [How It Works](#how-it-works)
 5. [Tech Stack](#tech-stack)
-6. [Building and Running](#building-and-running)
-7. [If Your Taskbar Disappears](#if-your-taskbar-disappears)
-8. [User Walkthrough](#user-walkthrough)
-9. [Screenshots & Demo](#screenshots--demo)
-10. [Technical Challenges](#technical-challenges)
-11. [Development Plan](#development-plan)
-12. [Future Ideas](#future-ideas)
-13. [AI Usage Disclosure](#ai-usage-disclosure)
-14. [Acknowledgments](#acknowledgments)
+6. [Install](#install)
+7. [Building and Running](#building-and-running)
+8. [If Your Taskbar Disappears](#if-your-taskbar-disappears)
+9. [User Walkthrough](#user-walkthrough)
+10. [Screenshots & Demo](#screenshots--demo)
+11. [Technical Challenges](#technical-challenges)
+12. [Development Plan](#development-plan)
+13. [Future Ideas](#future-ideas)
+14. [AI Usage Disclosure](#ai-usage-disclosure)
+15. [Acknowledgments](#acknowledgments)
 
 ---
 
@@ -115,6 +116,11 @@ Plus colors, fonts, transparency, and bar height — saved as switchable themes.
 - On a background picture, the bar adds a subtle dark tint and uses white text so it's always readable. With a plain bar color, the text turns white or black depending on which reads better.
 - Opacity below 100% lets the wallpaper show through (the bar reopens once when you switch between see-through and solid).
 
+### ⚙️ Easy Setup
+- A **setup guide** on first launch: deadlines → reminders → Focus Mode → appearance
+- **Start with Windows** is optional and off until you turn it on (Settings → General)
+- An **installer** or a **portable zip**; uninstalling gives the taskbar back and cleans up after itself
+
 ---
 
 ## How It Works
@@ -166,8 +172,11 @@ Plus colors, fonts, transparency, and bar height — saved as switchable themes.
 | Calendar import | Ical.Net | Parses .ics files |
 | School data | The school site's own JSON endpoints (Blackbaud onCampus), signed in through Microsoft Edge WebView2 | Assignments, due dates, schedule |
 | Secrets | Windows DPAPI | School sign-in and private calendar links are stored encrypted for your Windows account |
+| Pictures | WPF imaging (Windows Imaging Component), decoded to exact screen pixels | Sharp at 100%, 125%, and 150% scaling without wasting memory |
 | Storage | JSON in `%AppData%\FocusBar` | Simple, local, private |
-| Tests | xUnit | Covers all non-UI logic in `FocusBar.Core` |
+| Start with Windows | The current user's `Run` registry key, only if the student turns it on | No admin rights, easy to see and turn off in Task Manager |
+| Packaging | Self-contained .NET publish, as a portable zip and an [Inno Setup](https://jrsoftware.org/isinfo.php) installer, built by GitHub Actions | Runs on PCs without .NET installed |
+| Tests | xUnit, run on Windows by GitHub Actions on every push | Covers all non-UI logic in `FocusBar.Core` |
 
 ### Project layout
 
@@ -176,8 +185,25 @@ FocusBar.sln
 ├── src/FocusBar.App/         WPF app: the bar, safety net, ticker, reminders, sync, Focus Mode, settings
 ├── src/FocusBar.Blocker/     Tiny admin-only helper that adds/removes FocusBar's lines in the hosts file
 ├── src/FocusBar.Core/        Models and logic with no UI code, so it can be unit-tested
-└── tests/FocusBar.Core.Tests xUnit tests for FocusBar.Core
+├── tests/FocusBar.Core.Tests xUnit tests for FocusBar.Core
+├── packaging/                Installer script (Inno Setup) and the read-me that goes in the zip
+└── docs/                     Windows test checklist and sample files
 ```
+
+---
+
+## Install
+
+**You need:** Windows 10 (version 1809 or newer) or Windows 11, 64-bit. Nothing else: .NET is included. The school sign-in window uses Microsoft Edge WebView2, which comes with Windows 11 and most Windows 10 PCs.
+
+Every push to GitHub builds both of these (open the repository's **Actions** tab → the latest **Build and test** run → **Artifacts**):
+
+- **Installer** (`FocusBar-Setup-0.9.0.exe`): installs for everyone (asks for admin once, recommended) or just for you (no admin). Adds Start Menu shortcuts, including **Restore Windows taskbar (FocusBar)** as an emergency way back. Uninstall from Windows Settings → Apps; it closes FocusBar (giving the taskbar back), removes any leftover website block and the Start with Windows entry, and asks before deleting your data.
+- **Portable zip** (`FocusBar-0.9.0-portable.zip`): unzip anywhere and run `FocusBar.exe`. See `README-FIRST.txt` inside. To remove it, exit FocusBar and delete the folder.
+
+This test build isn't code-signed, so Windows SmartScreen may say "Windows protected your PC". Click **More info** → **Run anyway**.
+
+The first time FocusBar runs, a **setup guide** walks through deadlines, reminders, Focus Mode, and the look of the bar (you can run it again from Settings → General). FocusBar does **not** start with Windows unless you turn that on in the guide or in Settings → General.
 
 ---
 
@@ -203,6 +229,15 @@ FocusBar's files live in `%AppData%\FocusBar\`: `deadlines.json` (your deadlines
 
 The step-by-step Windows test checklist for each phase is in [docs/testing.md](docs/testing.md).
 
+### Building the zip and installer
+
+```powershell
+dotnet publish src/FocusBar.App -c Release -r win-x64 --self-contained -o publish
+iscc packaging\FocusBar.iss /DAppVersion=0.9.0      # Inno Setup 6; the installer lands in dist\
+```
+
+Publishing also makes `FocusBar.Blocker.exe` a single self-contained file next to `FocusBar.exe`. GitHub Actions runs the same steps (see `.github/workflows/build.yml`) and uploads the zip and installer as artifacts.
+
 ---
 
 ## If Your Taskbar Disappears
@@ -219,18 +254,19 @@ If the taskbar is still missing (for example, both FocusBar processes were ended
 
 ## User Walkthrough
 
-1. **First launch** — FocusBar replaces the taskbar; a setup screen walks through the rest.
-2. **Connect deadlines** — Sign in to the school website, import a calendar, or add deadlines by hand.
-3. **Set reminders** — Pick when to be notified (or keep the defaults).
+1. **First launch** — FocusBar replaces the taskbar, and the setup guide opens (with a reminder that Ctrl+Alt+Shift+F always brings the Windows taskbar back).
+2. **Connect deadlines** — Sign in to the school website, add a calendar, type deadlines in, or try demo data.
+3. **Set reminders** — Pick when to be notified (or keep the defaults: 1 day, 3 hours, 1 hour before).
 4. **Set up Focus Mode** — Choose apps and websites to block, how early blocking starts, and the strictness level.
-5. **Customize** — Upload a background, Start button icon, and Focus screen image.
-6. **Work** — Deadlines scroll by, reminders pop up on time, and distractions lock when it counts.
+5. **Customize** — Pick a theme, or upload a background, Start button icon, and Focus screen image.
+6. **Finish** — Optionally turn on "Start FocusBar when I sign in to Windows".
+7. **Work** — Deadlines scroll by, reminders pop up on time, and distractions lock when it counts. Everything can be changed later: right-click the bar → **FocusBar settings**.
 
 ---
 
 ## Screenshots & Demo
 
-> *Add mockups or screenshots and your demo video link here.*
+> *Screenshots need a real Windows PC (FocusBar was built on a build server that can't show it). Take them while running the [test checklist](docs/testing.md), save them in a `screenshots/` folder with these names, and add the demo video link.*
 
 | Ticker | Start Launcher | Focus Mode Screen | Custom Theme |
 |---|---|---|---|
@@ -258,17 +294,18 @@ If the taskbar is still missing (for example, both FocusBar processes were ended
 
 ## Development Plan
 
-| Phase | Goal |
-|---|---|
-| 0 | Safety net: the Windows taskbar always comes back (exit, crash, kill, hotkey) |
-| 1 | Bar that docks at the bottom of the screen and hides the Windows taskbar |
-| 2 | Clock, system tray, pinned apps, open-windows switcher, Start launcher |
-| 3 | Manual deadlines + scrolling ticker with urgency colors |
-| 4 | Reminders |
-| 5 | .ics import and school API sync |
-| 6 | Focus Mode for apps, then websites, with strictness levels |
-| 7 | Image customization and themes |
-| 8 | Testing with classmates, polish, demo video |
+| Phase | Goal | Status |
+|---|---|---|
+| 0 | Safety net: the Windows taskbar always comes back (exit, crash, kill, hotkey) | Built |
+| 1 | Bar that docks at the bottom of the screen and hides the Windows taskbar | Built |
+| 2 | Clock, system tray, pinned apps, open-windows switcher, Start launcher | Built |
+| 3 | Manual deadlines + scrolling ticker with urgency colors | Built |
+| 4 | Reminders | Built |
+| 5 | .ics import and school website sync | Built |
+| 6 | Focus Mode for apps, then websites, with strictness levels | Built |
+| 7 | Image customization and themes | Built |
+| 8 | Setup guide, Start with Windows, installer, final README | Built |
+| Next | Testing on Windows with classmates ([checklist](docs/testing.md)), fixes, screenshots, demo video | To do |
 
 ---
 
@@ -277,9 +314,11 @@ If the taskbar is still missing (for example, both FocusBar processes were ended
 - [ ] Google Classroom and Canvas/Schoology integration (Google Classroom calendars already work through the .ics option)
 - [ ] Recurring deadlines (weekly homework)
 - [ ] Study stats (time in Focus Mode, deadlines met on time)
-- [ ] Multi-monitor support
+- [ ] A bar on every monitor (today FocusBar is on the main monitor only)
+- [ ] A browser extension, so website blocking works even with secure DNS turned on
 - [ ] Shareable theme packs
 - [ ] Parent/teacher view (opt-in)
+- [ ] A code-signed installer, so Windows doesn't show the SmartScreen warning
 
 ---
 
@@ -289,10 +328,10 @@ The Congressional App Challenge permits AI tools as long as all use is fully dis
 
 A detailed, phase-by-phase record of what AI generated and what the developer wrote, changed, or decided is kept in [AI_LOG.md](AI_LOG.md).
 
-> *Fill in honestly, e.g.:*
-> - AI tools used: [tool names]
-> - Used for: [e.g., drafting this README, planning features, debugging]
-> - Not used for: [e.g., core logic, UI design]
+> *Draft, based on the AI log. Check it and make it yours:*
+> - AI tools used: Claude Code (Anthropic's AI coding assistant).
+> - Used for: generating the code, unit tests, installer script, and documentation from the developer's concept and build instructions, one phase at a time, and translating the developer's school-website API guide and Python client into C#.
+> - The developer: wrote the concept and the build instructions (features, rules, phases), provided the school website details, made the decisions recorded in the AI log, and tests every phase on Windows. *(Add what you changed or wrote yourself.)*
 
 ---
 

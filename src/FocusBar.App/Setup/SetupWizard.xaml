@@ -1,0 +1,111 @@
+<Window x:Class="FocusBar.App.Setup.SetupWizard"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Set up FocusBar"
+        Width="780" Height="640" MinWidth="620" MinHeight="480"
+        WindowStartupLocation="CenterScreen"
+        Background="{DynamicResource FlyoutBackground}"
+        Foreground="{DynamicResource FlyoutForeground}"
+        FontFamily="{StaticResource BarFont}">
+    <DockPanel>
+        <!-- Where you are: "Step 2 of 6" and a row of dots. -->
+        <StackPanel DockPanel.Dock="Top" Margin="28,18,28,6">
+            <TextBlock x:Name="StepText" Style="{StaticResource FlyoutMuted}" />
+            <ItemsControl x:Name="Dots" Margin="0,6,0,0" Focusable="False">
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <StackPanel Orientation="Horizontal" />
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+            </ItemsControl>
+        </StackPanel>
+
+        <Border DockPanel.Dock="Bottom" BorderThickness="0,1,0,0" BorderBrush="{DynamicResource FlyoutDivider}" Padding="28,12">
+            <DockPanel>
+                <Button x:Name="SkipButton" DockPanel.Dock="Left" Style="{StaticResource FlyoutButton}" Content="Skip setup" Click="Skip_Click"
+                        ToolTip="Close the guide. You can run it again from Settings → General." />
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                    <Button x:Name="BackButton" Style="{StaticResource FlyoutButton}" Content="Back" Margin="0,0,8,0" Click="Back_Click" />
+                    <Button x:Name="NextButton" Style="{StaticResource AccentButton}" Content="Next" MinWidth="90" Click="Next_Click" />
+                </StackPanel>
+            </DockPanel>
+        </Border>
+
+        <ScrollViewer x:Name="Scroller" VerticalScrollBarVisibility="Auto" Focusable="False">
+            <Grid Margin="28,8,28,20">
+                <!-- Step 1 -->
+                <StackPanel x:Name="WelcomeStep">
+                    <TextBlock Text="Welcome to FocusBar" FontSize="28" FontWeight="SemiBold" />
+                    <TextBlock Style="{StaticResource FlyoutMuted}" FontSize="15" TextWrapping="Wrap" Margin="0,8,0,0"
+                               Text="FocusBar takes the place of the Windows taskbar and keeps your deadlines in view." />
+
+                    <StackPanel Margin="0,22,0,0">
+                        <DockPanel Margin="0,0,0,14">
+                            <TextBlock Text="&#xE787;" Style="{StaticResource IconText}" FontSize="22" Margin="0,0,14,0" Foreground="{DynamicResource Accent}" />
+                            <TextBlock TextWrapping="Wrap" VerticalAlignment="Center"><Run FontWeight="SemiBold">Deadlines scroll across the bar</Run>, colored by how soon they're due.</TextBlock>
+                        </DockPanel>
+                        <DockPanel Margin="0,0,0,14">
+                            <TextBlock Text="&#xEA8F;" Style="{StaticResource IconText}" FontSize="22" Margin="0,0,14,0" Foreground="{DynamicResource Accent}" />
+                            <TextBlock TextWrapping="Wrap" VerticalAlignment="Center"><Run FontWeight="SemiBold">Reminders</Run> pop up before things are due.</TextBlock>
+                        </DockPanel>
+                        <DockPanel Margin="0,0,0,14">
+                            <TextBlock Text="&#xE708;" Style="{StaticResource IconText}" FontSize="22" Margin="0,0,14,0" Foreground="{DynamicResource Accent}" />
+                            <TextBlock TextWrapping="Wrap" VerticalAlignment="Center"><Run FontWeight="SemiBold">Focus Mode</Run> blocks distracting apps and websites when it's crunch time.</TextBlock>
+                        </DockPanel>
+                        <DockPanel>
+                            <TextBlock Text="&#xE790;" Style="{StaticResource IconText}" FontSize="22" Margin="0,0,14,0" Foreground="{DynamicResource Accent}" />
+                            <TextBlock TextWrapping="Wrap" VerticalAlignment="Center"><Run FontWeight="SemiBold">Make it yours</Run> with your own pictures and colors.</TextBlock>
+                        </DockPanel>
+                    </StackPanel>
+
+                    <Border CornerRadius="6" Background="{DynamicResource ItemHover}" Padding="14,12" Margin="0,24,0,0">
+                        <TextBlock TextWrapping="Wrap" LineHeight="20">
+                            <Run FontWeight="SemiBold">Your Windows taskbar is safe.</Run>
+                            It's hidden while FocusBar runs and comes back whenever FocusBar closes. Press
+                            <Run FontWeight="SemiBold">Ctrl+Alt+Shift+F</Run> any time to exit FocusBar and get it back.
+                        </TextBlock>
+                    </Border>
+                    <TextBlock Style="{StaticResource FlyoutMuted}" TextWrapping="Wrap" Margin="0,16,0,0"
+                               Text="This takes about two minutes, and you can change everything later in Settings (right-click the bar)." />
+                </StackPanel>
+
+                <!-- Step 2 -->
+                <StackPanel x:Name="DeadlinesStep" Visibility="Collapsed">
+                    <TextBlock Text="Add your deadlines" FontSize="22" FontWeight="SemiBold" />
+                    <TextBlock Style="{StaticResource FlyoutMuted}" TextWrapping="Wrap" Margin="0,6,0,0"
+                               Text="Type them in yourself, connect your school's website, or add a calendar (like Google Calendar or Google Classroom). Use as many as you like." />
+                    <DockPanel Margin="0,14,0,0">
+                        <Button DockPanel.Dock="Left" Style="{StaticResource AccentButton}" Click="AddDeadline_Click">
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="&#xE710;" Style="{StaticResource IconText}" FontSize="12" Margin="0,0,8,0" />
+                                <TextBlock Text="Add a deadline myself…" />
+                            </StackPanel>
+                        </Button>
+                        <TextBlock x:Name="DeadlineCount" Style="{StaticResource FlyoutMuted}" VerticalAlignment="Center" Margin="12,0,0,0" />
+                    </DockPanel>
+                    <Border BorderThickness="0,1,0,0" BorderBrush="{DynamicResource FlyoutDivider}" Margin="0,18,0,14" />
+                    <ContentControl x:Name="SourcesHost" Focusable="False" />
+                </StackPanel>
+
+                <!-- Steps 3–5 show the matching Settings page. -->
+                <ContentControl x:Name="PageHost" Focusable="False" Visibility="Collapsed" />
+
+                <!-- Step 6 -->
+                <StackPanel x:Name="DoneStep" Visibility="Collapsed">
+                    <TextBlock Text="You're all set" FontSize="26" FontWeight="SemiBold" />
+                    <TextBlock Style="{StaticResource FlyoutMuted}" TextWrapping="Wrap" Margin="0,6,0,0" Text="A few things to try:" />
+                    <StackPanel Margin="0,14,0,0">
+                        <TextBlock TextWrapping="Wrap" Margin="0,0,0,8">• <Run FontWeight="SemiBold">Click a deadline</Run> on the bar to see it or mark it complete; the <Run FontWeight="SemiBold">+</Run> next to the ticker adds one.</TextBlock>
+                        <TextBlock TextWrapping="Wrap" Margin="0,0,0,8">• <Run FontWeight="SemiBold">Click the moon</Run> to focus for 25, 50, or 90 minutes.</TextBlock>
+                        <TextBlock TextWrapping="Wrap" Margin="0,0,0,8">• <Run FontWeight="SemiBold">Right-click the bar</Run> for Settings, Task Manager, or to give the Windows taskbar back.</TextBlock>
+                        <TextBlock TextWrapping="Wrap">• <Run FontWeight="SemiBold">Ctrl+Alt+Shift+F</Run> exits FocusBar and brings the Windows taskbar back, any time.</TextBlock>
+                    </StackPanel>
+                    <CheckBox x:Name="StartupBox" Style="{StaticResource FlyoutCheckBox}" Margin="0,22,0,0"
+                              Content="Start FocusBar when I sign in to Windows" Checked="StartupBox_Changed" Unchecked="StartupBox_Changed" />
+                    <TextBlock Style="{StaticResource FlyoutMuted}" TextWrapping="Wrap" Margin="0,4,0,0"
+                               Text="Off unless you turn it on. You can change it later in Settings → General." />
+                </StackPanel>
+            </Grid>
+        </ScrollViewer>
+    </DockPanel>
+</Window>

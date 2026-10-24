@@ -323,3 +323,63 @@ one (a landscape photo or a banner), a square one (a logo), and any photo taken 
 | 7.20 | Watch Task Manager for a minute with the ticker scrolling, at 100% opacity and then at 70% | CPU stays under about 2% at 100%. Note what it is at 70% (see-through windows cost a little more). |
 | 7.21 | **Reset to the Default theme** | Back to the original look; your saved themes are still listed. |
 | 7.22 | Repeat the Phase 0 tests | All still pass. |
+
+## Phase 8: Setup guide, Start with Windows, installer
+
+**Setup guide**
+
+| # | Test | Expected |
+|---|---|---|
+| 8.1 | First run: delete (or rename) `%AppData%\FocusBar\settings.json`, start FocusBar | The bar appears, then "Set up FocusBar" opens on Step 1 of 6 with the Ctrl+Alt+Shift+F reminder. |
+| 8.2 | **Get started** → Step 2: **Add a deadline myself…**, add one | The count updates ("1 deadline so far") and it shows on the ticker. The school and calendar options below work like Settings → Deadline sources (try **Use demo data**). |
+| 8.3 | **Next** through Reminders, Focus Mode, and Appearance; change something on each | Each change applies at once (e.g. pick the Midnight theme: the bar changes behind the guide). **Back** keeps what you chose. |
+| 8.4 | Step 6: leave "Start FocusBar when I sign in" **off**, click **Finish** | The guide closes. Restart FocusBar: the guide doesn't open again. |
+| 8.5 | Settings → General → **Run the setup guide** | It opens again; your earlier choices are still there. |
+| 8.6 | Start fresh again (8.1), click **Skip setup** or close the window with X | It closes and doesn't come back next start. |
+
+**Start with Windows**
+
+| # | Test | Expected |
+|---|---|---|
+| 8.7 | Fresh install: open `regedit` → `HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Run` | No `FocusBar` value (off by default). Task Manager → Startup apps doesn't list FocusBar. |
+| 8.8 | Settings → General: turn on **Start FocusBar when I sign in to Windows** | A `FocusBar` value appears, set to the quoted path of FocusBar.exe. Sign out and back in: FocusBar starts. |
+| 8.9 | In Task Manager → Startup apps, disable FocusBar, then reopen Settings → General | The box is still on, with a note that Task Manager has it turned off. |
+| 8.10 | Turn the setting off | The `FocusBar` value is gone. |
+
+**Portable zip**
+
+| # | Test | Expected |
+|---|---|---|
+| 8.11 | On a PC **without** .NET installed, unzip `FocusBar-0.9.0-portable.zip` and run `FocusBar.exe` | Starts (after SmartScreen's "Run anyway"). `README-FIRST.txt` is in the folder. |
+| 8.12 | Start a Focus session with a website on the list | The permission prompt shows FocusBar's icon and "FocusBar.Blocker"; blocking works (`FocusBar.Blocker.exe` runs without .NET installed). |
+
+**Installer**
+
+| # | Test | Expected |
+|---|---|---|
+| 8.13 | Run `FocusBar-Setup-0.9.0.exe`, choose **Install for all users** | Installs to `C:\Program Files\FocusBar`. "Start FocusBar now" at the end starts it as you (in Task Manager → Details, add the "Elevated" column: FocusBar shows **No**). |
+| 8.14 | Run it again and choose **Install for me only** (on a standard, non-admin account if you have one) | Installs to `%LocalAppData%\Programs\FocusBar` without asking for admin. |
+| 8.15 | Start Menu | "FocusBar" and "Restore Windows taskbar (FocusBar)" are there. The second one works when FocusBar isn't running. |
+| 8.16 | Install again over a running FocusBar | Setup offers to close it; the Windows taskbar comes back while it installs; FocusBar starts again at the end if you leave the box checked. |
+| 8.17 | With FocusBar running, Focus Mode blocking a website, and Start with Windows on: uninstall from Settings → Apps | FocusBar closes and the Windows taskbar comes back. Windows asks permission once to remove the website block. The `Run` value is gone. It asks whether to delete your data: **No** keeps `%AppData%\FocusBar`, **Yes** removes it. |
+| 8.18 | After uninstalling, check the hosts file and Task Manager | No `# FocusBar` lines; no FocusBar processes. (`hosts.focusbar-backup` stays as a copy of your original hosts file.) |
+
+## Final checklist (§9 of the build instructions)
+
+Status as of version 0.9.0. "Automated" means it's covered by the unit tests that GitHub Actions runs on Windows for every push. Everything marked **Needs Windows** has to be checked by hand with the tests listed.
+
+| §9 item | How it's checked | Status |
+|---|---|---|
+| Killing the process, crashing, and the panic hotkey all restore the Windows taskbar | Tests 0.1–0.12, 6.22 | Needs Windows |
+| Maximized windows never overlap the bar | Tests 1.2, 1.5, 1.6, 7.13 | Needs Windows |
+| Start launcher finds and launches apps; pinned apps persist | Tests 2.1–2.14; search and pin storage are automated | Partly automated; needs Windows |
+| Window switcher handles 20+ open windows | Test 2.21 | Needs Windows |
+| Tray icons from other apps appear and respond to clicks | Tests 2.23–2.30 | Needs Windows |
+| Ticker CPU usage stays under ~2%; memory stays under ~150 MB | Tests 1.8, 2.38, 3.20, 3.22, 7.20 | Needs Windows |
+| Deadlines persist; manual, .ics, and mock school data merge with no duplicates | Automated (deadline store, merge, .ics, and demo-source tests); tests 5.1–5.6, 5.16 | Automated; check on Windows |
+| Reminders fire once, snooze works, and catch-up works after restart | Automated (reminder planner tests); tests 4.x | Automated; check on Windows |
+| Each strictness level behaves correctly | Automated (focus planner tests); tests 6.7–6.20 | Partly automated; needs Windows |
+| Hosts file is cleaned up after normal exit and after a crash | Automated (hosts file editing tests); tests 6.13, 6.21–6.24, 8.17 | Partly automated; needs Windows |
+| Custom images look right at 100%, 125%, and 150% scaling | Automated (pixel-size math for each scale); test 7.19 | Partly automated; needs Windows |
+| Works on both Windows 10 and Windows 11 | Run the whole list on one PC of each | Needs Windows |
+| All `FocusBar.Core` unit tests pass | `dotnet test` (392 tests), and on every push in GitHub Actions | ✅ Passing |

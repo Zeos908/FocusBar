@@ -1,5 +1,6 @@
 using FocusBar.Core.Appearance;
 using FocusBar.Core.Models;
+using FocusBar.Core.Settings;
 using FocusBar.Core.Storage;
 
 namespace FocusBar.Core.Tests;
@@ -452,4 +453,35 @@ public sealed class ThemeLibraryTests : IDisposable
         Assert.Equal(Theme.DefaultFont, loaded.Current.FontFamily);
         Assert.Empty(loaded.Saved);
     }
+}
+
+public class StartupCommandTests
+{
+    private const string Exe = @"C:\Users\Sam Lee\AppData\Local\Programs\FocusBar\FocusBar.exe";
+
+    [Fact]
+    public void Command_is_the_quoted_path() => Assert.Equal($"\"{Exe}\"", StartupCommand.For(Exe));
+
+    [Theory]
+    [InlineData("\"C:\\Users\\Sam Lee\\AppData\\Local\\Programs\\FocusBar\\FocusBar.exe\"", true)]
+    [InlineData("\"c:\\users\\sam lee\\appdata\\local\\programs\\focusbar\\FOCUSBAR.EXE\" --minimized", true)]
+    [InlineData("C:\\Users\\Sam Lee\\AppData\\Local\\Programs\\FocusBar\\FocusBar.exe", true)]
+    [InlineData("\"D:\\Old copy\\FocusBar.exe\"", false)]
+    [InlineData("", false)]
+    [InlineData(null, false)]
+    [InlineData("\"", false)]
+    public void Recognizes_its_own_entry(string? command, bool expected) => Assert.Equal(expected, StartupCommand.PointsTo(command, Exe));
+
+    [Fact]
+    public void Program_path_handles_arguments_without_quotes() =>
+        Assert.Equal(@"C:\Apps\FocusBar.exe", StartupCommand.ProgramPath(@"C:\Apps\FocusBar.exe --watchdog 12"));
+
+    [Theory]
+    [InlineData(null, false)]
+    [InlineData(new byte[0], false)]
+    [InlineData(new byte[] { 2, 0, 0, 0 }, false)]
+    [InlineData(new byte[] { 6, 0, 0, 0 }, false)]
+    [InlineData(new byte[] { 3, 0, 0, 0, 1, 2 }, true)]
+    [InlineData(new byte[] { 7, 0, 0, 0 }, true)]
+    public void Reads_task_manager_switch(byte[]? approved, bool off) => Assert.Equal(off, StartupCommand.IsTurnedOffInTaskManager(approved));
 }
