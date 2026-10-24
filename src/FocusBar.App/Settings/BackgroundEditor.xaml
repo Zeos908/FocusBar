@@ -1,0 +1,56 @@
+<Window x:Class="FocusBar.App.Settings.BackgroundEditor"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Line up your bar picture"
+        Width="1000" Height="620" MinWidth="680" MinHeight="440"
+        WindowStartupLocation="CenterOwner" ShowInTaskbar="False"
+        Background="{DynamicResource FlyoutBackground}"
+        Foreground="{DynamicResource FlyoutForeground}"
+        FontFamily="{StaticResource BarFont}">
+    <DockPanel Margin="20">
+        <StackPanel DockPanel.Dock="Top">
+            <TextBlock Text="Line up your bar picture" FontSize="20" FontWeight="SemiBold" />
+            <TextBlock Style="{StaticResource FlyoutMuted}" TextWrapping="Wrap" Margin="0,4,0,0"
+                       Text="The bright strip is the part that shows on the bar. Drag the picture to choose what goes there, and zoom with the slider or your mouse wheel. Arrow keys and + / − work too." />
+        </StackPanel>
+
+        <DockPanel DockPanel.Dock="Bottom" Margin="0,14,0,0">
+            <StackPanel DockPanel.Dock="Right" Orientation="Horizontal">
+                <Button Style="{StaticResource FlyoutButton}" Content="Cancel" IsCancel="True" Margin="0,0,8,0" />
+                <Button x:Name="UseButton" Style="{StaticResource AccentButton}" Content="Use this picture" Click="Use_Click" />
+            </StackPanel>
+            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                <Button Style="{StaticResource FlyoutButton}" Padding="8,4" Click="ZoomOut_Click" ToolTip="Zoom out" AutomationProperties.Name="Zoom out">
+                    <TextBlock Text="&#xE71F;" Style="{StaticResource IconText}" FontSize="14" />
+                </Button>
+                <Slider x:Name="ZoomSlider" Width="220" Margin="8,0" VerticalAlignment="Center"
+                        Minimum="1" Maximum="10" SmallChange="0.25" LargeChange="1"
+                        ValueChanged="ZoomSlider_ValueChanged" AutomationProperties.Name="Zoom" />
+                <Button Style="{StaticResource FlyoutButton}" Padding="8,4" Click="ZoomIn_Click" ToolTip="Zoom in" AutomationProperties.Name="Zoom in">
+                    <TextBlock Text="&#xE8A3;" Style="{StaticResource IconText}" FontSize="14" />
+                </Button>
+                <TextBlock x:Name="ZoomText" Style="{StaticResource FlyoutMuted}" VerticalAlignment="Center" MinWidth="48" Margin="10,0" />
+                <Button Style="{StaticResource FlyoutButton}" Content="Reset" Click="Reset_Click"
+                        ToolTip="The middle of the picture, not zoomed" />
+            </StackPanel>
+        </DockPanel>
+
+        <!-- The picture, dimmed except for a bar-shaped strip. Everything is placed in code. -->
+        <Border x:Name="Viewport" Margin="0,14,0,0" CornerRadius="6" Background="#FF0E0E11" ClipToBounds="True"
+                Focusable="True" FocusVisualStyle="{x:Null}" Cursor="SizeAll"
+                MouseLeftButtonDown="Viewport_MouseLeftButtonDown" MouseMove="Viewport_MouseMove"
+                MouseLeftButtonUp="Viewport_MouseLeftButtonUp" LostMouseCapture="Viewport_LostMouseCapture"
+                MouseWheel="Viewport_MouseWheel" KeyDown="Viewport_KeyDown" SizeChanged="Viewport_SizeChanged"
+                AutomationProperties.Name="Picture. Drag or use the arrow keys to move it; plus and minus to zoom.">
+            <Canvas x:Name="Stage">
+                <Image x:Name="Picture" Stretch="Fill" RenderOptions.BitmapScalingMode="HighQuality" />
+                <!-- Darkens everything outside the strip. -->
+                <Path x:Name="Shade" Fill="#B8000000" IsHitTestVisible="False" />
+                <!-- The bar adds this tint over pictures so text stays readable; shown here so the strip looks like the bar. -->
+                <Rectangle x:Name="BarTint" Fill="#59000000" IsHitTestVisible="False" />
+                <Rectangle x:Name="Frame" Stroke="White" StrokeThickness="2" IsHitTestVisible="False" />
+                <TextBlock x:Name="FrameLabel" Text="The bar" Foreground="White" FontSize="12" Opacity="0.85" IsHitTestVisible="False" />
+            </Canvas>
+        </Border>
+    </DockPanel>
+</Window>

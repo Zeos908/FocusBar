@@ -43,7 +43,7 @@ FocusBar replaces the Windows taskbar entirely — the one part of the screen st
 ## Features
 
 ### 🖥️ Full Taskbar Replacement
-FocusBar hides the default Windows taskbar and replaces every core feature:
+FocusBar hides the default Windows taskbar and replaces every core feature. Deadlines get the left side of the bar; app icons sit on the right with the Focus Mode button, tray, and clock.
 - **Start button / app launcher** — type to search installed apps, Enter to open, right-click to pin; a button opens the regular Windows Start menu
 - **Open-windows switcher** — click to switch, click the active window to minimize, right-click or middle-click to close
 - **Pinned apps** — one-click shortcuts to favorite programs, pinned from the launcher or from a running window
@@ -112,7 +112,7 @@ Plus colors, fonts, transparency, and bar height — saved as switchable themes.
 **How to use it:** right-click the bar → **FocusBar settings** → **Appearance**. Every change shows on the bar right away. Start from one of the three built-in themes (**Default**, which follows Windows' light/dark mode; **Midnight**; **Sunrise**), change what you like, and **Save** it under your own name to switch back to it later.
 
 - Pictures can be PNG, JPG, or GIF (animated GIFs show their first frame). FocusBar keeps its own copy in `%AppData%\FocusBar\images`, so you can move or delete the original.
-- The bar background can **Fill** the bar (cropping the top and bottom), **Fit** inside it, or sit in the **Center** at real size. Pictures are resized once, with high quality, to the exact screen pixels they cover, so they stay sharp at 100%, 125%, and 150% scaling. Phone photos are turned the right way up.
+- Choosing a bar background opens a **picture editor**: the picture sits behind a bright, bar-shaped strip, and you drag it and zoom (slider, mouse wheel, or keys) until the part you want is in the strip. **Adjust…** reopens it later. The background can also **Fit** inside the bar or sit in the **Center** at real size. Pictures are resized once, with high quality, to the exact screen pixels they cover, so they stay sharp at 100%, 125%, and 150% scaling. Phone photos are turned the right way up.
 - On a background picture, the bar adds a subtle dark tint and uses white text so it's always readable. With a plain bar color, the text turns white or black depending on which reads better.
 - Opacity below 100% lets the wallpaper show through (the bar reopens once when you switch between see-through and solid).
 

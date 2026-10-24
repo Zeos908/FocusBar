@@ -89,9 +89,16 @@ public static partial class ThemeLibrary
             Opacity = opacity,
             BarHeight = height,
             BackgroundFit = Enum.IsDefined(theme.BackgroundFit) ? theme.BackgroundFit : ImageFit.Fill,
+            BackgroundCrop = Clean(theme.BackgroundCrop),
             FontFamily = IsValidFontName(theme.FontFamily) ? theme.FontFamily.Trim() : Theme.DefaultFont,
         };
     }
+
+    /// <summary>A crop with every value in range (centers 0–1, zoom 1–10), rounded so files stay tidy; null stays null.</summary>
+    public static ImageCrop? Clean(ImageCrop? crop) => crop is null ? null : new ImageCrop(
+        Math.Round(double.IsFinite(crop.CenterX) ? Math.Clamp(crop.CenterX, 0, 1) : 0.5, 4),
+        Math.Round(double.IsFinite(crop.CenterY) ? Math.Clamp(crop.CenterY, 0, 1) : 0.5, 4),
+        Math.Round(double.IsFinite(crop.Zoom) ? Math.Clamp(crop.Zoom, 1, ImageCrop.MaxZoom) : 1, 3));
 
     /// <summary>Trims and collapses spaces; cuts to <see cref="MaxNameLength"/>.</summary>
     public static string NormalizeName(string? name)

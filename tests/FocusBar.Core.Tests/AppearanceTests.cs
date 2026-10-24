@@ -140,12 +140,35 @@ public class ImageLayoutTests
     }
 
     [Fact]
-    public void Fill_with_a_small_image_scales_it_up_to_cover()
+    public void Fill_with_a_small_image_keeps_its_pixels_and_is_scaled_up_when_drawn()
     {
         var plan = ImageLayout.Plan(200, 100, 1920, 48, 1.0, ImageFit.Fill);
 
-        Assert.Equal((1920, 960), (plan.DecodeWidth, plan.DecodeHeight));
-        Assert.Equal((1920, 48), (plan.CropWidth, plan.CropHeight));
+        Assert.Equal((200, 100), (plan.DecodeWidth, plan.DecodeHeight)); // never decoded bigger than it is
+        Assert.Equal((0, 48, 200, 5), (plan.CropX, plan.CropY, plan.CropWidth, plan.CropHeight));
+        Assert.Equal((1920.0, 48.0), (plan.DisplayWidth, plan.DisplayHeight)); // still covers the bar
+    }
+
+    [Fact]
+    public void Fill_uses_the_editor_crop()
+    {
+        // A 4000×3000 photo on a 1920×48 bar at 100%. Covering scale is 0.48, so zoom 2 shows 2000×50 picture
+        // pixels; centered at (25%, 10%) that's x 0–2000 (clamped at the left edge), y 275–325.
+        var plan = ImageLayout.Plan(4000, 3000, 1920, 48, 1.0, ImageFit.Fill, new ImageCrop(0.25, 0.1, 2));
+
+        Assert.Equal((3840, 2880), (plan.DecodeWidth, plan.DecodeHeight)); // 0.96 of full size: scaled down while decoding
+        Assert.Equal((0, 264, 1920, 48), (plan.CropX, plan.CropY, plan.CropWidth, plan.CropHeight));
+        Assert.Equal((1920.0, 48.0), (plan.DisplayWidth, plan.DisplayHeight));
+    }
+
+    [Fact]
+    public void Zooming_past_full_size_decodes_at_full_size_only()
+    {
+        var plan = ImageLayout.Plan(1920, 1080, 1920, 48, 1.0, ImageFit.Fill, new ImageCrop(0.5, 0.5, 4));
+
+        Assert.Equal((1920, 1080), (plan.DecodeWidth, plan.DecodeHeight));
+        Assert.Equal((720, 534, 480, 12), (plan.CropX, plan.CropY, plan.CropWidth, plan.CropHeight));
+        Assert.Equal((1920.0, 48.0), (plan.DisplayWidth, plan.DisplayHeight));
     }
 
     [Fact]
@@ -412,6 +435,7 @@ public sealed class ThemeLibraryTests : IDisposable
             Opacity = 0.75,
             BarHeight = 56,
             FontFamily = "Bahnschrift",
+            BackgroundCrop = new ImageCrop(0.25, 0.8, 2.5),
         };
         store.Save(ThemeLibrary.SaveAs(ThemeSettings.Default with { Current = custom }, "Mine"));
 
@@ -484,4 +508,127 @@ public class StartupCommandTests
     [InlineData(new byte[] { 3, 0, 0, 0, 1, 2 }, true)]
     [InlineData(new byte[] { 7, 0, 0, 0 }, true)]
     public void Reads_task_manager_switch(byte[]? approved, bool off) => Assert.Equal(off, StartupCommand.IsTurnedOffInTaskManager(approved));
+}
+
+public class CropMathTests
+{
+    // A 4:3 photo and a 40:1 bar-shaped frame.
+    private const int W = 4000, H = 3000;
+    private const double FrameW = 800, FrameH = 20;
+
+    [Fact]
+    public void Default_crop_shows_a_full_width_strip_through_the_middle()
+    {
+        var region = CropMath.Region(ImageCrop.Default, W, H, FrameW, FrameH);
+
+        Assert.Equal(0, region.X, 6);
+        Assert.Equal(W, region.Width, 6);
+        Assert.Equal(100, region.Height, 6); // 20 / (800/4000)
+        Assert.Equal(H / 2.0 - 50, region.Y, 6);
+    }
+
+    [Fact]
+    public void Clamp_keeps_the_region_inside_the_picture()
+    {
+        var crop = CropMath.Clamp(new ImageCrop(-3, 2, 50), W, H, FrameW, FrameH);
+        var region = CropMath.Region(crop, W, H, FrameW, FrameH);
+
+        Assert.Equal(ImageCrop.MaxZoom, crop.Zoom);
+        Assert.Equal(0, region.X, 6);
+        Assert.Equal(H, region.Y + region.Height, 6);
+    }
+
+    [Fact]
+    public void Clamp_fixes_nonsense_values()
+    {
+        var crop = CropMath.Clamp(new ImageCrop(double.NaN, double.PositiveInfinity, double.NaN), W, H, FrameW, FrameH);
+        Assert.Equal(0.5, crop.CenterX);
+        Assert.Equal(1, crop.Zoom);
+        Assert.True(crop.CenterY is > 0 and < 1);
+    }
+
+    [Fact]
+    public void At_zoom_1_a_wide_frame_can_only_move_up_and_down()
+    {
+        var dragged = CropMath.Drag(ImageCrop.Default, 300, 0, W, H, FrameW, FrameH);
+        Assert.Equal(0.5, dragged.CenterX); // the picture is exactly as wide as the frame
+
+        var down = CropMath.Drag(ImageCrop.Default, 0, 50, W, H, FrameW, FrameH);
+        Assert.True(down.CenterY < 0.5); // dragging the picture down shows a higher part of it
+    }
+
+    [Fact]
+    public void Dragging_moves_the_picture_with_the_mouse()
+    {
+        var zoomed = new ImageCrop(0.5, 0.5, 2);
+        var before = CropMath.Region(zoomed, W, H, FrameW, FrameH);
+        var after = CropMath.Region(CropMath.Drag(zoomed, 40, 10, W, H, FrameW, FrameH), W, H, FrameW, FrameH);
+
+        // 40 frame units right = 40 / scale picture pixels further left in the picture.
+        Assert.Equal(before.X - 40 / before.Scale, after.X, 6);
+        Assert.Equal(before.Y - 10 / before.Scale, after.Y, 6);
+    }
+
+    [Fact]
+    public void Dragging_stops_at_the_edges()
+    {
+        var crop = new ImageCrop(0.5, 0.5, 3);
+        for (var i = 0; i < 50; i++) crop = CropMath.Drag(crop, 500, 500, W, H, FrameW, FrameH);
+        var region = CropMath.Region(crop, W, H, FrameW, FrameH);
+
+        Assert.Equal(0, region.X, 6);
+        Assert.Equal(0, region.Y, 6);
+    }
+
+    [Fact]
+    public void Zooming_around_the_middle_keeps_the_middle()
+    {
+        var crop = CropMath.ZoomAt(new ImageCrop(0.4, 0.3, 1.5), 3, 0, 0, W, H, FrameW, FrameH);
+        Assert.Equal(3, crop.Zoom);
+        Assert.Equal(0.4, crop.CenterX, 6);
+        Assert.Equal(0.3, crop.CenterY, 6);
+    }
+
+    [Fact]
+    public void Zooming_around_the_mouse_keeps_the_point_under_it()
+    {
+        var crop = new ImageCrop(0.5, 0.5, 2);
+        double anchorX = 200, anchorY = 5; // to the right of and below the frame's middle
+
+        var before = CropMath.Region(crop, W, H, FrameW, FrameH);
+        var pointX = before.X + (FrameW / 2 + anchorX) / before.Scale;
+        var pointY = before.Y + (FrameH / 2 + anchorY) / before.Scale;
+
+        var zoomed = CropMath.ZoomAt(crop, 4, anchorX, anchorY, W, H, FrameW, FrameH);
+        var after = CropMath.Region(zoomed, W, H, FrameW, FrameH);
+
+        Assert.Equal(pointX, after.X + (FrameW / 2 + anchorX) / after.Scale, 6);
+        Assert.Equal(pointY, after.Y + (FrameH / 2 + anchorY) / after.Scale, 6);
+    }
+
+    [Fact]
+    public void Zoom_stays_between_1_and_the_maximum()
+    {
+        Assert.Equal(1, CropMath.ZoomAt(ImageCrop.Default, 0.2, 0, 0, W, H, FrameW, FrameH).Zoom);
+        Assert.Equal(ImageCrop.MaxZoom, CropMath.ZoomAt(ImageCrop.Default, 99, 0, 0, W, H, FrameW, FrameH).Zoom);
+    }
+
+    [Fact]
+    public void The_same_crop_fits_a_taller_bar()
+    {
+        // Saved for a 48-high bar, shown on a 72-high one: same middle, still inside the picture.
+        var crop = new ImageCrop(0.3, 0.95, 2);
+        var region = CropMath.Region(crop, W, H, 1920, 72);
+
+        Assert.True(region.Y + region.Height <= H + 1e-9);
+        Assert.Equal(0.3 * W, region.X + region.Width / 2, 6);
+    }
+
+    [Fact]
+    public void Clean_rounds_and_limits_saved_crops()
+    {
+        Assert.Null(ThemeLibrary.Clean((ImageCrop?)null));
+        Assert.Equal(new ImageCrop(1, 0.1235, 10), ThemeLibrary.Clean(new ImageCrop(7, 0.123456, 400)));
+        Assert.Equal(new ImageCrop(0.5, 0.5, 1), ThemeLibrary.Clean(new ImageCrop(double.NaN, double.NaN, double.NaN)));
+    }
 }

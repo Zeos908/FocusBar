@@ -31,6 +31,9 @@
                         <Image x:Name="BackgroundThumb" Stretch="UniformToFill" />
                     </Border>
                     <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" VerticalAlignment="Center">
+                        <Button x:Name="AdjustBackground" Style="{StaticResource FlyoutButton}" Content="Adjust…" Click="AdjustBackground_Click"
+                                Margin="0,0,6,0" ToolTip="Drag and zoom to choose which part of the picture shows"
+                                AutomationProperties.Name="Adjust which part of the bar picture shows" />
                         <Button Style="{StaticResource FlyoutButton}" Content="Choose…" Tag="Background" Click="ChooseImage_Click" Margin="0,0,6,0"
                                 AutomationProperties.Name="Choose bar background picture" />
                         <Button x:Name="RemoveBackground" Style="{StaticResource FlyoutButton}" Content="Remove" Tag="Background" Click="RemoveImage_Click"
@@ -38,12 +41,12 @@
                     </StackPanel>
                     <StackPanel VerticalAlignment="Center">
                         <TextBlock Text="Bar background" FontWeight="SemiBold" />
-                        <TextBlock Style="{StaticResource FlyoutMuted}" Text="A wide picture works best." TextWrapping="Wrap" />
+                        <TextBlock Style="{StaticResource FlyoutMuted}" Text="You'll pick which part shows on the bar." TextWrapping="Wrap" />
                     </StackPanel>
                 </DockPanel>
                 <WrapPanel x:Name="FitChips" Margin="0,10,0,0">
                     <RadioButton x:Name="FillOption" GroupName="Fit" Style="{StaticResource ChipRadio}" Content="Fill" Tag="Fill" Checked="Fit_Checked"
-                                 ToolTip="Covers the whole bar; the top and bottom are cropped" />
+                                 ToolTip="Covers the whole bar, showing the part you chose with Adjust" />
                     <RadioButton x:Name="FitOption" GroupName="Fit" Style="{StaticResource ChipRadio}" Content="Fit" Tag="Fit" Checked="Fit_Checked"
                                  ToolTip="Shows the whole picture, with the bar color at the sides" />
                     <RadioButton x:Name="CenterOption" GroupName="Fit" Style="{StaticResource ChipRadio}" Content="Center" Tag="Center" Checked="Fit_Checked"

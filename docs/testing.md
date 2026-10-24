@@ -36,7 +36,7 @@ Before each test, start FocusBar and check that the Windows taskbar is hidden an
 |---|---|---|
 | 1.1 | Start FocusBar | Bar is docked at the bottom of the primary monitor, full width, 48 px tall at 100% scaling. Windows taskbar is hidden. |
 | 1.2 | Maximize a window (for example File Explorer or a browser) | The window stops right above the bar and doesn't cover it. |
-| 1.3 | Layout | Left to right: Start icon, "Pinned apps", "Open windows", deadline area filling the middle, "Tray", clock with time and date. |
+| 1.3 | Layout | Left to right: Start icon, the deadline ticker filling the left side, then on the right: pinned apps, open windows, the Focus Mode moon, the tray, and the clock with time and date. |
 | 1.4 | Clock | Shows the right time and date in your region's format, and changes at the start of each minute. |
 | 1.5 | Display scaling at 125%, then 150% (Settings → System → Display → Scale), with FocusBar running and after restarting it | Bar stays docked, text is sharp, and the bar gets taller in proportion. Maximized windows still don't overlap it. |
 | 1.6 | Restart Explorer (Task Manager → Windows Explorer → Restart) while FocusBar is running | Windows taskbar flickers back for a moment, then hides again. FocusBar's bar is still docked and maximized windows still stop above it. |
@@ -302,8 +302,8 @@ one (a landscape photo or a banner), a square one (a logo), and any photo taken 
 | # | Test | Expected |
 |---|---|---|
 | 7.1 | Under Themes, click **Use** on **Midnight**, then **Sunrise**, then **Default** | The bar changes at once each time: Midnight is dark purple with a purple accent and you can faintly see the wallpaper through it; Sunrise is light cream with dark text, an orange accent, and slightly shorter; Default follows Windows' light/dark mode. Accent-colored things (Start tiles, Focus button when on, buttons in flyouts and Settings) follow. |
-| 7.2 | Pictures → Bar background → **Choose…** the wide picture | It appears behind the bar with a slight dark tint; all text and icons are white and readable. The thumbnail shows in Settings. |
-| 7.3 | Try **Fill**, **Fit**, and **Center** | Fill covers the whole bar (top and bottom cropped). Fit shows the whole picture with plain bar color at the sides. Center shows it at real size in the middle. |
+| 7.2 | Pictures → Bar background → **Choose…** the wide picture, then **Use this picture** in the editor (tests 7.23–7.29 cover the editor) | It appears behind the bar with a slight dark tint; all text and icons are white and readable. The thumbnail shows in Settings. |
+| 7.3 | Try **Fill**, **Fit**, and **Center** | Fill covers the whole bar, showing the part chosen in the editor. Fit shows the whole picture with plain bar color at the sides. Center shows it at real size in the middle. |
 | 7.4 | Choose a picture that's very light (mostly white) | Text is still readable (the tint is there). |
 | 7.5 | Choose the phone photo | It's the right way up (not sideways). |
 | 7.6 | Start button → **Choose…** the square picture | It replaces the four tiles; Start still opens the launcher. **Remove** brings the tiles back. |
@@ -323,6 +323,18 @@ one (a landscape photo or a banner), a square one (a logo), and any photo taken 
 | 7.20 | Watch Task Manager for a minute with the ticker scrolling, at 100% opacity and then at 70% | CPU stays under about 2% at 100%. Note what it is at 70% (see-through windows cost a little more). |
 | 7.21 | **Reset to the Default theme** | Back to the original look; your saved themes are still listed. |
 | 7.22 | Repeat the Phase 0 tests | All still pass. |
+
+**Bar picture editor** (added after Phase 8)
+
+| # | Test | Expected |
+|---|---|---|
+| 7.23 | Bar background → **Choose…** a photo | "Line up your bar picture" opens: the photo, darkened everywhere except a thin bright strip with a white outline labeled "The bar". The strip has the same shape as your bar (full screen width × bar height). |
+| 7.24 | Drag the photo up, down, and sideways | It follows the mouse; whatever is in the strip is what the bar will show. You can't drag it past its edges (the strip is always full of picture). At 100% zoom a wide strip may only move up and down. |
+| 7.25 | Zoom with the slider, the − / + buttons, and the mouse wheel | Zooms from 100% to 1000%. The wheel zooms around the mouse pointer (the spot under it stays put). Zooming out never goes below "just covers the strip". |
+| 7.26 | Click the strip area, then use the arrow keys and + / − | Arrow keys move the photo; + / − zoom. **Reset** goes back to the middle at 100%. |
+| 7.27 | **Use this picture** | The bar shows exactly the part that was in the strip. Restart FocusBar: still the same part. |
+| 7.28 | **Choose…** another photo, then **Cancel** in the editor | Nothing changes; the bar keeps its current picture. |
+| 7.29 | **Adjust…** on the Bar background row | The editor opens on the current picture with the part you chose before. Change it and **Use this picture**: the bar updates. Change the bar height afterwards: the same spot stays in the middle. Check at 125% and 150% scaling that the chosen part is still sharp (zoomed in a lot it gets softer, like any enlarged photo). |
 
 ## Phase 8: Setup guide, Start with Windows, installer
 
@@ -382,4 +394,4 @@ Status as of version 0.9.0. "Automated" means it's covered by the unit tests tha
 | Hosts file is cleaned up after normal exit and after a crash | Automated (hosts file editing tests); tests 6.13, 6.21–6.24, 8.17 | Partly automated; needs Windows |
 | Custom images look right at 100%, 125%, and 150% scaling | Automated (pixel-size math for each scale); test 7.19 | Partly automated; needs Windows |
 | Works on both Windows 10 and Windows 11 | Run the whole list on one PC of each | Needs Windows |
-| All `FocusBar.Core` unit tests pass | `dotnet test` (392 tests), and on every push in GitHub Actions | ✅ Passing |
+| All `FocusBar.Core` unit tests pass | `dotnet test` (405 tests), and on every push in GitHub Actions | ✅ Passing |

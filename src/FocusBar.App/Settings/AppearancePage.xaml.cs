@@ -85,6 +85,7 @@ public partial class AppearancePage : UserControl
             (theme.BackgroundFit switch { ImageFit.Fit => FitOption, ImageFit.Center => CenterOption, _ => FillOption }).IsChecked = true;
             FitChips.IsEnabled = theme.BackgroundImagePath is not null;
             RemoveBackground.IsEnabled = theme.BackgroundImagePath is not null;
+            AdjustBackground.IsEnabled = theme.BackgroundImagePath is not null;
             RemoveStart.IsEnabled = theme.StartIconPath is not null;
             RemoveFocus.IsEnabled = theme.FocusScreenImagePath is not null;
             LoadThumbnails(theme);
@@ -165,7 +166,8 @@ public partial class AppearancePage : UserControl
         };
         if (theme.BackgroundImagePath is not null && _appearance.ImagePath(theme.BackgroundImagePath) is { } imagePath)
         {
-            LoadInto(imagePath, 160, 30, ImageFit.Fill, image => preview.Background = new ImageBrush(image.Bitmap) { Stretch = Stretch.UniformToFill });
+            LoadInto(imagePath, 160, 30, ImageFit.Fill, theme.BackgroundCrop,
+                image => preview.Background = new ImageBrush(image.Bitmap) { Stretch = Stretch.UniformToFill });
         }
 
         var use = new Button
@@ -278,13 +280,19 @@ public partial class AppearancePage : UserControl
         try
         {
             var name = _appearance.Import(dialog.FileName, kind);
-            _appearance.UpdateTheme(t => kind switch
-            {
-                ThemeImageKind.Background => t with { BackgroundImagePath = name },
-                ThemeImageKind.StartIcon => t with { StartIconPath = name },
-                _ => t with { FocusScreenImagePath = name },
-            });
             ShowImageError(null);
+
+            if (kind == ThemeImageKind.Background)
+            {
+                // A new bar picture goes straight into the editor to line it up; Cancel keeps the old one.
+                if (EditBackground(name, crop: null) is { } crop)
+                {
+                    _appearance.UpdateTheme(t => t with { BackgroundImagePath = name, BackgroundFit = ImageFit.Fill, BackgroundCrop = crop });
+                }
+                return;
+            }
+
+            _appearance.UpdateTheme(t => kind == ThemeImageKind.StartIcon ? t with { StartIconPath = name } : t with { FocusScreenImagePath = name });
         }
         catch (ThemeImageException ex)
         {
@@ -297,11 +305,36 @@ public partial class AppearancePage : UserControl
         if (sender is not FrameworkElement { Tag: string tag } || !Enum.TryParse<ThemeImageKind>(tag, out var kind)) return;
         _appearance.UpdateTheme(t => kind switch
         {
-            ThemeImageKind.Background => t with { BackgroundImagePath = null },
+            ThemeImageKind.Background => t with { BackgroundImagePath = null, BackgroundCrop = null },
             ThemeImageKind.StartIcon => t with { StartIconPath = null },
             _ => t with { FocusScreenImagePath = null },
         });
         ShowImageError(null);
+    }
+
+    private void AdjustBackground_Click(object sender, RoutedEventArgs e)
+    {
+        if (Theme.BackgroundImagePath is not { } name) return;
+        if (EditBackground(name, Theme.BackgroundCrop) is { } crop)
+        {
+            _appearance.UpdateTheme(t => t with { BackgroundFit = ImageFit.Fill, BackgroundCrop = crop });
+        }
+    }
+
+    /// <summary>
+    /// Opens the picture editor with a strip shaped like the bar (full screen width by the theme's height).
+    /// Returns the chosen part, or null if the student cancelled.
+    /// </summary>
+    private ImageCrop? EditBackground(string name, ImageCrop? crop)
+    {
+        if (_appearance.ImagePath(name) is not { } path)
+        {
+            ShowImageError("That picture is missing. Choose it again.");
+            return null;
+        }
+
+        var editor = new BackgroundEditor(path, crop, SystemParameters.PrimaryScreenWidth, Theme.BarHeight, _log, Window.GetWindow(this)!);
+        return editor.ShowDialog() == true ? editor.Result : null;
     }
 
     private void ShowImageError(string? message)
@@ -326,24 +359,25 @@ public partial class AppearancePage : UserControl
 
     private void LoadThumbnails(Theme theme)
     {
-        SetThumb(BackgroundThumb, theme.BackgroundImagePath, 120, 40);
+        SetThumb(BackgroundThumb, theme.BackgroundImagePath, 120, 40, theme.BackgroundFit == ImageFit.Fill ? theme.BackgroundCrop : null);
         SetThumb(StartThumb, theme.StartIconPath, 28, 28);
         SetThumb(FocusThumb, theme.FocusScreenImagePath, 120, 40);
     }
 
-    private void SetThumb(Image target, string? name, double width, double height)
+    private void SetThumb(Image target, string? name, double width, double height, ImageCrop? crop = null)
     {
         var path = _appearance.ImagePath(name);
-        if (Equals(target.Tag, path)) return; // already showing it
-        target.Tag = path;
+        var key = $"{path}|{crop}";
+        if (Equals(target.Tag, key)) return; // already showing it
+        target.Tag = key;
         target.Source = null;
-        if (path is not null) LoadInto(path, width, height, ImageFit.Fill, image => { if (Equals(target.Tag, path)) target.Source = image.Bitmap; });
+        if (path is not null) LoadInto(path, width, height, ImageFit.Fill, crop, image => { if (Equals(target.Tag, key)) target.Source = image.Bitmap; });
     }
 
-    /// <summary>Decodes a small copy off the UI thread (once per picture and size), then hands it to <paramref name="show"/>.</summary>
-    private async void LoadInto(string path, double width, double height, ImageFit fit, Action<LoadedImage> show)
+    /// <summary>Decodes a small copy off the UI thread (once per picture, size, and crop), then hands it to <paramref name="show"/>.</summary>
+    private async void LoadInto(string path, double width, double height, ImageFit fit, ImageCrop? crop, Action<LoadedImage> show)
     {
-        var key = $"{path}|{width}x{height}|{fit}";
+        var key = $"{path}|{width}x{height}|{fit}|{crop}";
         if (_thumbnails.TryGetValue(key, out var cached))
         {
             show(cached);
@@ -354,7 +388,7 @@ public partial class AppearancePage : UserControl
         var log = _log;
         try
         {
-            if (await Task.Run(() => ThemeImageLoader.Load(path, width, height, dpi, fit, log)) is { } image)
+            if (await Task.Run(() => ThemeImageLoader.Load(path, width, height, dpi, fit, log, crop)) is { } image)
             {
                 _thumbnails[key] = image;
                 show(image);

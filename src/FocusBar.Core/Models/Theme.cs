@@ -14,6 +14,19 @@ public enum ImageFit
 }
 
 /// <summary>
+/// Which part of the background picture the bar shows with <see cref="ImageFit.Fill"/>, chosen in the picture editor.
+/// Saved as the spot on the picture at the middle of the bar (0–1 across and down) and how far it's zoomed in past
+/// "just covers the bar" (1 = not zoomed), so it still lines up if the bar's height or the screen size changes.
+/// </summary>
+public sealed record ImageCrop(double CenterX, double CenterY, double Zoom)
+{
+    public const double MaxZoom = 10;
+
+    /// <summary>The middle of the picture, not zoomed.</summary>
+    public static ImageCrop Default => new(0.5, 0.5, 1);
+}
+
+/// <summary>
 /// How the bar looks. The image paths are file names inside <c>%AppData%\FocusBar\images</c>
 /// (see <see cref="Appearance.ThemeImages"/>), so the student's originals can move or be deleted.
 /// The positional properties are the ones from the build instructions; the rest were added in Phase 7.
@@ -36,6 +49,9 @@ public record Theme(
 
     /// <summary>Fill, Fit, or Center for <see cref="BackgroundImagePath"/>.</summary>
     public ImageFit BackgroundFit { get; init; } = ImageFit.Fill;
+
+    /// <summary>The part of the background picture to show (Fill only); null means the middle, not zoomed.</summary>
+    public ImageCrop? BackgroundCrop { get; init; }
 
     /// <summary>The bar's color as "#RRGGBB", or null to follow Windows' light or dark mode.</summary>
     public string? BarColor { get; init; }

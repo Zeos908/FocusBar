@@ -12,6 +12,9 @@ namespace FocusBar.App.Themes;
 /// <summary>A decoded image ready to draw: show it at exactly <see cref="Width"/> × <see cref="Height"/>.</summary>
 internal sealed record LoadedImage(BitmapSource Bitmap, double Width, double Height);
 
+/// <summary>A whole picture for the editor, and its real (upright) size in pixels.</summary>
+internal sealed record PreviewImage(BitmapSource Bitmap, int PixelWidth, int PixelHeight);
+
 /// <summary>
 /// Loads the student's images so they're sharp at any display scaling: each is scaled once, with high quality,
 /// to the exact number of screen pixels it will cover (see <see cref="ImageLayout"/>), and only the visible part is
@@ -19,7 +22,8 @@ internal sealed record LoadedImage(BitmapSource Bitmap, double Width, double Hei
 /// </summary>
 internal static class ThemeImageLoader
 {
-    public static LoadedImage? Load(string path, double width, double height, double dpiScale, ImageFit fit, ErrorLog log)
+    public static LoadedImage? Load(string path, double width, double height, double dpiScale, ImageFit fit, ErrorLog log,
+        ImageCrop? crop = null)
     {
         try
         {
@@ -30,9 +34,9 @@ internal static class ThemeImageLoader
             var sideways = rotation is 90 or 270;
             var (shownWidth, shownHeight) = sideways ? (pixelHeight, pixelWidth) : (pixelWidth, pixelHeight);
 
-            var plan = ImageLayout.Plan(shownWidth, shownHeight, width, height, dpiScale, fit);
+            var plan = ImageLayout.Plan(shownWidth, shownHeight, width, height, dpiScale, fit, crop);
 
-            // Decode straight to the planned size (WIC scales with high quality while decoding).
+            // Decode straight to the planned size (WIC scales down with high quality while decoding).
             var decoded = new BitmapImage();
             decoded.BeginInit();
             decoded.StreamSource = new MemoryStream(bytes, writable: false);
@@ -46,21 +50,56 @@ internal static class ThemeImageLoader
             if (rotation != 0) source = new TransformedBitmap(source, new RotateTransform(rotation)); // exact for 90° steps
 
             // Copy out just the visible part, so the full-size decode can be freed.
-            var crop = new Int32Rect(plan.CropX, plan.CropY,
+            var visible = new Int32Rect(plan.CropX, plan.CropY,
                 Math.Min(plan.CropWidth, source.PixelWidth - plan.CropX), Math.Min(plan.CropHeight, source.PixelHeight - plan.CropY));
-            var pixels = new FormatConvertedBitmap(new CroppedBitmap(source, crop), PixelFormats.Pbgra32, null, 0);
-            var stride = crop.Width * 4;
-            var buffer = new byte[stride * crop.Height];
+            var pixels = new FormatConvertedBitmap(new CroppedBitmap(source, visible), PixelFormats.Pbgra32, null, 0);
+            var stride = visible.Width * 4;
+            var buffer = new byte[stride * visible.Height];
             pixels.CopyPixels(buffer, stride, 0);
 
-            var result = BitmapSource.Create(crop.Width, crop.Height, 96, 96, PixelFormats.Pbgra32, null, buffer, stride);
+            var result = BitmapSource.Create(visible.Width, visible.Height, 96, 96, PixelFormats.Pbgra32, null, buffer, stride);
             result.Freeze();
-            return new LoadedImage(result, crop.Width / dpiScale, crop.Height / dpiScale);
+            return new LoadedImage(result, plan.DisplayWidth, plan.DisplayHeight);
         }
         catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or NotSupportedException or ArgumentException
                                        or InvalidOperationException or COMException or FileFormatException or OverflowException)
         {
             log.Write(ex, $"Could not load the image {Path.GetFileName(path)}.");
+            return null;
+        }
+    }
+
+    /// <summary>
+    /// The whole picture, the right way up, at most <paramref name="maxSide"/> pixels on its longer side (for the
+    /// picture editor). <see cref="PreviewImage.PixelWidth"/> and <see cref="PreviewImage.PixelHeight"/> are the
+    /// picture's real size, which is what crops are measured against.
+    /// </summary>
+    public static PreviewImage? LoadPreview(string path, int maxSide, ErrorLog log)
+    {
+        try
+        {
+            var bytes = File.ReadAllBytes(path);
+            var (pixelWidth, pixelHeight, rotation) = Probe(bytes);
+            var sideways = rotation is 90 or 270;
+            var scale = Math.Min(1.0, (double)maxSide / Math.Max(pixelWidth, pixelHeight));
+
+            var decoded = new BitmapImage();
+            decoded.BeginInit();
+            decoded.StreamSource = new MemoryStream(bytes, writable: false);
+            decoded.CacheOption = BitmapCacheOption.OnLoad;
+            decoded.CreateOptions = BitmapCreateOptions.IgnoreColorProfile;
+            decoded.DecodePixelWidth = Math.Max(1, (int)Math.Round(pixelWidth * scale));
+            decoded.DecodePixelHeight = Math.Max(1, (int)Math.Round(pixelHeight * scale));
+            decoded.EndInit();
+
+            BitmapSource bitmap = rotation == 0 ? decoded : new TransformedBitmap(decoded, new RotateTransform(rotation));
+            bitmap.Freeze();
+            return sideways ? new PreviewImage(bitmap, pixelHeight, pixelWidth) : new PreviewImage(bitmap, pixelWidth, pixelHeight);
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or NotSupportedException or ArgumentException
+                                       or InvalidOperationException or COMException or FileFormatException or OverflowException)
+        {
+            log.Write(ex, $"Could not open the image {Path.GetFileName(path)} for editing.");
             return null;
         }
     }

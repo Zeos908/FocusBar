@@ -114,7 +114,7 @@ public partial class MainBar
 
         var backgroundPath = _services.Appearance.ImagePath(theme.BackgroundImagePath);
         var startPath = _services.Appearance.ImagePath(theme.StartIconPath);
-        var backgroundKey = backgroundPath is null ? null : $"{backgroundPath}|{width}|{height}|{dpi}|{theme.BackgroundFit}";
+        var backgroundKey = backgroundPath is null ? null : $"{backgroundPath}|{width}|{height}|{dpi}|{theme.BackgroundFit}|{theme.BackgroundCrop}";
         var startKey = startPath is null ? null : $"{startPath}|{iconSize}|{dpi}";
         if (backgroundKey == _backgroundKey && startKey == _startKey) return;
 
@@ -126,7 +126,7 @@ public partial class MainBar
         try
         {
             (background, start) = await Task.Run(() => (
-                loadBackground ? ThemeImageLoader.Load(backgroundPath!, width, height, dpi, theme.BackgroundFit, log) : null,
+                loadBackground ? ThemeImageLoader.Load(backgroundPath!, width, height, dpi, theme.BackgroundFit, log, theme.BackgroundCrop) : null,
                 loadStart ? ThemeImageLoader.Load(startPath!, iconSize, iconSize, dpi, ImageFit.Fit, log) : null));
         }
         catch (Exception ex)
