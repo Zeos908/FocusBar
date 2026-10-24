@@ -43,6 +43,8 @@ public partial class DeadlineDetailsFlyout : FlyoutWindow
         DescriptionText.Text = deadline.Description ?? "";
         DescriptionArea.Visibility = string.IsNullOrWhiteSpace(deadline.Description) ? Visibility.Collapsed : Visibility.Visible;
         SourceText.Text = DeadlineDisplay.SourceText(deadline.Source);
+        // Synced deadlines are edited at their source; changes here would be overwritten by the next sync.
+        EditButton.Visibility = deadline.Source == DeadlineSource.Manual ? Visibility.Visible : Visibility.Collapsed;
 
         Loaded += (_, _) => CompleteButton.Focus();
     }

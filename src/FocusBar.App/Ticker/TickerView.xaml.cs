@@ -35,7 +35,9 @@ public partial class TickerView : UserControl
     private readonly HashSet<string> _pauseReasons = [];
 
     private DeadlineService? _deadlines;
+    private SyncService? _sync;
     private Action? _openList;
+    private Action? _openSourceSettings;
     private FlyoutToggle<DeadlineFormFlyout>? _form;
     private DeadlineDetailsFlyout? _details;
     private (Guid Id, DateTime At) _lastDetailsClosed;
@@ -49,13 +51,17 @@ public partial class TickerView : UserControl
 
     private bool IsPaused => _pauseReasons.Count > 0;
 
-    internal void Initialize(DeadlineService deadlines, Action openList)
+    internal void Initialize(DeadlineService deadlines, SyncService sync, Action openList, Action openSourceSettings)
     {
         _deadlines = deadlines;
+        _sync = sync;
         _openList = openList;
+        _openSourceSettings = openSourceSettings;
         _form = new FlyoutToggle<DeadlineFormFlyout>(() => new DeadlineFormFlyout(deadlines));
 
         deadlines.Changed += OnDeadlinesChanged;
+        sync.StatusChanged += OnSyncStatusChanged;
+        OnSyncStatusChanged(sync, EventArgs.Empty);
         SystemParameters.StaticPropertyChanged += OnSystemParameterChanged;
         Refresh();
     }
@@ -68,6 +74,7 @@ public partial class TickerView : UserControl
         _form?.Close();
         _details?.CloseFlyout();
         if (_deadlines is not null) _deadlines.Changed -= OnDeadlinesChanged;
+        if (_sync is not null) _sync.StatusChanged -= OnSyncStatusChanged;
         SystemParameters.StaticPropertyChanged -= OnSystemParameterChanged;
     }
 
@@ -81,6 +88,16 @@ public partial class TickerView : UserControl
     }
 
     private void OnDeadlinesChanged(object? sender, EventArgs e) => Refresh();
+
+    /// <summary>A small warning icon when the school or a calendar couldn't sync; click it to fix in Settings.</summary>
+    private void OnSyncStatusChanged(object? sender, EventArgs e)
+    {
+        var problems = _sync?.HasProblems == true;
+        WarningButton.Visibility = problems ? Visibility.Visible : Visibility.Collapsed;
+        WarningButton.ToolTip = problems ? $"Couldn't sync some deadlines:\n{_sync!.ProblemSummary}\n\nClick to fix." : null;
+    }
+
+    private void WarningButton_Click(object sender, RoutedEventArgs e) => _openSourceSettings?.Invoke();
 
     private void OnSystemParameterChanged(object? sender, PropertyChangedEventArgs e)
     {

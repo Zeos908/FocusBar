@@ -30,6 +30,7 @@ internal sealed record BarServices(
     DeadlineService Deadlines,
     SettingsService Settings,
     ReminderService Reminders,
+    SyncService Sync,
     ErrorLog Log);
 
 /// <summary>
@@ -66,7 +67,9 @@ public partial class MainBar : AppBarWindow
         Pinned.Initialize(services.Pins, services.Log);
         Tasks.Initialize(services.Shell, services.Pins);
         Tray.Initialize(services.Status, services.TrayIcons);
-        Ticker.Initialize(services.Deadlines, () => DeadlineListWindow.ShowSingle(services.Deadlines));
+        Ticker.Initialize(services.Deadlines, services.Sync,
+            openList: () => DeadlineListWindow.ShowSingle(services.Deadlines, services.Sync),
+            openSourceSettings: () => SettingsWindow.ShowSingle(services, SettingsWindow.SourcesPageName));
         TrayIconView.BeforeClick = UpdateTrayHost;
 
         _clockTimer.Tick += (_, _) => UpdateClock();
@@ -173,7 +176,7 @@ public partial class MainBar : AppBarWindow
     private void TaskManager_Click(object sender, RoutedEventArgs e) => ShellHelper.StartTaskManager();
 
     private void Settings_Click(object sender, RoutedEventArgs e) =>
-        SettingsWindow.ShowSingle(_services.Settings, _services.Reminders);
+        SettingsWindow.ShowSingle(_services);
 
     private void RestoreAndExit_Click(object sender, RoutedEventArgs e) =>
         _app.RestoreTaskbarAndExit("menu: Restore Windows taskbar and exit");

@@ -1,6 +1,7 @@
 using FocusBar.Core.Deadlines;
 using FocusBar.Core.Diagnostics;
 using FocusBar.Core.Models;
+using FocusBar.Core.Sources;
 
 namespace FocusBar.App.Services;
 
@@ -12,11 +13,13 @@ internal sealed class DeadlineService
 {
     private readonly DeadlineList _list;
     private readonly DeadlineStore _store;
+    private readonly ScheduleStore _scheduleStore;
     private readonly ErrorLog _log;
 
     public DeadlineService(DeadlineStore store, ScheduleStore schedule, ErrorLog log)
     {
         _store = store;
+        _scheduleStore = schedule;
         _log = log;
         _list = store.Load();
         Schedule = schedule.Load();
@@ -25,8 +28,8 @@ internal sealed class DeadlineService
     /// <summary>Raised on the UI thread after any change.</summary>
     public event EventHandler? Changed;
 
-    /// <summary>The weekly class schedule (empty until the school sync in Phase 5 fills it).</summary>
-    public IReadOnlyList<ClassPeriod> Schedule { get; }
+    /// <summary>The coming week's classes, from the school sync (empty when there's no school connection).</summary>
+    public IReadOnlyList<ClassPeriod> Schedule { get; private set; }
 
     public IReadOnlyList<Deadline> Upcoming() => _list.Upcoming();
 
@@ -34,8 +37,11 @@ internal sealed class DeadlineService
 
     public Deadline? Find(Guid id) => _list.Find(id);
 
-    /// <summary>The deadlines reminders are about (all of them; completed ones are skipped by the planner).</summary>
-    public IReadOnlyList<Deadline> ForReminders() => _list.All;
+    /// <summary>
+    /// The deadlines reminders are about: each one once, with duplicates from different sources folded together,
+    /// so the same assignment doesn't remind twice. (Completed ones are skipped by the planner.)
+    /// </summary>
+    public IReadOnlyList<Deadline> ForReminders() => _list.Merged();
 
     public IReadOnlySet<Guid> AllIds() => _list.All.Select(d => d.Id).ToHashSet();
 
@@ -61,6 +67,35 @@ internal sealed class DeadlineService
     public void Delete(Guid id)
     {
         if (_list.Remove(id)) SaveAndNotify();
+    }
+
+    /// <summary>Brings in a source's latest deadlines (see <see cref="DeadlineList.ApplySync"/>).</summary>
+    public SyncChanges ApplySync(IDeadlineSource source, IReadOnlyList<Deadline> fetched)
+    {
+        var changes = _list.ApplySync(source.Key, source.Kind, fetched, source.Covers);
+        if (changes.Any) SaveAndNotify();
+        return changes;
+    }
+
+    /// <summary>Removes everything a source added (when it's disconnected or removed).</summary>
+    public void RemoveSource(string sourceKey)
+    {
+        if (_list.RemoveSource(sourceKey) > 0) SaveAndNotify();
+    }
+
+    public void SetSchedule(IReadOnlyList<ClassPeriod> schedule)
+    {
+        if (Schedule.SequenceEqual(schedule)) return;
+        Schedule = schedule;
+        try
+        {
+            _scheduleStore.Save(schedule);
+        }
+        catch (Exception ex)
+        {
+            _log.Write(ex, "Could not save schedule.json.");
+        }
+        Changed?.Invoke(this, EventArgs.Empty);
     }
 
     private void SaveAndNotify()

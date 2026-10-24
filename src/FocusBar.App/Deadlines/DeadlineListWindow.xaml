@@ -22,6 +22,13 @@
                     <TextBlock Text="Add deadline" />
                 </StackPanel>
             </Button>
+            <Button x:Name="SyncButton" DockPanel.Dock="Right" Style="{StaticResource FlyoutButton}" Click="Sync_Click" Margin="0,0,8,0"
+                    ToolTip="Check the school website and calendars now">
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Text="&#xE895;" Style="{StaticResource IconText}" FontSize="12" Margin="0,0,6,0" />
+                    <TextBlock x:Name="SyncButtonText" Text="Sync now" />
+                </StackPanel>
+            </Button>
             <StackPanel Orientation="Horizontal">
                 <RadioButton x:Name="UpcomingTab" GroupName="View" IsChecked="True" Checked="Tab_Checked"
                              Style="{StaticResource TabButton}" />
@@ -61,11 +68,13 @@
                                             <TextBlock x:Name="CompleteGlyph" Text="&#xE73E;" Style="{StaticResource IconText}" FontSize="14" />
                                         </Button>
                                         <Button Style="{StaticResource FlyoutButton}" Padding="8,6" Click="Edit_Click"
-                                                ToolTip="Edit" AutomationProperties.Name="{Binding EditLabel}">
+                                                IsEnabled="{Binding CanEdit}" ToolTipService.ShowOnDisabled="True" ToolTip="{Binding EditToolTip}"
+                                                AutomationProperties.Name="{Binding EditLabel}">
                                             <TextBlock Text="&#xE70F;" Style="{StaticResource IconText}" FontSize="14" />
                                         </Button>
                                         <Button Style="{StaticResource FlyoutButton}" Padding="8,6" Click="Delete_Click"
-                                                ToolTip="Delete" AutomationProperties.Name="{Binding DeleteLabel}">
+                                                IsEnabled="{Binding CanEdit}" ToolTipService.ShowOnDisabled="True" ToolTip="{Binding DeleteToolTip}"
+                                                AutomationProperties.Name="{Binding DeleteLabel}">
                                             <TextBlock Text="&#xE74D;" Style="{StaticResource IconText}" FontSize="14" />
                                         </Button>
                                     </StackPanel>

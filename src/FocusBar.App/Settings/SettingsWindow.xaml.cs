@@ -1,7 +1,7 @@
 using System.Windows;
 using System.Windows.Controls;
 using FocusBar.App.Native;
-using FocusBar.App.Services;
+using FocusBar.App.Shell;
 using FocusBar.App.Themes;
 
 namespace FocusBar.App.Settings;
@@ -13,13 +13,18 @@ public partial class SettingsWindow : Window
 
     private readonly Dictionary<string, Func<FrameworkElement>> _pageFactories;
 
-    private SettingsWindow(SettingsService settings, ReminderService reminders)
+    /// <summary>Page names for <see cref="ShowSingle"/>.</summary>
+    public const string RemindersPageName = "Reminders";
+    public const string SourcesPageName = "Sources";
+
+    private SettingsWindow(BarServices services)
     {
         InitializeComponent();
 
         _pageFactories = new()
         {
-            ["Reminders"] = () => new RemindersPage(settings, reminders),
+            [RemindersPageName] = () => new RemindersPage(services.Settings, services.Reminders),
+            [SourcesPageName] = () => new SourcesPage(services.Sync, services.Log),
         };
 
         SourceInitialized += (_, _) => DarkTitleBar.Apply(this, !ThemeManager.IsLight);
@@ -28,11 +33,11 @@ public partial class SettingsWindow : Window
     }
 
     /// <summary>Opens Settings (on a given page, if named), or brings the open window to the front.</summary>
-    internal static void ShowSingle(SettingsService settings, ReminderService reminders, string? page = null)
+    internal static void ShowSingle(BarServices services, string? page = null)
     {
         if (_open is null)
         {
-            _open = new SettingsWindow(settings, reminders);
+            _open = new SettingsWindow(services);
             _open.Show();
         }
 

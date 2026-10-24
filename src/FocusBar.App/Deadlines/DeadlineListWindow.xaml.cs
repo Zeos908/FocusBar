@@ -19,20 +19,25 @@ public partial class DeadlineListWindow : Window
     private static DeadlineListWindow? _open;
 
     private readonly DeadlineService _deadlines;
+    private readonly SyncService _sync;
     private readonly DispatcherTimer _minuteTimer = new(DispatcherPriority.Background);
 
-    private DeadlineListWindow(DeadlineService deadlines)
+    private DeadlineListWindow(DeadlineService deadlines, SyncService sync)
     {
         _deadlines = deadlines;
+        _sync = sync;
         InitializeComponent();
 
         _deadlines.Changed += OnDeadlinesChanged;
+        _sync.StatusChanged += OnSyncStatusChanged;
+        OnSyncStatusChanged(sync, EventArgs.Empty);
         _minuteTimer.Tick += (_, _) => Refresh();
         SourceInitialized += (_, _) => DarkTitleBar.Apply(this, !ThemeManager.IsLight);
         Closed += (_, _) =>
         {
             _minuteTimer.Stop();
             _deadlines.Changed -= OnDeadlinesChanged;
+            _sync.StatusChanged -= OnSyncStatusChanged;
             _open = null;
         };
 
@@ -40,11 +45,11 @@ public partial class DeadlineListWindow : Window
     }
 
     /// <summary>Opens the list, or brings the already-open one to the front.</summary>
-    internal static void ShowSingle(DeadlineService deadlines)
+    internal static void ShowSingle(DeadlineService deadlines, SyncService sync)
     {
         if (_open is null)
         {
-            _open = new DeadlineListWindow(deadlines);
+            _open = new DeadlineListWindow(deadlines, sync);
             _open.Show();
         }
 
@@ -55,6 +60,14 @@ public partial class DeadlineListWindow : Window
     private bool ShowingCompleted => CompletedTab.IsChecked == true;
 
     private void OnDeadlinesChanged(object? sender, EventArgs e) => Refresh();
+
+    private void OnSyncStatusChanged(object? sender, EventArgs e)
+    {
+        SyncButton.IsEnabled = !_sync.IsSyncing;
+        SyncButtonText.Text = _sync.IsSyncing ? "Syncing…" : "Sync now";
+    }
+
+    private async void Sync_Click(object sender, RoutedEventArgs e) => await _sync.SyncNowAsync();
 
     private void Refresh()
     {
@@ -128,6 +141,12 @@ internal sealed class DeadlineRow(Deadline deadline, DateTimeOffset now)
     public string ToolTip => string.IsNullOrWhiteSpace(deadline.Description)
         ? DeadlineDisplay.SourceText(deadline.Source)
         : $"{deadline.Description}\n\n{DeadlineDisplay.SourceText(deadline.Source)}";
+
+    /// <summary>Only hand-typed deadlines can be edited or deleted; synced ones would come back on the next sync.</summary>
+    public bool CanEdit => deadline.Source == DeadlineSource.Manual;
+
+    public string EditToolTip => CanEdit ? "Edit" : $"{DeadlineDisplay.SourceText(deadline.Source)}. Change it there.";
+    public string DeleteToolTip => CanEdit ? "Delete" : $"{DeadlineDisplay.SourceText(deadline.Source)}. Mark it complete to hide it.";
 
     public string CompleteLabel => deadline.IsComplete ? $"Mark {Title} not complete" : $"Mark {Title} complete";
     public string EditLabel => $"Edit {Title}";

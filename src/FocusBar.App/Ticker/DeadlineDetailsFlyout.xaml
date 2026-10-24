@@ -36,7 +36,7 @@
                         <TextBlock Text="Mark complete" />
                     </StackPanel>
                 </Button>
-                <Button Style="{StaticResource FlyoutButton}" Click="Edit_Click" Margin="0,0,4,0">
+                <Button x:Name="EditButton" Style="{StaticResource FlyoutButton}" Click="Edit_Click" Margin="0,0,4,0">
                     <StackPanel Orientation="Horizontal">
                         <TextBlock Text="&#xE70F;" Style="{StaticResource IconText}" FontSize="12" Margin="0,0,6,0" />
                         <TextBlock Text="Edit" />

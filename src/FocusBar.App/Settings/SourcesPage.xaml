@@ -1,0 +1,87 @@
+<UserControl x:Class="FocusBar.App.Settings.SourcesPage"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <StackPanel>
+        <DockPanel>
+            <Button DockPanel.Dock="Right" x:Name="SyncButton" Style="{StaticResource FlyoutButton}" Click="Sync_Click" VerticalAlignment="Top">
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Text="&#xE895;" Style="{StaticResource IconText}" FontSize="12" Margin="0,0,6,0" />
+                    <TextBlock x:Name="SyncButtonText" Text="Sync now" />
+                </StackPanel>
+            </Button>
+            <StackPanel>
+                <TextBlock Text="Deadline sources" Style="{StaticResource FlyoutHeading}" FontSize="20" />
+                <TextBlock x:Name="LastSyncText" Style="{StaticResource FlyoutMuted}" TextWrapping="Wrap" Margin="0,4,0,0" />
+            </StackPanel>
+        </DockPanel>
+
+        <!-- ===== School website ===== -->
+        <TextBlock Text="School website" Style="{StaticResource FlyoutHeading}" Margin="0,22,0,0" />
+        <TextBlock Style="{StaticResource FlyoutMuted}" TextWrapping="Wrap" Margin="0,4,0,0"
+                   Text="Brings in assignments and your class schedule from your school's Blackbaud site (myschoolapp.com)." />
+
+        <TextBlock Text="School site" Style="{StaticResource FieldLabel}" />
+        <TextBox x:Name="HostBox" Style="{StaticResource FormTextBox}" MaxWidth="360" HorizontalAlignment="Left" Width="360"
+                 AutomationProperties.Name="School site address" />
+        <TextBlock x:Name="HostError" Style="{StaticResource FieldError}" Text="Enter the site's address, like cranbrook.myschoolapp.com." />
+
+        <Border CornerRadius="6" Background="{DynamicResource ItemHover}" Padding="12,10" Margin="0,12,0,0">
+            <StackPanel Orientation="Horizontal">
+                <Ellipse x:Name="SchoolDot" Width="10" Height="10" Margin="0,0,10,0" VerticalAlignment="Center" />
+                <TextBlock x:Name="SchoolStatusText" TextWrapping="Wrap" VerticalAlignment="Center" MaxWidth="400" />
+            </StackPanel>
+        </Border>
+
+        <WrapPanel Margin="0,10,0,0">
+            <Button x:Name="SignInButton" Style="{StaticResource AccentButton}" Click="SignIn_Click" Margin="0,0,8,8" Content="Sign in…" />
+            <Button Style="{StaticResource FlyoutButton}" Click="PasteCookie_Click" Margin="0,0,8,8" Content="Paste session cookie…" />
+            <Button x:Name="DemoButton" Style="{StaticResource FlyoutButton}" Click="Demo_Click" Margin="0,0,8,8" Content="Use demo data" />
+            <Button x:Name="DisconnectButton" Style="{StaticResource FlyoutButton}" Click="Disconnect_Click" Margin="0,0,8,8"
+                    Content="Disconnect" Foreground="{DynamicResource DangerForeground}" />
+        </WrapPanel>
+
+        <TextBlock Style="{StaticResource FlyoutMuted}" TextWrapping="Wrap" Margin="0,4,0,0"
+                   Text="FocusBar only reads your assignments and schedule, checks every 30 minutes, and keeps everything on this PC. Your sign-in is stored encrypted for your Windows account. This uses the same pages your school's website uses; it's not an official Blackbaud or school app." />
+
+        <!-- ===== Calendars ===== -->
+        <TextBlock Text="Calendars" Style="{StaticResource FlyoutHeading}" Margin="0,26,0,0" />
+        <TextBlock Style="{StaticResource FlyoutMuted}" TextWrapping="Wrap" Margin="0,4,0,0"
+                   Text="Add a calendar of assignments as an .ics file or link (for example a Google Classroom class calendar's address). Events become deadlines; repeating events are skipped." />
+
+        <ItemsControl x:Name="FeedList" Margin="0,10,0,0" Focusable="False">
+            <ItemsControl.ItemTemplate>
+                <DataTemplate>
+                    <Border CornerRadius="6" Background="{DynamicResource ItemHover}" Padding="12,8" Margin="0,0,0,6">
+                        <DockPanel>
+                            <Button DockPanel.Dock="Right" Style="{StaticResource FlyoutButton}" Padding="8,4" Click="RemoveFeed_Click"
+                                    ToolTip="Remove this calendar" AutomationProperties.Name="{Binding RemoveLabel}">
+                                <TextBlock Text="&#xE74D;" Style="{StaticResource IconText}" FontSize="13" />
+                            </Button>
+                            <StackPanel>
+                                <TextBlock Text="{Binding Name}" FontWeight="SemiBold" />
+                                <TextBlock Text="{Binding Detail}" Style="{StaticResource FlyoutMuted}" TextWrapping="Wrap" />
+                            </StackPanel>
+                        </DockPanel>
+                    </Border>
+                </DataTemplate>
+            </ItemsControl.ItemTemplate>
+        </ItemsControl>
+
+        <Border BorderBrush="{DynamicResource FlyoutDivider}" BorderThickness="1" CornerRadius="6" Padding="12" Margin="0,6,0,0">
+            <StackPanel>
+                <TextBlock Text="Add a calendar" Style="{StaticResource FieldLabel}" Margin="0,0,0,4" />
+                <TextBox x:Name="FeedNameBox" Style="{StaticResource FormTextBox}" Tag="Name, e.g. Biology calendar" MaxLength="60"
+                         AutomationProperties.Name="Calendar name" />
+                <DockPanel Margin="0,8,0,0">
+                    <Button DockPanel.Dock="Right" Style="{StaticResource FlyoutButton}" Content="Browse…" Margin="8,0,0,0" Click="Browse_Click" />
+                    <TextBox x:Name="FeedLocationBox" Style="{StaticResource FormTextBox}" Tag="Link (https:// or webcal://) or .ics file"
+                             AutomationProperties.Name="Calendar link or file" />
+                </DockPanel>
+                <TextBox x:Name="FeedClassBox" Style="{StaticResource FormTextBox}" Tag="Class for its events (optional)" MaxLength="60"
+                         Margin="0,8,0,0" AutomationProperties.Name="Class for its events" />
+                <TextBlock x:Name="FeedError" Style="{StaticResource FieldError}" />
+                <Button Style="{StaticResource AccentButton}" Content="Add calendar" HorizontalAlignment="Left" Margin="0,10,0,0" Click="AddFeed_Click" />
+            </StackPanel>
+        </Border>
+    </StackPanel>
+</UserControl>

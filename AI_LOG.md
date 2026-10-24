@@ -179,3 +179,55 @@ These are good candidates for the technical-challenge answer.
 - **No reminders after a deadline is due.** Overdue deadlines show in red on the ticker instead. A snooze that ends after the due time still comes back.
 - **Snooze is always 15 minutes**, as the build instructions say.
 - **Windows registers FocusBar for notifications the first time it shows one.** This is done by the toolkit, in the current user's registry. The Phase 8 installer should undo it on uninstall (`ToastNotificationManagerCompat.Uninstall()`).
+
+---
+
+## Phase 5: Deadline sources (school website, calendars, merging)
+
+**Status:** Compiles (no warnings) and all 268 `FocusBar.Core` unit tests pass, including tests against fake versions of the school website. **Not yet run on Windows, and never run against the real Cranbrook site**: the AI had no account and didn't contact the school's servers. See the Phase 5 checklist in `docs/testing.md`, especially 5.7–5.15.
+
+### What the developer wrote, changed, or decided
+- Provided the school website details: `cranbrook.myschoolapp.com`, plus a Python client (`cranbrook.py`), an example script, and an API guide describing the endpoints, the session-cookie sign-in, field names, statuses, and the .NET ticks date format.
+- *(Add anything you change after testing with your account.)*
+
+### What the AI generated
+- `FocusBar.Core` (all unit-tested):
+  - `IDeadlineSource`: the interface from the build instructions, plus `Key`, `Kind`, and `Covers` (the date range a fetch covered), which the merge step needs.
+  - `DeadlineList.ApplySync` / `RemoveSource`: adds, updates, and removes a source's deadlines without touching other sources or manual ones.
+  - `DeadlineMerger`: finds the same assignment from different sources and shows it once.
+  - `IcsCalendarSource`: reads .ics files and links (https and webcal) with Ical.Net.
+  - School website (`Sources/School/`), translated from the student's Python client and guide:
+    - `MySchoolAppClient`: HTTP with the session cookie and the XMLHttpRequest header.
+    - `SchoolApiParser`: turns the site's JSON into deadlines and classes.
+    - `SchoolApiSource`: context, Assignment Center, academic groups (class names), and the daily schedule.
+    - `SchoolApiConfig` (`school-api.json`).
+    - `MockSchoolApiSource`: demo data.
+  - `SchoolSessionStore` and `CalendarFeedStore`: the sign-in and calendar links, encrypted through an `ISecretProtector`.
+- `FocusBar.App`:
+  - `SyncService`: syncs 10 seconds after startup, every 30 minutes, and on Sync now. It keeps the last good data when a source fails, tracks each source's status, and saves the rotated session cookie.
+  - `DpapiProtector`: Windows DPAPI encryption for the current user, as the build instructions require.
+  - **Sign-in window** (`Sources/SchoolSignInWindow`): the real school site in Microsoft Edge WebView2. It notices when you're signed in, checks the session, and closes. An "I'm signed in" button is a backup.
+  - **Paste session cookie** (`Sources/PasteCookieDialog`): the guide's DevTools method, as a fallback.
+  - **Settings → Deadline sources**: school status, Sign in, Paste cookie, Use demo data, Disconnect, Sync now, and adding or removing calendars.
+  - A ⚠ icon on the bar when a source fails (tooltip says why; clicking opens Settings). Synced deadlines can be completed but not edited or deleted. Sync now in the deadline list.
+
+### Problems found and how they were solved
+1. **Signing in without handling the password.** The guide's method (copy a cookie from developer tools) is fiddly for students and impossible for judges to follow. The sign-in window shows the real site, so FocusBar never sees the password, and it reads the session cookie the site sets after you sign in. The paste-cookie method stays as a fallback.
+2. **The session token rotates.** The guide says the site changes its session token on responses. FocusBar keeps cookies itself instead of letting .NET manage them, updates them from every response, and saves the newest (encrypted) after each sync, so the sign-in keeps working between restarts. It also retries a 403 once, as the guide suggests.
+3. **Expired sign-in looked like success.** When the session expires, the site can answer with its HTML sign-in page instead of an error. FocusBar treats an HTML answer as "signed out" and shows the ⚠ icon instead of quietly syncing nothing.
+4. **Due times.** The guide says `date_dueTicks` is .NET ticks of the wall-clock time the portal shows. FocusBar reads those ticks directly as a local date and time, so 11:59 PM on the site is 11:59 PM in FocusBar, rather than being shifted by the time zone.
+5. **Field names that vary.** The guide warns that some fields differ by school or role, so each field is looked up by several likely names (ignoring case). An assignment with something missing is skipped rather than failing the whole sync.
+6. **Rotating class schedules.** Many schools use Day A/B or 6-day cycles, which a fixed weekly timetable can't represent. FocusBar fetches each actual day for the coming week and refreshes it at least daily.
+7. **Deleted assignments.** If a teacher deletes an assignment, it should disappear. But a fetch only covers a date range (7 days back to 60 ahead), so FocusBar only removes a source's deadlines whose due date is inside the range that source just covered.
+8. **Duplicates.** The same assignment can arrive from the school, a calendar, and the student's own entry. Duplicates are hidden, not deleted, so deleting your own copy brings back the school's. Completing one completes all copies, otherwise the hidden one would pop back up. Two hand-typed entries are never merged.
+9. **Calendars without IDs.** Ical.Net makes up a random ID for an event that has none, which made the same event look new on every sync (caught by a unit test). FocusBar now gives such events an ID made from their contents before parsing.
+10. **Private calendar links are passwords too.** A Google Calendar "secret address" lets anyone read the calendar, so calendar links are encrypted like the school sign-in, and the Settings list shows only the site name.
+
+### Decisions the AI made that the developer should review
+- **Read-only.** FocusBar never writes to the school site. Marking something complete in FocusBar doesn't change it on the website (the guide describes a way to do that; it was left out on purpose to keep FocusBar from changing school records).
+- **Terms of use.** The build instructions asked about rate limits and terms of use, and none were provided. This uses unofficial, undocumented endpoints, so it could stop working if Blackbaud changes them. FocusBar keeps its traffic low: assignments every 30 minutes, the schedule a few times a day, one request at a time with a pause between them. **Check with Cranbrook's tech office that this is OK** before showing it publicly; the app says it's unofficial.
+- **"Completed" at school** means status 1 (completed) or 4 (graded). Completing in FocusBar sticks even if the school still lists it as to-do.
+- **Date range:** 7 days back to 60 days ahead (set in `school-api.json`).
+- **Synced deadlines can't be edited or deleted in FocusBar** (the next sync would bring the old version back). They can be marked complete.
+- **Repeating calendar events are skipped.** They're usually classes or practices, not deadlines.
+- **The "current/next class" uses the school's real schedule for each of the next 7 days.** There's still no way to type a schedule in by hand.

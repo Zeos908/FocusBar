@@ -194,3 +194,44 @@ Tip: to test without waiting a day, add a deadline due a few minutes after one o
 | 4.13 | Snooze a reminder, then exit FocusBar before 15 minutes pass, and start it again after | The snoozed reminder still comes back (shown once). |
 | 4.14 | With FocusBar closed, click **Snooze** or **Mark complete** on a reminder still in the notification center | FocusBar starts and carries out the button's action. |
 | 4.15 | Repeat the Phase 0 tests | All still pass. |
+
+## Phase 5: Deadline sources
+
+Everything here is under right-click the bar → **FocusBar settings** → **Deadline sources**.
+
+**Demo data (anyone, including judges, can do this)**
+
+| # | Test | Expected |
+|---|---|---|
+| 5.1 | Click **Use demo data** | Within a few seconds about 7 made-up assignments (Physics, English 10, Biology...) appear on the ticker; one is overdue. Status says "Showing demo data". |
+| 5.2 | Wait a moment, then look at the left of the ticker on a weekday during school hours | A class chip like "Now: Biology (204) · until 8:50 AM" or "Next: Algebra II · 8:55 AM". |
+| 5.3 | Click a demo deadline on the ticker | Details say "From your school"; there's **Mark complete** but no **Edit**. |
+| 5.4 | In the deadline list, hover the pencil and trash can on a demo row | Both are disabled, with a tooltip explaining they come from the school. ✓ (complete) still works. |
+| 5.5 | Add your own deadline with the same title and due time as a demo one (e.g. "Lab report: Enzyme activity", same date, 11:59 PM) | It shows only once, as yours (your copy wins). Mark it complete: the demo copy doesn't reappear. |
+| 5.6 | Click **Disconnect** and confirm | Demo deadlines and the class chip disappear. Your own deadlines stay. |
+
+**Real school account (Cranbrook)**
+
+| # | Test | Expected |
+|---|---|---|
+| 5.7 | Check the school site box says `cranbrook.myschoolapp.com`, click **Sign in…** | A window shows the real school sign-in page. |
+| 5.8 | Sign in as you normally do | The window closes by itself within a few seconds of reaching the site. Status: "Connected as *your name* to cranbrook.myschoolapp.com. Synced just now." Your real assignments appear on the ticker with class names; the class chip shows today's schedule. |
+| 5.9 | If the window doesn't close after signing in | Click **I'm signed in**. If it still says not signed in, use test 5.10 instead and note it in the AI log. |
+| 5.10 | **Paste session cookie…**: follow the on-screen steps to copy your browser's cookie and paste it | Connects the same as 5.8. Pasting junk says it doesn't look like a cookie; an old cookie says it didn't work. |
+| 5.11 | Compare with the Assignment Center on the website | Same assignments and due times, last 7 days through the next 60. Completed/graded ones show as completed in FocusBar. |
+| 5.12 | Complete an assignment on the website, then click **Sync now** | It moves to Completed in FocusBar. |
+| 5.13 | Leave FocusBar running for a day (or restart it the next day) | Still connected (the site's rotating session is saved after each sync). If the sign-in expires, the bar shows a yellow ⚠ icon. Hovering it explains; clicking opens this page with "Sign-in expired". |
+| 5.14 | Open `%AppData%\FocusBar\school-session.json` in Notepad | Only scrambled encrypted text; no readable cookie or name. |
+| 5.15 | Click **Disconnect** | School deadlines and schedule are removed; signing in again starts fresh. |
+
+**Calendars**
+
+| # | Test | Expected |
+|---|---|---|
+| 5.16 | Add a calendar: name "Sample", **Browse…** to `docs/samples/sample-assignments.ics` | Within seconds: Chemistry worksheet 5, Book report, Geometry quiz, and Turn in field trip form appear (all November 2026). The weekly Robotics club meeting does not. |
+| 5.17 | Add a calendar link (for example a Google Calendar "secret address in iCal format", or a Google Classroom class calendar) | Its upcoming events appear as deadlines. The list on this page shows only "Link on calendar.google.com", not the full private link. |
+| 5.18 | Add the same calendar twice | "That calendar is already added." |
+| 5.19 | Rename/move the sample .ics file, then **Sync now** | ⚠ on the bar; the calendar's row says the file can't be found. Its deadlines stay until it's fixed or removed. |
+| 5.20 | Remove a calendar | Its deadlines disappear. |
+| 5.21 | Turn off Wi-Fi, click **Sync now** | ⚠ icon with "Couldn't connect"; deadlines stay. Turn Wi-Fi back on and sync: ⚠ goes away. |
+| 5.22 | Repeat the Phase 0 tests | All still pass. |

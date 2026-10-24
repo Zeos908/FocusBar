@@ -2,6 +2,7 @@ using System.Windows;
 using System.Windows.Threading;
 using FocusBar.App.Deadlines;
 using FocusBar.App.Safety;
+using FocusBar.App.Security;
 using FocusBar.App.Services;
 using FocusBar.App.Shell;
 using FocusBar.App.Themes;
@@ -11,6 +12,8 @@ using FocusBar.Core.Diagnostics;
 using FocusBar.Core.Pins;
 using FocusBar.Core.Reminders;
 using FocusBar.Core.Settings;
+using FocusBar.Core.Sources;
+using FocusBar.Core.Sources.School;
 using FocusBar.Core.Storage;
 using ManagedShell;
 using ManagedShell.AppBar;
@@ -29,6 +32,7 @@ public partial class App : Application
     private PanicHotkey? _panicHotkey;
     private StatusIndicators? _status;
     private ReminderService? _reminders;
+    private SyncService? _sync;
     private BarServices? _services;
     private MainBar? _bar;
     private bool _crashing;
@@ -135,13 +139,19 @@ public partial class App : Application
 
         var deadlines = new DeadlineService(new DeadlineStore(store), new ScheduleStore(store), _log);
         var settings = new SettingsService(new SettingsStore(store), _log);
+
+        var protector = new DpapiProtector();
+        _sync = new SyncService(deadlines, new SchoolApiConfigStore(store), new SchoolSessionStore(store, protector),
+            new CalendarFeedStore(store, protector), _log, Dispatcher);
+
+        var sync = _sync;
         _reminders = new ReminderService(deadlines, settings, new ReminderStateStore(store), _log, Dispatcher)
         {
-            OpenList = () => DeadlineListWindow.ShowSingle(deadlines),
+            OpenList = () => DeadlineListWindow.ShowSingle(deadlines, sync),
         };
 
         return new BarServices(shell, new PinService(new PinStore(store), _log), apps, _status, trayIcons, deadlines,
-            settings, _reminders, _log);
+            settings, _reminders, _sync, _log);
     }
 
     private void OpenBar()
@@ -171,6 +181,7 @@ public partial class App : Application
         Try(CloseBar, "close bar");
         Try(() => _status?.Dispose(), "stop Wi-Fi, volume, and battery monitors");
         Try(() => _reminders?.Dispose(), "stop reminders");
+        Try(() => _sync?.Dispose(), "stop deadline sync");
         Try(() => { if (_shell is not null) _shell.ExplorerHelper.HideExplorerTaskbar = false; }, "stop hiding taskbar");
         Try(() => _shell?.Dispose(), "dispose ManagedShell");
         _guard.RestoreAndForget(reason);

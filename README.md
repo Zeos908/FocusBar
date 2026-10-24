@@ -6,7 +6,7 @@
 **Developer:** Suhaas
 **Platform:** Windows 10 / 11
 **Audience:** Middle and high school students
-**Status:** 🟠 In development: Phases 0–4 built (safety net, docked bar, taskbar features, deadlines and the ticker, reminders), awaiting testing on Windows
+**Status:** 🟠 In development: Phases 0–5 built (safety net, docked bar, taskbar features, deadlines and the ticker, reminders, school and calendar sync), awaiting testing on Windows
 
 ---
 
@@ -63,11 +63,12 @@ FocusBar hides the default Windows taskbar and replaces every core feature:
 Deadlines flow in from three places and merge into one list:
 | Source | How it works |
 |---|---|
-| **School website API** | Automatically imports assignments, due dates, and the class schedule |
-| **Calendar (.ics)** | Import or subscribe to a calendar file (Google Calendar, Outlook, etc.) |
+| **School website** | Signs in to the school's Blackbaud site (cranbrook.myschoolapp.com) in a built-in browser window, then imports assignments, due dates, and the class schedule every 30 minutes |
+| **Calendar (.ics)** | Add a calendar file or subscribe to a link (Google Calendar, Google Classroom, Outlook, etc.) |
 | **Manual entry** | Quick-add a deadline right from the bar |
+| **Demo data** | Realistic made-up assignments and schedule, for trying FocusBar without a school account |
 
-Duplicate deadlines from different sources are detected and merged.
+Duplicate deadlines from different sources are detected and shown once (titles match and due within an hour; your own entry wins, then the school's). If a source can't be reached, FocusBar keeps its last deadlines and shows a ⚠ icon on the bar.
 
 ### 🔔 Smart Reminders
 - Native Windows notifications
@@ -143,7 +144,8 @@ Plus colors, fonts, transparency, and bar height — saved as switchable themes.
 | App blocking | Process-start events (WMI), with polling fallback | Detects blocked apps without constant polling |
 | Website blocking | Hosts-file rules, via a small helper that asks for admin only when needed | Blocks sites across browsers |
 | Calendar import | Ical.Net | Parses .ics files |
-| School data | School website API (HTTP/JSON) | Assignments, due dates, schedule |
+| School data | The school site's own JSON endpoints (Blackbaud onCampus), signed in through Microsoft Edge WebView2 | Assignments, due dates, schedule |
+| Secrets | Windows DPAPI | School sign-in and private calendar links are stored encrypted for your Windows account |
 | Storage | JSON in `%AppData%\FocusBar` | Simple, local, private |
 | Tests | xUnit | Covers all non-UI logic in `FocusBar.Core` |
 
@@ -176,7 +178,7 @@ While FocusBar runs, it hides the Windows taskbar and takes its place. To get th
 
 Debug builds add a **Developer** submenu to the right-click menu, with options that throw a test exception. Use them to check that a crash brings the Windows taskbar back.
 
-FocusBar's files live in `%AppData%\FocusBar\`: `deadlines.json` (your deadlines), `settings.json` (settings), `reminders.json` (which reminders were already shown), `pins.json` (pinned apps), `tray.json` (tray icons shown on the bar), and error logs in the `logs` folder (right-click the bar → **Open log folder**).
+FocusBar's files live in `%AppData%\FocusBar\`: `deadlines.json` (your deadlines), `settings.json` (settings), `reminders.json` (which reminders were already shown), `school-api.json` (school site settings), `school-session.json` and `calendars.json` (encrypted), `schedule.json` (this week's classes), `pins.json` (pinned apps), `tray.json` (tray icons shown on the bar), and error logs in the `logs` folder (right-click the bar → **Open log folder**).
 
 The step-by-step Windows test checklist for each phase is in [docs/testing.md](docs/testing.md).
 
@@ -251,7 +253,7 @@ If the taskbar is still missing (for example, both FocusBar processes were ended
 
 ## Future Ideas
 
-- [ ] Google Classroom and Canvas/Schoology integration
+- [ ] Google Classroom and Canvas/Schoology integration (Google Classroom calendars already work through the .ics option)
 - [ ] Recurring deadlines (weekly homework)
 - [ ] Study stats (time in Focus Mode, deadlines met on time)
 - [ ] Multi-monitor support
