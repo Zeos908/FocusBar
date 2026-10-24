@@ -6,6 +6,7 @@ using System.Windows.Threading;
 using FocusBar.App.Deadlines;
 using FocusBar.App.Flyouts;
 using FocusBar.App.Services;
+using FocusBar.App.Settings;
 using FocusBar.App.Themes;
 using FocusBar.App.Tray;
 using FocusBar.Core.Diagnostics;
@@ -27,6 +28,8 @@ internal sealed record BarServices(
     StatusIndicators Status,
     TrayIcons? TrayIcons,
     DeadlineService Deadlines,
+    SettingsService Settings,
+    ReminderService Reminders,
     ErrorLog Log);
 
 /// <summary>
@@ -168,6 +171,9 @@ public partial class MainBar : AppBarWindow
     private void ClockButton_Click(object sender, RoutedEventArgs e) => _calendar.Toggle(ClockButton, HorizontalAlignment.Right);
 
     private void TaskManager_Click(object sender, RoutedEventArgs e) => ShellHelper.StartTaskManager();
+
+    private void Settings_Click(object sender, RoutedEventArgs e) =>
+        SettingsWindow.ShowSingle(_services.Settings, _services.Reminders);
 
     private void RestoreAndExit_Click(object sender, RoutedEventArgs e) =>
         _app.RestoreTaskbarAndExit("menu: Restore Windows taskbar and exit");

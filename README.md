@@ -6,7 +6,7 @@
 **Developer:** Suhaas
 **Platform:** Windows 10 / 11
 **Audience:** Middle and high school students
-**Status:** 🟠 In development: Phases 0–3 built (safety net, docked bar, taskbar features, manual deadlines and the scrolling ticker), awaiting testing on Windows
+**Status:** 🟠 In development: Phases 0–4 built (safety net, docked bar, taskbar features, deadlines and the ticker, reminders), awaiting testing on Windows
 
 ---
 
@@ -71,8 +71,9 @@ Duplicate deadlines from different sources are detected and merged.
 
 ### 🔔 Smart Reminders
 - Native Windows notifications
-- Configurable timing (e.g., 1 week, 1 day, 3 hours, 1 hour before)
-- Snooze or mark complete straight from the notification
+- Configurable timing in Settings (default: 1 day, 3 hours, and 1 hour before; also 1 week, 2 days, 30 and 15 minutes)
+- **Snooze 15 min** or **Mark complete** straight from the notification
+- Never repeats a reminder, even after a restart; if the PC was off, shows just one catch-up reminder per deadline
 
 ### 🚫 Focus Mode (App & Website Blocking)
 - Choose which **apps** (games, Discord, etc.) and **websites** (YouTube, game sites, etc.) to block
@@ -175,7 +176,7 @@ While FocusBar runs, it hides the Windows taskbar and takes its place. To get th
 
 Debug builds add a **Developer** submenu to the right-click menu, with options that throw a test exception. Use them to check that a crash brings the Windows taskbar back.
 
-FocusBar's files live in `%AppData%\FocusBar\`: `deadlines.json` (your deadlines), `pins.json` (pinned apps), `tray.json` (tray icons shown on the bar), and error logs in the `logs` folder (right-click the bar → **Open log folder**).
+FocusBar's files live in `%AppData%\FocusBar\`: `deadlines.json` (your deadlines), `settings.json` (settings), `reminders.json` (which reminders were already shown), `pins.json` (pinned apps), `tray.json` (tray icons shown on the bar), and error logs in the `logs` folder (right-click the bar → **Open log folder**).
 
 The step-by-step Windows test checklist for each phase is in [docs/testing.md](docs/testing.md).
 

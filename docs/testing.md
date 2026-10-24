@@ -172,3 +172,25 @@ Known Phase 2 limits (expected, not bugs):
 Known Phase 3 limits (expected, not bugs):
 - The current/next class only appears once a class schedule exists, which comes from the school API sync in Phase 5.
 - Reminders arrive in Phase 4.
+
+## Phase 4: Reminders
+
+Tip: to test without waiting a day, add a deadline due a few minutes after one of the reminder times. For example, with the default "1 hour before" reminder, add one due 1 hour 2 minutes from now.
+
+| # | Test | Expected |
+|---|---|---|
+| 4.1 | Right-click the bar → **FocusBar settings** → Reminders → **Send a test reminder** | A Windows notification "Test reminder is due in 1 hour" from FocusBar appears. If not, check Windows notification settings and Do Not Disturb / Focus Assist. |
+| 4.2 | Add a deadline due 1 hour 2 minutes from now; wait 2 minutes | Notification: "*Title* is due in 1 hour", class and due time underneath, with **Snooze 15 min** and **Mark complete** buttons. |
+| 4.3 | Click **Snooze 15 min** | Notification goes away and comes back 15 minutes later ("…is due in 45 minutes"). |
+| 4.4 | On a reminder, click **Mark complete** | The deadline leaves the ticker and moves to Completed in the deadline list. |
+| 4.5 | Click the body of a reminder (not a button) | The deadline list opens. |
+| 4.6 | Add a deadline due in 2 hours | No reminder pops up right away (its "1 day" and "3 hours" reminders were already past when you added it). The "1 hour" reminder comes on time. |
+| 4.7 | After a reminder shows, exit FocusBar and start it again | The same reminder does not show again. |
+| 4.8 | Add a deadline due in 3 h 30 min. Exit FocusBar for 3 hours (or put the PC to sleep), then start it | Exactly one catch-up reminder ("…is due in 30 minutes", noting FocusBar was off), not one for each missed time. |
+| 4.9 | Settings → Reminders: untick "3 hours before", tick "30 minutes before" | New choices take effect for upcoming reminders and are kept after a restart (`settings.json`). |
+| 4.10 | Untick **Show reminders** | No reminders appear. Turning it back on doesn't flood you with the ones you missed. |
+| 4.11 | Change a deadline's due date after one of its reminders showed | Reminders are set up again for the new due date. |
+| 4.12 | Mark a deadline complete in FocusBar while its reminder is still in the notification center | The reminder disappears from the notification center. |
+| 4.13 | Snooze a reminder, then exit FocusBar before 15 minutes pass, and start it again after | The snoozed reminder still comes back (shown once). |
+| 4.14 | With FocusBar closed, click **Snooze** or **Mark complete** on a reminder still in the notification center | FocusBar starts and carries out the button's action. |
+| 4.15 | Repeat the Phase 0 tests | All still pass. |

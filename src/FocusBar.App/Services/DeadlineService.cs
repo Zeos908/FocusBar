@@ -34,6 +34,11 @@ internal sealed class DeadlineService
 
     public Deadline? Find(Guid id) => _list.Find(id);
 
+    /// <summary>The deadlines reminders are about (all of them; completed ones are skipped by the planner).</summary>
+    public IReadOnlyList<Deadline> ForReminders() => _list.All;
+
+    public IReadOnlySet<Guid> AllIds() => _list.All.Select(d => d.Id).ToHashSet();
+
     public IReadOnlyList<string> RecentClassNames(int max) => _list.RecentClassNames(max);
 
     public Deadline Add(string title, string? className, string? description, DateTimeOffset dueAt)

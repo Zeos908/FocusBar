@@ -1,0 +1,30 @@
+<UserControl x:Class="FocusBar.App.Settings.RemindersPage"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <StackPanel>
+        <TextBlock Text="Reminders" Style="{StaticResource FlyoutHeading}" FontSize="20" />
+        <TextBlock Style="{StaticResource FlyoutMuted}" TextWrapping="Wrap" Margin="0,4,0,16"
+                   Text="FocusBar shows a Windows notification before each deadline, with buttons to snooze for 15 minutes or mark it complete." />
+
+        <CheckBox x:Name="EnabledBox" Style="{StaticResource FlyoutCheckBox}" Content="Show reminders"
+                  Checked="EnabledBox_Changed" Unchecked="EnabledBox_Changed" />
+
+        <TextBlock Text="Remind me this long before each deadline" Style="{StaticResource FieldLabel}" Margin="0,18,0,6" />
+        <StackPanel x:Name="OffsetBoxes" Margin="2,0,0,0" />
+        <TextBlock x:Name="NoneChosenText" Style="{StaticResource FlyoutMuted}" Visibility="Collapsed" Margin="0,6,0,0"
+                   Text="Pick at least one time, or turn reminders off above." />
+
+        <Border BorderBrush="{DynamicResource FlyoutDivider}" BorderThickness="0,1,0,0" Margin="0,20,0,0" Padding="0,14,0,0">
+            <StackPanel>
+                <Button Style="{StaticResource FlyoutButton}" HorizontalAlignment="Left" Click="TestButton_Click">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="&#xEA8F;" Style="{StaticResource IconText}" FontSize="12" Margin="0,0,6,0" />
+                        <TextBlock Text="Send a test reminder" />
+                    </StackPanel>
+                </Button>
+                <TextBlock Style="{StaticResource FlyoutMuted}" TextWrapping="Wrap" Margin="0,8,0,0"
+                           Text="Nothing shows up? Check Settings → System → Notifications in Windows, and make sure Do Not Disturb / Focus Assist is off." />
+            </StackPanel>
+        </Border>
+    </StackPanel>
+</UserControl>

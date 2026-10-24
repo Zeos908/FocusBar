@@ -1,5 +1,6 @@
 using System.Windows;
 using System.Windows.Threading;
+using FocusBar.App.Deadlines;
 using FocusBar.App.Safety;
 using FocusBar.App.Services;
 using FocusBar.App.Shell;
@@ -8,6 +9,8 @@ using FocusBar.App.Tray;
 using FocusBar.Core.Deadlines;
 using FocusBar.Core.Diagnostics;
 using FocusBar.Core.Pins;
+using FocusBar.Core.Reminders;
+using FocusBar.Core.Settings;
 using FocusBar.Core.Storage;
 using ManagedShell;
 using ManagedShell.AppBar;
@@ -25,6 +28,7 @@ public partial class App : Application
     private ShellManager? _shell;
     private PanicHotkey? _panicHotkey;
     private StatusIndicators? _status;
+    private ReminderService? _reminders;
     private BarServices? _services;
     private MainBar? _bar;
     private bool _crashing;
@@ -130,8 +134,14 @@ public partial class App : Application
         _ = apps.RefreshAsync(); // so the Start launcher's first open is instant
 
         var deadlines = new DeadlineService(new DeadlineStore(store), new ScheduleStore(store), _log);
+        var settings = new SettingsService(new SettingsStore(store), _log);
+        _reminders = new ReminderService(deadlines, settings, new ReminderStateStore(store), _log, Dispatcher)
+        {
+            OpenList = () => DeadlineListWindow.ShowSingle(deadlines),
+        };
 
-        return new BarServices(shell, new PinService(new PinStore(store), _log), apps, _status, trayIcons, deadlines, _log);
+        return new BarServices(shell, new PinService(new PinStore(store), _log), apps, _status, trayIcons, deadlines,
+            settings, _reminders, _log);
     }
 
     private void OpenBar()
@@ -160,6 +170,7 @@ public partial class App : Application
         Try(() => _panicHotkey?.Dispose(), "dispose panic hotkey");
         Try(CloseBar, "close bar");
         Try(() => _status?.Dispose(), "stop Wi-Fi, volume, and battery monitors");
+        Try(() => _reminders?.Dispose(), "stop reminders");
         Try(() => { if (_shell is not null) _shell.ExplorerHelper.HideExplorerTaskbar = false; }, "stop hiding taskbar");
         Try(() => _shell?.Dispose(), "dispose ManagedShell");
         _guard.RestoreAndForget(reason);

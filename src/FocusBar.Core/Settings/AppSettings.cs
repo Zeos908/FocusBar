@@ -1,0 +1,40 @@
+using FocusBar.Core.Reminders;
+using FocusBar.Core.Storage;
+
+namespace FocusBar.Core.Settings;
+
+/// <summary>
+/// The user's settings, saved to <c>settings.json</c>. Later phases add sections here (Focus Mode, appearance).
+/// </summary>
+public record AppSettings(ReminderSettings Reminders)
+{
+    public const string FileName = "settings.json";
+
+    public static AppSettings Default => new(ReminderSettings.Default);
+}
+
+/// <summary>Loads and saves <see cref="AppSettings"/>, filling in anything missing with defaults.</summary>
+public sealed class SettingsStore
+{
+    private readonly JsonFileStore _store;
+
+    public SettingsStore(JsonFileStore store)
+    {
+        _store = store;
+    }
+
+    public AppSettings Load()
+    {
+        var loaded = _store.Load<AppSettings?>(AppSettings.FileName, null) ?? AppSettings.Default;
+
+        // Sections missing from an older or hand-edited file get their defaults.
+        var reminders = loaded.Reminders ?? ReminderSettings.Default;
+        reminders = reminders with
+        {
+            Offsets = [.. (reminders.Offsets ?? []).Where(o => o > TimeSpan.Zero).Distinct().OrderDescending()],
+        };
+        return loaded with { Reminders = reminders };
+    }
+
+    public void Save(AppSettings settings) => _store.Save(AppSettings.FileName, settings);
+}

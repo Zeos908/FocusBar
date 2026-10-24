@@ -13,6 +13,7 @@
                      KeyboardNavigation.TabNavigation="Cycle">
     <appbar:AppBarWindow.ContextMenu>
         <ContextMenu>
+            <MenuItem Header="FocusBar settings" Click="Settings_Click" />
             <MenuItem Header="Task Manager" Click="TaskManager_Click" />
             <Separator />
             <MenuItem Header="Restore Windows taskbar and exit" Click="RestoreAndExit_Click" InputGestureText="Ctrl+Alt+Shift+F" />

@@ -148,3 +148,34 @@ These are good candidates for the technical-challenge answer.
 - **Ticker speed is 40 pixels per second.** Easy to change (`Speed` in `TickerView.xaml.cs`).
 - **Deleting asks for confirmation.** There's no undo for delete, but completing can be undone from the list.
 - **The current/next class chip** only appears once a schedule exists (Phase 5). There's no way to type in a schedule by hand yet.
+
+---
+
+## Phase 4: Reminders
+
+**Status:** Compiles (no warnings) and all 188 `FocusBar.Core` unit tests pass. The GitHub Actions Windows build passed for Phase 3. **Not yet run on Windows**: see the Phase 4 checklist in `docs/testing.md`.
+
+### What the developer wrote, changed, or decided
+- Asked to keep going, and provided the school website's API details for Phase 5.
+- *(Add anything you change after testing on Windows.)*
+
+### What the AI generated
+- `FocusBar.Core` (unit-tested):
+  - `ReminderPlanner`: decides which reminders to show now (rules below).
+  - `ReminderState` / `ReminderStateStore`: which reminders were shown, when each deadline was first seen, and snoozes, saved in `reminders.json`.
+  - `ReminderSettings` and `AppSettings` / `SettingsStore`: reminder choices in `settings.json`, with missing parts filled in by defaults.
+- `FocusBar.App`:
+  - `ReminderService`: checks every 30 seconds and whenever deadlines change, and shows Windows notifications using the Windows Community Toolkit. Buttons are **Snooze 15 min** and **Mark complete**, and clicking the notification opens the deadline list. One notification per deadline (a newer reminder replaces the older), and it's removed when the deadline is completed.
+  - **Settings window** (`Settings/`), opened from the bar's right-click menu. Its Reminders page has on/off, the reminder times, and a **Send a test reminder** button. Later phases add their pages here.
+
+### Problems found and how they were solved
+1. **Never showing a reminder twice.** Each reminder has a key made of the deadline, its due time, and how long before it is (for example "1 hour"). Shown keys are saved, so a restart doesn't repeat them. Because the due time is part of the key, moving a deadline sets up fresh reminders for the new time.
+2. **Catch-up after the PC was off.** If FocusBar was closed while several reminders for one deadline came due, it shows only the latest one ("due in 30 minutes", noting FocusBar was off), not all three at once.
+3. **Adding a deadline that's due soon.** Without a fix, adding something due in 2 hours would instantly fire its "1 day before" and "3 hours before" reminders, because those times had already passed. FocusBar now remembers when it first saw each deadline and skips reminders that were due before then.
+4. **Turning reminders back on.** Reminders that came due while they were turned off are marked as skipped, so turning them back on doesn't flood the screen.
+5. **Buttons when FocusBar isn't running.** Clicking a notification button can start FocusBar. The click is handled through the toolkit's activation event, which is set up as soon as FocusBar starts, so the snooze or completion still happens.
+
+### Decisions the AI made that the developer should review
+- **No reminders after a deadline is due.** Overdue deadlines show in red on the ticker instead. A snooze that ends after the due time still comes back.
+- **Snooze is always 15 minutes**, as the build instructions say.
+- **Windows registers FocusBar for notifications the first time it shows one.** This is done by the toolkit, in the current user's registry. The Phase 8 installer should undo it on uninstall (`ToastNotificationManagerCompat.Uninstall()`).
