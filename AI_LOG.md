@@ -231,3 +231,47 @@ These are good candidates for the technical-challenge answer.
 - **Synced deadlines can't be edited or deleted in FocusBar** (the next sync would bring the old version back). They can be marked complete.
 - **Repeating calendar events are skipped.** They're usually classes or practices, not deadlines.
 - **The "current/next class" uses the school's real schedule for each of the next 7 days.** There's still no way to type a schedule in by hand.
+
+## Phase 6: Focus Mode
+
+**Status:** Compiles (no warnings) and all 312 `FocusBar.Core` unit tests pass (44 new: hosts file editing, block lists, and when Focus Mode is on). **Not yet run on Windows**, so the permission prompt, the hosts file edits, and closing apps haven't been seen working for real. See the Phase 6 checklist in `docs/testing.md`; tests 6.8, 6.13, and 6.21–6.24 check that the hosts file always ends up clean.
+
+### What the developer wrote, changed, or decided
+- *(Add anything you change after testing: which apps and sites you block, the strictness level you like, anything the Focus screen should say.)*
+
+### What the AI generated
+- `FocusBar.Core` (all unit-tested):
+  - `Focus/HostsFile`: adds and removes FocusBar's block between `# FocusBar BEGIN` and `# FocusBar END`, leaving every other line exactly as it was. Also cleans up what users type ("https://www.YouTube.com/watch?v=1" → `youtube.com`).
+  - `Focus/BlockList`: checks app names and settings, the list of Windows and FocusBar programs that can never be blocked, and the "Quick add" site suggestions.
+  - `Focus/FocusPlanner`: decides whether Focus Mode is on right now (a manual session, or a deadline inside the window), and whether it can be ended early.
+  - `FocusSettings` saved in `settings.json`; the running session in `focus-state.json`.
+- `FocusBar.Blocker` (new, separate program): the only part that runs as administrator. It takes `apply <sites…>` or `clear`, backs up the hosts file once, writes it safely (temporary file, then replace), flushes the DNS cache, and logs to `%ProgramData%\FocusBar\blocker.log`. It re-checks every site name itself instead of trusting FocusBar.
+- `FocusBar.App`:
+  - `FocusController`: turns Focus Mode on and off, checks for blocked apps every 2 seconds while it's on, runs the blocker only when the site list actually changes, and shows toasts.
+  - `AppBlocker`: finds blocked apps and closes them (politely first, then forcefully after 1.5 seconds).
+  - `WebsiteBlocker`: runs the blocker with Windows' permission prompt, and notices a "No".
+  - **Focus screen**: full-screen message with the deadline, a countdown, and per-strictness buttons. "Back to work" or Esc always closes it.
+  - **Moon button** on the bar and its flyout: Focus for 25 / 50 / 90 min, what's blocked, website status with Try again, I finished it (mark complete), End focus.
+  - **Settings → Focus Mode**: auto on/off and how early, strictness cards, override wait, app list (pick from open apps or Start Menu apps, or type a name), website list with Quick add.
+  - Cleanup on every exit path: normal exit and the panic hotkey (after the taskbar is restored), the watchdog after a crash, the next startup, and `--restore-taskbar`.
+
+### Problems found and how they were solved
+1. **WMI needs admin.** The build instructions suggested WMI process-start events, but `Win32_ProcessStartTrace` only works for administrators, and FocusBar runs as a normal user. So it checks the running apps every 2 seconds, and only while Focus Mode is on (no cost the rest of the time). A blocked app can run for up to about 2 seconds before it closes.
+2. **Never leave the hosts file dirty.** The block has to come off however FocusBar ends. It's removed when Focus Mode ends, on normal exit, by the watchdog if FocusBar is killed, on the next startup if it's still there, and by `--restore-taskbar` / `FocusBar.Blocker.exe clear`. Each of these only removes FocusBar's own lines. If the END marker was deleted by hand, it removes only lines that look like FocusBar's, so it can't eat the rest of the file.
+3. **Exit order.** Removing the block shows a permission prompt, which can take a while. The taskbar is restored first, and the prompt comes after, so a slow answer never leaves anyone without a taskbar.
+4. **Signing out.** A permission prompt while Windows is signing out or shutting down would hold it up, so FocusBar skips it then; the next start removes the block.
+5. **Too many prompts.** Re-running the blocker every 15 seconds would ask for permission constantly. FocusBar reads the hosts file first (no admin needed for that) and only runs the blocker when the site list changes. After a "No" it waits until the student clicks Try again or changes the list.
+6. **A helper still running at exit** could put the block back after FocusBar removed it, so exit waits up to 30 seconds for it first.
+7. **App names on Windows paths.** Tests for typed app names ("C:\Games\Roblox.exe") failed on the Linux build machine because .NET's path functions follow the machine's rules, not Windows'. The name cleanup now uses Windows rules directly.
+8. **Strict that wasn't.** If the settings page stayed editable during a Strict session, switching to Soft and clicking End would get around it. The Focus Mode settings page is locked (with a banner) until a Strict session ends.
+
+### Decisions the AI made that the developer should review
+- **No anti-tamper.** As the build instructions require, FocusBar doesn't hide itself, resist being closed, or restart itself. Exiting FocusBar ends Focus Mode, including Strict, and removes the website block. Strict is a commitment the student makes, not a lock.
+- **Gentle doesn't block websites.** A hosts-file block can't show a "continue anyway?" choice, and it would mean permission prompts for a mode that's meant to be gentle. Gentle only warns about apps.
+- **Overriding** in Soft (and "Continue anyway" in Gentle) allows that app for the rest of the session, not just once.
+- **Protected programs.** Explorer, Task Manager, FocusBar itself, and other parts of Windows can't be added to the block list, so Focus Mode can't break the computer or the way out.
+- **Sites are blocked for IPv4 and IPv6, with and without `www.`** Other subdomains (like `m.youtube.com`) need to be added separately.
+- **Apps running as administrator can't be closed** by FocusBar, since it isn't an administrator.
+- **The Focus screen uses a built-in gradient for now.** Phase 7 adds the student's own image.
+- **Antivirus programs may flag hosts file changes.** That's expected for this kind of feature; the README mentions it.
+- **Secure DNS (DNS over HTTPS)** in browsers can bypass the hosts file. FocusBar doesn't change browser settings; the README explains how to turn it off.

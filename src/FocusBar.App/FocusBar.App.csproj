@@ -30,6 +30,16 @@
 
   <ItemGroup>
     <ProjectReference Include="..\FocusBar.Core\FocusBar.Core.csproj" />
+    <!-- Built first so its files can be copied next to FocusBar.exe (below); not referenced as a library. -->
+    <ProjectReference Include="..\FocusBar.Blocker\FocusBar.Blocker.csproj" ReferenceOutputAssembly="false" />
   </ItemGroup>
+
+  <!-- FocusBar starts FocusBar.Blocker.exe (with a permission prompt) to block websites, so it must sit beside FocusBar.exe. -->
+  <Target Name="CopyBlocker" AfterTargets="Build">
+    <ItemGroup>
+      <BlockerFiles Include="..\FocusBar.Blocker\bin\$(Configuration)\net8.0\FocusBar.Blocker.*" />
+    </ItemGroup>
+    <Copy SourceFiles="@(BlockerFiles)" DestinationFolder="$(OutDir)" SkipUnchangedFiles="true" />
+  </Target>
 
 </Project>

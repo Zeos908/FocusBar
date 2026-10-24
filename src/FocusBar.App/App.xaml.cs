@@ -1,6 +1,7 @@
 using System.Windows;
 using System.Windows.Threading;
 using FocusBar.App.Deadlines;
+using FocusBar.App.Focus;
 using FocusBar.App.Safety;
 using FocusBar.App.Security;
 using FocusBar.App.Services;
@@ -9,6 +10,7 @@ using FocusBar.App.Themes;
 using FocusBar.App.Tray;
 using FocusBar.Core.Deadlines;
 using FocusBar.Core.Diagnostics;
+using FocusBar.Core.Focus;
 using FocusBar.Core.Pins;
 using FocusBar.Core.Reminders;
 using FocusBar.Core.Settings;
@@ -33,6 +35,7 @@ public partial class App : Application
     private StatusIndicators? _status;
     private ReminderService? _reminders;
     private SyncService? _sync;
+    private FocusController? _focus;
     private BarServices? _services;
     private MainBar? _bar;
     private bool _crashing;
@@ -68,6 +71,7 @@ public partial class App : Application
         ThemeManager.Apply();
         _services = CreateServices(_shell, store);
         OpenBar();
+        _focus!.Start();
     }
 
     /// <summary>Used by the panic hotkey and the "Restore Windows taskbar and exit" menu item.</summary>
@@ -101,7 +105,7 @@ public partial class App : Application
     protected override void OnSessionEnding(SessionEndingCancelEventArgs e)
     {
         base.OnSessionEnding(e);
-        Cleanup($"Windows {e.ReasonSessionEnding.ToString().ToLowerInvariant()}");
+        Cleanup($"Windows {e.ReasonSessionEnding.ToString().ToLowerInvariant()}", sessionEnding: true);
         // If another app cancels the sign-out, FocusBar has already given the taskbar back, so finish exiting
         // rather than lingering with no bar. The user can start it again.
         Shutdown();
@@ -150,8 +154,10 @@ public partial class App : Application
             OpenList = () => DeadlineListWindow.ShowSingle(deadlines, sync),
         };
 
+        _focus = new FocusController(settings, deadlines, new FocusStateStore(store), _log, Dispatcher);
+
         return new BarServices(shell, new PinService(new PinStore(store), _log), apps, _status, trayIcons, deadlines,
-            settings, _reminders, _sync, _log);
+            settings, _reminders, _sync, _focus, _log);
     }
 
     private void OpenBar()
@@ -172,12 +178,13 @@ public partial class App : Application
     /// Restores the Windows taskbar. Runs exactly once, on whichever exit path gets here first.
     /// Each step is isolated so one failure can't stop the taskbar from coming back.
     /// </summary>
-    private void Cleanup(string reason)
+    private void Cleanup(string reason, bool sessionEnding = false)
     {
         if (_cleanedUp) return;
         _cleanedUp = true;
 
         Try(() => _panicHotkey?.Dispose(), "dispose panic hotkey");
+        Try(() => _focus?.Dispose(), "stop Focus Mode");
         Try(CloseBar, "close bar");
         Try(() => _status?.Dispose(), "stop Wi-Fi, volume, and battery monitors");
         Try(() => _reminders?.Dispose(), "stop reminders");
@@ -185,6 +192,17 @@ public partial class App : Application
         Try(() => { if (_shell is not null) _shell.ExplorerHelper.HideExplorerTaskbar = false; }, "stop hiding taskbar");
         Try(() => _shell?.Dispose(), "dispose ManagedShell");
         _guard.RestoreAndForget(reason);
+
+        // Last, because it can wait on Windows' permission prompt and the taskbar must already be back. Skipped while
+        // Windows is signing out or shutting down (a prompt then would hold it up); the next start removes the block.
+        if (sessionEnding)
+        {
+            if (WebsiteBlocker.HasBlock()) _log.Info("Leaving the website block for the next FocusBar start to remove (Windows is signing out).");
+        }
+        else
+        {
+            Try(() => _focus?.RemoveWebsiteBlockForExit(), "remove website block");
+        }
     }
 
     private void Try(Action action, string what)

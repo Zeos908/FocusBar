@@ -1,0 +1,21 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!--
+    The only part of FocusBar that runs with administrator rights. It does one thing: adds or removes FocusBar's
+    website-blocking lines in the Windows hosts file. Kept tiny on purpose (no dependencies, no UI) so there's as
+    little code as possible running elevated. Windows asks the student for permission (UAC) every time it runs.
+  -->
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net8.0</TargetFramework>
+    <AssemblyName>FocusBar.Blocker</AssemblyName>
+    <RootNamespace>FocusBar.Blocker</RootNamespace>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- The same tested hosts-file code FocusBar.Core uses, compiled in rather than referenced. -->
+    <Compile Include="..\FocusBar.Core\Focus\HostsFile.cs" Link="HostsFile.cs" />
+  </ItemGroup>
+
+</Project>

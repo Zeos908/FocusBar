@@ -177,6 +177,8 @@ internal sealed class ReminderService : IDisposable
                 case "complete" when id != Guid.Empty:
                     _deadlines.SetComplete(id, true);
                     break;
+                case "focus":
+                    break; // Focus Mode's own toasts: nothing to open
                 default:
                     OpenList?.Invoke();
                     break;

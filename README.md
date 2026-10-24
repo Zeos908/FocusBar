@@ -6,7 +6,7 @@
 **Developer:** Suhaas
 **Platform:** Windows 10 / 11
 **Audience:** Middle and high school students
-**Status:** 🟠 In development: Phases 0–5 built (safety net, docked bar, taskbar features, deadlines and the ticker, reminders, school and calendar sync), awaiting testing on Windows
+**Status:** 🟠 In development: Phases 0–6 built (safety net, docked bar, taskbar features, deadlines and the ticker, reminders, school and calendar sync, Focus Mode), awaiting testing on Windows
 
 ---
 
@@ -87,6 +87,19 @@ Duplicate deadlines from different sources are detected and shown once (titles m
   | **Strict** | Fully blocked until the deadline passes or is marked complete |
 - Blocked apps and sites show a custom Focus screen with how long until they unlock
 
+**How to use it:** click the moon 🌙 on the bar to focus for 25, 50, or 90 minutes, or let it turn on by itself before a deadline. Pick apps, websites, and the strictness level in right-click → **FocusBar settings** → **Focus Mode**.
+
+**How website blocking works.** While Focus Mode is on, FocusBar adds the sites to the Windows *hosts* file, so they don't load in any browser. Editing that file needs administrator rights, so a tiny separate program, `FocusBar.Blocker.exe`, does it; Windows asks for your permission (UAC) when Focus Mode starts and when it ends. FocusBar itself never runs as administrator. The blocker only touches lines between `# FocusBar BEGIN` and `# FocusBar END`, makes a one-time backup (`hosts.focusbar-backup` next to the hosts file), and always removes its lines when Focus Mode ends, when FocusBar exits, or (after a crash) through the watchdog or the next start. Gentle mode doesn't block websites, so it never asks for permission.
+
+**Limits worth knowing:**
+- Browsers set to use **secure DNS (DNS over HTTPS)** can skip the hosts file, so blocked sites may still load. Turn it off in the browser's privacy/security settings (Chrome and Edge: "Use secure DNS"; Firefox: "DNS over HTTPS").
+- Tabs that were already open may keep working until you reload them or restart the browser.
+- Some antivirus programs warn when the hosts file changes. That warning is about FocusBar's blocker; you can allow it or skip website blocking.
+- Apps that run as administrator can't be closed by FocusBar.
+- FocusBar doesn't fight you: exiting FocusBar ends Focus Mode (even Strict) and removes the block. It's a study tool, not parental control.
+
+**If websites stay blocked:** start FocusBar again (it removes a leftover block on startup), or run `FocusBar.Blocker.exe clear` from FocusBar's folder, or `FocusBar.exe --restore-taskbar`. As a last resort, `hosts.focusbar-backup` (in `C:\Windows\System32\drivers\etc`) is your hosts file from before FocusBar first changed it.
+
 ### 🎨 Customization with Images
 Students can upload their own images for:
 - **Bar background**
@@ -141,8 +154,8 @@ Plus colors, fonts, transparency, and bar height — saved as switchable themes.
 | Language / UI | C# with WPF (.NET 8), MVVM via `CommunityToolkit.Mvvm` | Best access to the Windows APIs a taskbar replacement needs |
 | Taskbar docking, window list, tray | [ManagedShell](https://github.com/cairoshell/ManagedShell) | Wraps the Win32 AppBar (`SHAppBarMessage`), task list, and notification-area APIs |
 | Notifications | `Microsoft.Toolkit.Uwp.Notifications` | Toast notifications from a regular desktop app |
-| App blocking | Process-start events (WMI), with polling fallback | Detects blocked apps without constant polling |
-| Website blocking | Hosts-file rules, via a small helper that asks for admin only when needed | Blocks sites across browsers |
+| App blocking | Checks running apps every 2 seconds, only while Focus Mode is on | WMI process-start events would need administrator rights |
+| Website blocking | Hosts-file rules, via a small helper (`FocusBar.Blocker`) that asks for admin only when needed | Blocks sites across browsers |
 | Calendar import | Ical.Net | Parses .ics files |
 | School data | The school site's own JSON endpoints (Blackbaud onCampus), signed in through Microsoft Edge WebView2 | Assignments, due dates, schedule |
 | Secrets | Windows DPAPI | School sign-in and private calendar links are stored encrypted for your Windows account |
@@ -153,7 +166,8 @@ Plus colors, fonts, transparency, and bar height — saved as switchable themes.
 
 ```
 FocusBar.sln
-├── src/FocusBar.App/         WPF app: the bar, safety net, (later) ticker, Focus Mode, settings
+├── src/FocusBar.App/         WPF app: the bar, safety net, ticker, reminders, sync, Focus Mode, settings
+├── src/FocusBar.Blocker/     Tiny admin-only helper that adds/removes FocusBar's lines in the hosts file
 ├── src/FocusBar.Core/        Models and logic with no UI code, so it can be unit-tested
 └── tests/FocusBar.Core.Tests xUnit tests for FocusBar.Core
 ```
@@ -178,7 +192,7 @@ While FocusBar runs, it hides the Windows taskbar and takes its place. To get th
 
 Debug builds add a **Developer** submenu to the right-click menu, with options that throw a test exception. Use them to check that a crash brings the Windows taskbar back.
 
-FocusBar's files live in `%AppData%\FocusBar\`: `deadlines.json` (your deadlines), `settings.json` (settings), `reminders.json` (which reminders were already shown), `school-api.json` (school site settings), `school-session.json` and `calendars.json` (encrypted), `schedule.json` (this week's classes), `pins.json` (pinned apps), `tray.json` (tray icons shown on the bar), and error logs in the `logs` folder (right-click the bar → **Open log folder**).
+FocusBar's files live in `%AppData%\FocusBar\`: `deadlines.json` (your deadlines), `settings.json` (settings), `reminders.json` (which reminders were already shown), `school-api.json` (school site settings), `school-session.json` and `calendars.json` (encrypted), `schedule.json` (this week's classes), `focus-state.json` (a running focus session), `pins.json` (pinned apps), `tray.json` (tray icons shown on the bar), and error logs in the `logs` folder (right-click the bar → **Open log folder**).
 
 The step-by-step Windows test checklist for each phase is in [docs/testing.md](docs/testing.md).
 

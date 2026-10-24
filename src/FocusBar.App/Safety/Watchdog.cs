@@ -31,6 +31,17 @@ internal static class Watchdog
         }
     }
 
+    /// <summary>
+    /// If FocusBar died during Focus Mode, its website block is still in the hosts file. Remove it now
+    /// (Windows asks for permission) rather than leaving sites blocked until FocusBar runs again.
+    /// </summary>
+    private static void LiftWebsiteBlocks(ErrorLog log)
+    {
+        if (!Focus.WebsiteBlocker.HasBlock()) return;
+        log.Info("Removing Focus Mode's website block left behind by the crash.");
+        Focus.WebsiteBlocker.Clear(log);
+    }
+
     public static int Run(string[] args, TaskbarSafetyStore store, ErrorLog log)
     {
         if (args.Length < 2 || !int.TryParse(args[1], NumberStyles.None, CultureInfo.InvariantCulture, out var parentId))
@@ -54,6 +65,7 @@ internal static class Watchdog
             {
                 TaskbarRestorer.Restore(leftover.OriginalAppBarState, returnTrayIcons: true);
                 store.Clear();
+                LiftWebsiteBlocks(log);
             }
             return 1;
         }
@@ -73,6 +85,7 @@ internal static class Watchdog
         log.Warning($"FocusBar (pid {parentId}) exited without restoring the taskbar. Watchdog is restoring it.");
         TaskbarRestorer.Restore(state!.OriginalAppBarState, returnTrayIcons: true);
         store.Clear();
+        LiftWebsiteBlocks(log);
         return 0;
     }
 }

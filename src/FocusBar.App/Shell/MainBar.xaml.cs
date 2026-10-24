@@ -5,6 +5,7 @@ using System.Windows.Controls;
 using System.Windows.Threading;
 using FocusBar.App.Deadlines;
 using FocusBar.App.Flyouts;
+using FocusBar.App.Focus;
 using FocusBar.App.Services;
 using FocusBar.App.Settings;
 using FocusBar.App.Themes;
@@ -31,6 +32,7 @@ internal sealed record BarServices(
     SettingsService Settings,
     ReminderService Reminders,
     SyncService Sync,
+    FocusController Focus,
     ErrorLog Log);
 
 /// <summary>
@@ -70,6 +72,8 @@ public partial class MainBar : AppBarWindow
         Ticker.Initialize(services.Deadlines, services.Sync,
             openList: () => DeadlineListWindow.ShowSingle(services.Deadlines, services.Sync),
             openSourceSettings: () => SettingsWindow.ShowSingle(services, SettingsWindow.SourcesPageName));
+        FocusMode.Initialize(services.Focus, services.Deadlines,
+            openSettings: () => SettingsWindow.ShowSingle(services, SettingsWindow.FocusPageName));
         TrayIconView.BeforeClick = UpdateTrayHost;
 
         _clockTimer.Tick += (_, _) => UpdateClock();
@@ -157,6 +161,7 @@ public partial class MainBar : AppBarWindow
         if (!AllowClose) return;
         _clockTimer.Stop();
         Ticker.Shutdown();
+        FocusMode.Shutdown();
         _launcher.Close();
         _calendar.Close();
         Tray.CloseFlyouts();

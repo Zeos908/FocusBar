@@ -235,3 +235,61 @@ Everything here is under right-click the bar → **FocusBar settings** → **Dea
 | 5.20 | Remove a calendar | Its deadlines disappear. |
 | 5.21 | Turn off Wi-Fi, click **Sync now** | ⚠ icon with "Couldn't connect"; deadlines stay. Turn Wi-Fi back on and sync: ⚠ goes away. |
 | 5.22 | Repeat the Phase 0 tests | All still pass. |
+
+## Phase 6: Focus Mode
+
+Set up first: right-click the bar → **FocusBar settings** → **Focus Mode**. Add an app you can open and close easily
+(Notepad works: **Choose an app…**, open Notepad first and pick it under "Open now", or type `notepad`), and add
+`example.com` as a website. Write down how your hosts file looks before you start: open
+`C:\Windows\System32\drivers\etc\hosts` in Notepad (it opens read-only without admin rights, which is fine).
+
+**Settings**
+
+| # | Test | Expected |
+|---|---|---|
+| 6.1 | Type `https://www.YouTube.com/watch?v=1` under websites and click **Add** | Added as `youtube.com`. Adding it again says it's already on the list. `localhost`, `1.2.3.4`, and `not a site` are refused with a message. |
+| 6.2 | Type `explorer` (or `FocusBar`, `taskmgr`) under apps | Refused: "part of Windows or FocusBar and can't be blocked". |
+| 6.3 | **Choose an app…**, search for a Start Menu app (e.g. "Paint"), pick it | Its program name (e.g. `mspaint`) is added. A Store app that FocusBar can't resolve says to open it and pick it under "Open now". |
+| 6.4 | Click a **Quick add** chip | The site is added and its chip disappears. Removing the site brings the chip back. |
+| 6.5 | Pick **Gentle** or **Strict** | The "wait before override" chips grey out (they only apply to Soft). |
+| 6.6 | Close and reopen Settings | Everything you chose is still there. |
+
+**Soft (the default)**
+
+| # | Test | Expected |
+|---|---|---|
+| 6.7 | Click the moon on the bar → **25 min** | A toast says Focus Mode is on. Windows asks for permission (UAC) **once**. The moon turns accent-colored and shows "25m". |
+| 6.8 | Say **Yes**, then open the hosts file again | Your original lines are untouched. At the end there's a block between `# FocusBar BEGIN …` and `# FocusBar END` with `0.0.0.0` and `::` lines for example.com and www.example.com. `hosts.focusbar-backup` exists next to it. |
+| 6.9 | Visit `example.com` in a browser (restart the browser if a tab was already open) | It doesn't load. |
+| 6.10 | Open Notepad | Within about 2 seconds Notepad closes and the full-screen Focus screen appears with "Time to focus", the countdown, and **Override in 60 s** (greyed out). |
+| 6.11 | Press **Esc** or **Back to work** | The screen closes. |
+| 6.12 | Open Notepad again and wait for the override | After the delay **Override** unlocks. Click it, open Notepad: it stays open for the rest of the session. |
+| 6.13 | Moon → **End focus** | Windows asks for permission once. Say Yes: the FocusBar block is gone from the hosts file and every other line is exactly as before. `example.com` loads again. |
+
+**Gentle**
+
+| # | Test | Expected |
+|---|---|---|
+| 6.14 | Choose Gentle, start a 25-min session | **No** permission prompt (Gentle doesn't block websites); the moon flyout says so. |
+| 6.15 | Open Notepad | It stays open; the Focus screen asks "Are you sure?". **Back to work** closes Notepad; **Continue anyway** keeps it open for the rest of the session. |
+
+**Strict**
+
+| # | Test | Expected |
+|---|---|---|
+| 6.16 | Choose Strict, start a 25-min session | Moon flyout has no **End focus**, only a note that it stays on until the session ends. The Focus Mode settings page is greyed out with a banner. |
+| 6.17 | Open Notepad | Closed; the Focus screen has no override, just the unlock note. |
+| 6.18 | Add a deadline due in 1 hour with Strict and "Turn on by itself" (1 hr or more) on, while no manual session is running | Focus Mode turns on by itself for that deadline. Moon flyout → **I finished it: mark complete** ends it, and the website block is removed (one prompt). |
+
+**Auto, cleanup, and "never without a way out"**
+
+| # | Test | Expected |
+|---|---|---|
+| 6.19 | Soft, auto on (2 hr), add a deadline due in 90 minutes | Focus Mode turns on within ~15 seconds. **End focus** ends it and it doesn't turn back on for that deadline. |
+| 6.20 | Start a session, say **No** to the permission prompt | Apps are still blocked. The moon flyout says websites aren't blocked and shows **Try again**. FocusBar doesn't keep re-asking. |
+| 6.21 | Start a session (say Yes), then right-click the bar → **Restore Windows taskbar and exit** | The Windows taskbar comes back first, **then** one permission prompt removes the website block. |
+| 6.22 | Start a session (say Yes), then end FocusBar.exe in Task Manager | The watchdog brings the taskbar back and asks to remove the website block. |
+| 6.23 | Start a session, say **No** at exit, then start FocusBar again | On startup it asks once to remove the leftover block (Focus Mode isn't on). |
+| 6.24 | Something went wrong and sites stay blocked | Run `FocusBar.Blocker.exe clear` from FocusBar's folder (asks for permission), or `FocusBar.exe --restore-taskbar`. Both remove only FocusBar's block. |
+| 6.25 | Check `%ProgramData%\FocusBar\blocker.log` | One line each time sites were blocked or unblocked (how many, not which). |
+| 6.26 | Repeat the Phase 0 tests | All still pass. |

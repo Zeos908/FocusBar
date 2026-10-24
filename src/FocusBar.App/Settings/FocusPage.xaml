@@ -1,0 +1,120 @@
+<UserControl x:Class="FocusBar.App.Settings.FocusPage"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <StackPanel>
+        <TextBlock Text="Focus Mode" Style="{StaticResource FlyoutHeading}" FontSize="20" />
+        <TextBlock Style="{StaticResource FlyoutMuted}" TextWrapping="Wrap" Margin="0,4,0,0"
+                   Text="Blocks the apps and websites you choose when a deadline is close, or whenever you start a session from the moon button on the bar." />
+
+        <!-- Strict mode means it: the settings wait until the session is over. -->
+        <Border x:Name="LockedBanner" CornerRadius="6" Background="{DynamicResource ItemHover}" Padding="12,10" Margin="0,14,0,0"
+                Visibility="Collapsed">
+            <TextBlock x:Name="LockedText" TextWrapping="Wrap" />
+        </Border>
+
+        <StackPanel x:Name="Editable">
+        <!-- ===== When ===== -->
+        <TextBlock Text="When" Style="{StaticResource FlyoutHeading}" Margin="0,20,0,6" />
+        <CheckBox x:Name="AutoBox" Style="{StaticResource FlyoutCheckBox}" Content="Turn on by itself before a deadline"
+                  Checked="AutoBox_Changed" Unchecked="AutoBox_Changed" />
+        <TextBlock Text="Start this long before it's due" Style="{StaticResource FieldLabel}" />
+        <WrapPanel x:Name="LeadTimeChips" />
+
+        <!-- ===== How strict ===== -->
+        <TextBlock Text="How strict" Style="{StaticResource FlyoutHeading}" Margin="0,18,0,8" />
+        <RadioButton x:Name="GentleOption" GroupName="Strictness" Style="{StaticResource OptionCard}" Checked="Strictness_Checked" Tag="Gentle">
+            <StackPanel>
+                <TextBlock Text="Gentle" FontWeight="SemiBold" />
+                <TextBlock Style="{StaticResource FlyoutMuted}" TextWrapping="Wrap"
+                           Text="Opening a blocked app shows a reminder, and you can continue anyway. Websites aren't blocked." />
+            </StackPanel>
+        </RadioButton>
+        <RadioButton x:Name="SoftOption" GroupName="Strictness" Style="{StaticResource OptionCard}" Checked="Strictness_Checked" Tag="Soft">
+            <StackPanel>
+                <TextBlock Text="Soft (recommended)" FontWeight="SemiBold" />
+                <TextBlock Style="{StaticResource FlyoutMuted}" TextWrapping="Wrap"
+                           Text="Blocked apps close and websites are blocked. You can override an app after a short wait, or end Focus Mode early." />
+            </StackPanel>
+        </RadioButton>
+        <RadioButton x:Name="StrictOption" GroupName="Strictness" Style="{StaticResource OptionCard}" Checked="Strictness_Checked" Tag="Strict">
+            <StackPanel>
+                <TextBlock Text="Strict" FontWeight="SemiBold" />
+                <TextBlock Style="{StaticResource FlyoutMuted}" TextWrapping="Wrap"
+                           Text="Blocked apps close and websites are blocked until the deadline passes or you mark it complete. No overrides." />
+            </StackPanel>
+        </RadioButton>
+
+        <TextBlock Text="Soft mode: wait before override" Style="{StaticResource FieldLabel}" />
+        <WrapPanel x:Name="OverrideChips" />
+
+        <!-- ===== Apps ===== -->
+        <TextBlock Text="Blocked apps" Style="{StaticResource FlyoutHeading}" Margin="0,20,0,6" />
+        <ItemsControl x:Name="AppList" Focusable="False">
+            <ItemsControl.ItemTemplate>
+                <DataTemplate>
+                    <Border CornerRadius="6" Background="{DynamicResource ItemHover}" Padding="12,4,4,4" Margin="0,0,0,4">
+                        <DockPanel>
+                            <Button DockPanel.Dock="Right" Style="{StaticResource FlyoutButton}" Padding="8,4" Click="RemoveApp_Click"
+                                    ToolTip="Remove" AutomationProperties.Name="{Binding StringFormat=Remove {0}}">
+                                <TextBlock Text="&#xE711;" Style="{StaticResource IconText}" FontSize="12" />
+                            </Button>
+                            <TextBlock Text="{Binding}" VerticalAlignment="Center" />
+                        </DockPanel>
+                    </Border>
+                </DataTemplate>
+            </ItemsControl.ItemTemplate>
+        </ItemsControl>
+        <TextBlock x:Name="NoAppsText" Style="{StaticResource FlyoutMuted}" Text="No apps yet." Margin="0,0,0,4" />
+        <WrapPanel Margin="0,4,0,0">
+            <Button Style="{StaticResource FlyoutButton}" Margin="0,0,8,8" Click="PickApp_Click">
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Text="&#xE710;" Style="{StaticResource IconText}" FontSize="12" Margin="0,0,6,0" />
+                    <TextBlock Text="Choose an app…" />
+                </StackPanel>
+            </Button>
+        </WrapPanel>
+        <DockPanel>
+            <Button DockPanel.Dock="Right" Style="{StaticResource FlyoutButton}" Content="Add" Margin="8,0,0,0" Click="AddAppByName_Click" />
+            <TextBox x:Name="AppNameBox" Style="{StaticResource FormTextBox}" Tag="Or type a program name, e.g. Discord.exe"
+                     AutomationProperties.Name="Program name to block" />
+        </DockPanel>
+        <TextBlock x:Name="AppError" Style="{StaticResource FieldError}" />
+
+        <!-- ===== Websites ===== -->
+        <TextBlock Text="Blocked websites" Style="{StaticResource FlyoutHeading}" Margin="0,20,0,6" />
+        <ItemsControl x:Name="SiteList" Focusable="False">
+            <ItemsControl.ItemTemplate>
+                <DataTemplate>
+                    <Border CornerRadius="6" Background="{DynamicResource ItemHover}" Padding="12,4,4,4" Margin="0,0,0,4">
+                        <DockPanel>
+                            <Button DockPanel.Dock="Right" Style="{StaticResource FlyoutButton}" Padding="8,4" Click="RemoveSite_Click"
+                                    ToolTip="Remove" AutomationProperties.Name="{Binding StringFormat=Remove {0}}">
+                                <TextBlock Text="&#xE711;" Style="{StaticResource IconText}" FontSize="12" />
+                            </Button>
+                            <TextBlock Text="{Binding}" VerticalAlignment="Center" />
+                        </DockPanel>
+                    </Border>
+                </DataTemplate>
+            </ItemsControl.ItemTemplate>
+        </ItemsControl>
+        <TextBlock x:Name="NoSitesText" Style="{StaticResource FlyoutMuted}" Text="No websites yet." Margin="0,0,0,4" />
+        <DockPanel Margin="0,4,0,0">
+            <Button DockPanel.Dock="Right" Style="{StaticResource FlyoutButton}" Content="Add" Margin="8,0,0,0" Click="AddSite_Click" />
+            <TextBox x:Name="SiteBox" Style="{StaticResource FormTextBox}" Tag="Website, e.g. youtube.com" AutomationProperties.Name="Website to block" />
+        </DockPanel>
+        <TextBlock x:Name="SiteError" Style="{StaticResource FieldError}" />
+        <TextBlock Text="Quick add" Style="{StaticResource FieldLabel}" />
+        <WrapPanel x:Name="SuggestionChips" />
+        </StackPanel>
+
+        <Border CornerRadius="6" Background="{DynamicResource ItemHover}" Padding="12,10" Margin="0,12,0,0">
+            <TextBlock Style="{StaticResource FlyoutMuted}" TextWrapping="Wrap">
+                <Run FontWeight="SemiBold">How website blocking works:</Run>
+                FocusBar adds the sites to Windows' hosts file while Focus Mode is on, so they won't load in any browser.
+                Windows asks for your permission each time Focus Mode starts and ends. Already-open tabs may keep working
+                until you reload or restart the browser. Browsers set to use "secure DNS" (DNS over HTTPS) may ignore the
+                block; you can turn that off in the browser's privacy settings.
+            </TextBlock>
+        </Border>
+    </StackPanel>
+</UserControl>

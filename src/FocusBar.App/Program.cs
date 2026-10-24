@@ -109,6 +109,9 @@ internal static class Program
         store.Clear();
         log.Info($"--restore-taskbar run; Explorer taskbar {(found ? "restored" : "not found")}.");
 
+        // The same escape hatch lifts a Focus Mode website block left behind (Windows asks for permission).
+        if (Focus.WebsiteBlocker.HasBlock()) Focus.WebsiteBlocker.Clear(log);
+
         MessageBox.Show(
             found
                 ? "The Windows taskbar has been restored."

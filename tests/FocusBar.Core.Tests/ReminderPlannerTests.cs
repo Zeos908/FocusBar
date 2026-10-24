@@ -219,7 +219,7 @@ public sealed class ReminderPlannerTests : IDisposable
         var store = new SettingsStore(new JsonFileStore(_temp.Paths));
         Assert.Equal(ReminderSettings.Default.Offsets, store.Load().Reminders.Offsets);
 
-        store.Save(new AppSettings(new ReminderSettings(false, [TimeSpan.FromMinutes(15), TimeSpan.FromDays(2), TimeSpan.FromDays(2)])));
+        store.Save(AppSettings.Default with { Reminders = new ReminderSettings(false, [TimeSpan.FromMinutes(15), TimeSpan.FromDays(2), TimeSpan.FromDays(2)]) });
         var loaded = store.Load();
         Assert.False(loaded.Reminders.Enabled);
         Assert.Equal([TimeSpan.FromDays(2), TimeSpan.FromMinutes(15)], loaded.Reminders.Offsets);

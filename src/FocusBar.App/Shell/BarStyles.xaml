@@ -325,6 +325,66 @@
         </Setter>
     </Style>
 
+    <!-- A choice shown as a card with a title and description (Gentle / Soft / Strict). -->
+    <Style x:Key="OptionCard" TargetType="RadioButton">
+        <Setter Property="Foreground" Value="{DynamicResource FlyoutForeground}" />
+        <Setter Property="Margin" Value="0,0,0,8" />
+        <Setter Property="FocusVisualStyle" Value="{x:Null}" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="RadioButton">
+                    <Border x:Name="Card" CornerRadius="6" BorderThickness="1.5" Padding="12,10"
+                            BorderBrush="{DynamicResource InputBorder}" Background="{DynamicResource ItemHover}">
+                        <ContentPresenter />
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsChecked" Value="True">
+                            <Setter TargetName="Card" Property="BorderBrush" Value="{DynamicResource Accent}" />
+                            <Setter TargetName="Card" Property="BorderThickness" Value="2" />
+                        </Trigger>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="Card" Property="Background" Value="{DynamicResource ItemSelected}" />
+                        </Trigger>
+                        <Trigger Property="IsKeyboardFocused" Value="True">
+                            <Setter TargetName="Card" Property="BorderBrush" Value="{DynamicResource FlyoutForeground}" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- A small rounded choice ("2 hr", "1 min") where only one can be picked. -->
+    <Style x:Key="ChipRadio" TargetType="RadioButton">
+        <Setter Property="Foreground" Value="{DynamicResource FlyoutForeground}" />
+        <Setter Property="Margin" Value="0,0,6,6" />
+        <Setter Property="FontSize" Value="12" />
+        <Setter Property="FocusVisualStyle" Value="{x:Null}" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="RadioButton">
+                    <Border x:Name="Chip" CornerRadius="12" BorderThickness="1" Padding="12,4"
+                            BorderBrush="{DynamicResource InputBorder}" Background="Transparent">
+                        <ContentPresenter HorizontalAlignment="Center" />
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsChecked" Value="True">
+                            <Setter TargetName="Chip" Property="Background" Value="{DynamicResource Accent}" />
+                            <Setter TargetName="Chip" Property="BorderBrush" Value="{DynamicResource Accent}" />
+                            <Setter Property="Foreground" Value="{DynamicResource AccentForeground}" />
+                        </Trigger>
+                        <Trigger Property="IsKeyboardFocused" Value="True">
+                            <Setter TargetName="Chip" Property="BorderBrush" Value="{DynamicResource FlyoutForeground}" />
+                        </Trigger>
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter Property="Opacity" Value="0.45" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
     <Style x:Key="FieldLabel" TargetType="TextBlock">
         <Setter Property="Foreground" Value="{DynamicResource FlyoutForeground}" />
         <Setter Property="FontSize" Value="12" />

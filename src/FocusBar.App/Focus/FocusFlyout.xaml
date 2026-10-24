@@ -1,0 +1,52 @@
+<flyouts:FlyoutWindow x:Class="FocusBar.App.Focus.FocusFlyout"
+                      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                      xmlns:flyouts="clr-namespace:FocusBar.App.Flyouts"
+                      Title="Focus Mode">
+    <Border Style="{StaticResource FlyoutChrome}">
+        <StackPanel Margin="16" Width="320">
+            <StackPanel Orientation="Horizontal">
+                <TextBlock Text="&#xE708;" Style="{StaticResource IconText}" FontSize="16" Margin="0,0,8,0" />
+                <TextBlock x:Name="HeadingText" Style="{StaticResource FlyoutHeading}" FontSize="16" />
+            </StackPanel>
+
+            <!-- Shown when Focus Mode is off -->
+            <StackPanel x:Name="OffPanel">
+                <TextBlock Style="{StaticResource FlyoutMuted}" TextWrapping="Wrap" Margin="0,6,0,10"
+                           Text="Block your distractions for a while." />
+                <WrapPanel>
+                    <Button Style="{StaticResource AccentButton}" Margin="0,0,8,8" Content="25 min" Tag="25" Click="StartManual_Click" />
+                    <Button Style="{StaticResource AccentButton}" Margin="0,0,8,8" Content="50 min" Tag="50" Click="StartManual_Click" />
+                    <Button Style="{StaticResource AccentButton}" Margin="0,0,8,8" Content="90 min" Tag="90" Click="StartManual_Click" />
+                </WrapPanel>
+            </StackPanel>
+
+            <!-- Shown when Focus Mode is on -->
+            <StackPanel x:Name="OnPanel">
+                <TextBlock x:Name="ReasonText" TextWrapping="Wrap" Margin="0,6,0,0" />
+                <TextBlock x:Name="EndsText" Style="{StaticResource FlyoutMuted}" Margin="0,2,0,0" />
+                <TextBlock x:Name="WebsiteText" Style="{StaticResource FlyoutMuted}" TextWrapping="Wrap" Margin="0,8,0,0" />
+                <Button x:Name="RetryButton" Style="{StaticResource FlyoutButton}" HorizontalAlignment="Left" Margin="0,4,0,0"
+                        Content="Try blocking websites again" Click="Retry_Click" />
+                <WrapPanel Margin="0,12,0,0">
+                    <Button x:Name="CompleteButton" Style="{StaticResource AccentButton}" Margin="0,0,8,8" Click="Complete_Click" />
+                    <Button x:Name="EndButton" Style="{StaticResource FlyoutButton}" Margin="0,0,8,8" Content="End focus" Click="End_Click" />
+                </WrapPanel>
+                <TextBlock x:Name="StrictText" Style="{StaticResource FlyoutMuted}" TextWrapping="Wrap" />
+            </StackPanel>
+
+            <Border BorderBrush="{DynamicResource FlyoutDivider}" BorderThickness="0,1,0,0" Margin="0,10,0,0" Padding="0,10,0,0">
+                <StackPanel>
+                    <TextBlock x:Name="SummaryText" Style="{StaticResource FlyoutMuted}" TextWrapping="Wrap" />
+                    <TextBlock x:Name="AutoText" Style="{StaticResource FlyoutMuted}" TextWrapping="Wrap" Margin="0,2,0,0" />
+                    <Button Style="{StaticResource FlyoutButton}" HorizontalAlignment="Left" Margin="-10,6,0,0" Click="Settings_Click">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="&#xE713;" Style="{StaticResource IconText}" FontSize="12" Margin="0,0,6,0" />
+                            <TextBlock Text="Blocked apps, websites &amp; strictness" />
+                        </StackPanel>
+                    </Button>
+                </StackPanel>
+            </Border>
+        </StackPanel>
+    </Border>
+</flyouts:FlyoutWindow>
