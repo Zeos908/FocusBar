@@ -1,0 +1,24 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <!-- Used when Windows is in light mode. Keep the keys in sync with Dark.xaml. -->
+    <SolidColorBrush x:Key="BarBackground" Color="#FFEEF0F4" />
+    <SolidColorBrush x:Key="BarForeground" Color="#FF1B1B1F" />
+    <SolidColorBrush x:Key="BarMutedForeground" Color="#A31B1B1F" />
+    <SolidColorBrush x:Key="BarHover" Color="#14000000" />
+    <SolidColorBrush x:Key="BarPressed" Color="#0D000000" />
+    <SolidColorBrush x:Key="BarPlaceholderBorder" Color="#33000000" />
+    <SolidColorBrush x:Key="Accent" Color="#FF2563D9" />
+    <SolidColorBrush x:Key="AccentForeground" Color="#FFFFFFFF" />
+    <SolidColorBrush x:Key="IndicatorOpen" Color="#8A1B1B1F" />
+    <SolidColorBrush x:Key="IndicatorFlashing" Color="#FFD9770F" />
+
+    <SolidColorBrush x:Key="FlyoutBackground" Color="#FFF9F9FB" />
+    <SolidColorBrush x:Key="FlyoutBorder" Color="#29000000" />
+    <SolidColorBrush x:Key="FlyoutForeground" Color="#FF1B1B1F" />
+    <SolidColorBrush x:Key="FlyoutMutedForeground" Color="#B31B1B1F" />
+    <SolidColorBrush x:Key="FlyoutDivider" Color="#14000000" />
+    <SolidColorBrush x:Key="InputBackground" Color="#FFFFFFFF" />
+    <SolidColorBrush x:Key="InputBorder" Color="#40000000" />
+    <SolidColorBrush x:Key="ItemHover" Color="#0D000000" />
+    <SolidColorBrush x:Key="ItemSelected" Color="#1A000000" />
+</ResourceDictionary>

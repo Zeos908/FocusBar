@@ -38,7 +38,7 @@ internal sealed class TaskbarGuard
         if (!TaskbarSafetyStore.NeedsRecovery(state, ProcessInfo.IsRunning)) return;
 
         _log.Warning($"Previous FocusBar (pid {state!.OwnerProcessId}) exited without restoring the taskbar. Restoring it now.");
-        TaskbarRestorer.Restore(state.OriginalAppBarState);
+        TaskbarRestorer.Restore(state.OriginalAppBarState, returnTrayIcons: true);
         _store.Clear();
     }
 

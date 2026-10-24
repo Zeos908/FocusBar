@@ -30,7 +30,11 @@ internal static class TaskbarRestorer
     /// (primary and secondary monitors) visible. Returns false if no Explorer taskbar was found.
     /// Safe to call more than once.
     /// </summary>
-    public static bool Restore(int originalState)
+    /// <param name="returnTrayIcons">
+    /// Set when FocusBar is no longer running (the watchdog, or the next launch): its tray died without
+    /// handing other apps' tray icons back to Explorer, so ask every app to add them again.
+    /// </param>
+    public static bool Restore(int originalState, bool returnTrayIcons = false)
     {
         var primary = FindExplorerTaskbars(TaskbarClass).FirstOrDefault();
         if (primary == IntPtr.Zero) return false;
@@ -49,6 +53,12 @@ internal static class TaskbarRestorer
         if (startButton != IntPtr.Zero && IsOwnedByOtherProcess(startButton))
         {
             Show(startButton);
+        }
+
+        if (returnTrayIcons)
+        {
+            // The same message Explorer broadcasts when it restarts; apps respond by re-adding their tray icons.
+            SendNotifyMessage(HWND_BROADCAST, RegisterWindowMessage("TaskbarCreated"), UIntPtr.Zero, IntPtr.Zero);
         }
 
         return true;

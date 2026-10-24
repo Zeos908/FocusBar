@@ -1,0 +1,37 @@
+<flyouts:FlyoutWindow x:Class="FocusBar.App.Tray.TrayOverflowFlyout"
+                      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                      xmlns:flyouts="clr-namespace:FocusBar.App.Flyouts"
+                      xmlns:tray="clr-namespace:FocusBar.App.Tray"
+                      Title="FocusBar Tray Icons">
+    <Border Style="{StaticResource FlyoutChrome}">
+        <StackPanel Margin="12" Width="300">
+            <TextBlock Text="Tray icons" Style="{StaticResource FlyoutHeading}" Margin="4,0,0,2" />
+            <TextBlock Text="Click an icon to use it. Pin icons to show them on the bar." Style="{StaticResource FlyoutMuted}"
+                       TextWrapping="Wrap" Margin="4,0,0,8" />
+            <ScrollViewer MaxHeight="360" VerticalScrollBarVisibility="Auto">
+                <ItemsControl x:Name="IconList" Focusable="False">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <DockPanel Height="36">
+                                <Button DockPanel.Dock="Right" Style="{StaticResource FlyoutButton}" Padding="8,4"
+                                        Click="TogglePin_Click" x:Name="PinButton"
+                                        ToolTip="Show on the bar" AutomationProperties.Name="Pin to the bar">
+                                    <TextBlock x:Name="PinGlyph" Text="&#xE718;" Style="{StaticResource IconText}" FontSize="14" />
+                                </Button>
+                                <tray:TrayIconView ShowTitle="True" />
+                            </DockPanel>
+                            <DataTemplate.Triggers>
+                                <DataTrigger Binding="{Binding IsPinned}" Value="True">
+                                    <Setter TargetName="PinGlyph" Property="Text" Value="&#xE77A;" />
+                                    <Setter TargetName="PinButton" Property="ToolTip" Value="Hide under ^" />
+                                    <Setter TargetName="PinButton" Property="AutomationProperties.Name" Value="Unpin from the bar" />
+                                </DataTrigger>
+                            </DataTemplate.Triggers>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </ScrollViewer>
+        </StackPanel>
+    </Border>
+</flyouts:FlyoutWindow>

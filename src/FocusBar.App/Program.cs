@@ -105,7 +105,7 @@ internal static class Program
         }
 
         var original = state?.OriginalAppBarState ?? TaskbarRestorer.GetState() ?? TaskbarRestorer.DefaultAppBarState;
-        var found = TaskbarRestorer.Restore(original);
+        var found = TaskbarRestorer.Restore(original, returnTrayIcons: true);
         store.Clear();
         log.Info($"--restore-taskbar run; Explorer taskbar {(found ? "restored" : "not found")}.");
 

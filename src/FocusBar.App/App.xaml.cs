@@ -1,10 +1,16 @@
 using System.Windows;
 using System.Windows.Threading;
 using FocusBar.App.Safety;
+using FocusBar.App.Services;
 using FocusBar.App.Shell;
+using FocusBar.App.Themes;
+using FocusBar.App.Tray;
 using FocusBar.Core.Diagnostics;
+using FocusBar.Core.Pins;
+using FocusBar.Core.Storage;
 using ManagedShell;
 using ManagedShell.AppBar;
+using ManagedShell.Common.Enums;
 using ManagedShell.Common.Helpers;
 using ManagedShell.Interop;
 
@@ -17,6 +23,8 @@ public partial class App : Application
 
     private ShellManager? _shell;
     private PanicHotkey? _panicHotkey;
+    private StatusIndicators? _status;
+    private BarServices? _services;
     private MainBar? _bar;
     private bool _crashing;
     private bool _cleanedUp;
@@ -39,13 +47,17 @@ public partial class App : Application
         _guard.RecordBeforeHiding();
         Watchdog.Launch(_log);
 
+        var store = new JsonFileStore(AppDataPaths.Default, _log);
+
         EnvironmentHelper.IsAppRunningAsShell = NativeMethods.GetShellWindow() == IntPtr.Zero;
-        _shell = new ShellManager(ShellConfiguration());
+        _shell = new ShellManager(ShellConfiguration(store));
         _guard.StopHiding = () => _shell.ExplorerHelper.HideExplorerTaskbar = false;
         _shell.ExplorerHelper.HideExplorerTaskbar = true;
 
         _panicHotkey = new PanicHotkey(() => RestoreTaskbarAndExit($"{PanicHotkey.Description} pressed"), _log);
 
+        ThemeManager.Apply();
+        _services = CreateServices(_shell, store);
         OpenBar();
     }
 
@@ -67,6 +79,14 @@ public partial class App : Application
         _log.Info("Explorer restarted; reopening the bar.");
         CloseBar();
         OpenBar();
+
+        // Start the window list over so it doesn't keep File Explorer windows that closed with Explorer
+        // (RetroBar does the same).
+        Try(() =>
+        {
+            _shell!.Tasks.Dispose();
+            _shell.Tasks.Initialize(true);
+        }, "restart window list after Explorer restarted");
     }
 
     protected override void OnSessionEnding(SessionEndingCancelEventArgs e)
@@ -85,17 +105,35 @@ public partial class App : Application
         base.OnExit(e);
     }
 
-    private static ShellConfig ShellConfiguration()
+    private static ShellConfig ShellConfiguration(JsonFileStore store)
     {
         var config = ShellManager.DefaultShellConfig;
-        // Phase 1 has no tray area yet, so leave tray icons with Explorer until Phase 2 displays them.
-        config.AutoStartTrayService = false;
+        // 32 px icons look sharp at 24 px on the bar at 100% and still decent at 150%.
+        config.TaskIconSize = IconSize.Large;
+        config.PinnedNotifyIcons = TrayIcons.LoadPinned(store);
         return config;
+    }
+
+    private BarServices CreateServices(ShellManager shell, JsonFileStore store)
+    {
+        _status = new StatusIndicators(Dispatcher, _log);
+
+        TrayIcons? trayIcons = null;
+        if (shell.NotificationArea is { } area)
+        {
+            if (area.IsFailed) _log.Warning("The tray service failed to start; other apps' tray icons won't show on the bar.");
+            trayIcons = new TrayIcons(area, store, _log);
+        }
+
+        var apps = new AppCatalog(_log);
+        _ = apps.RefreshAsync(); // so the Start launcher's first open is instant
+
+        return new BarServices(shell, new PinService(new PinStore(store), _log), apps, _status, trayIcons, _log);
     }
 
     private void OpenBar()
     {
-        _bar = new MainBar(this, _shell!, AppBarScreen.FromPrimaryScreen());
+        _bar = new MainBar(this, _services!, AppBarScreen.FromPrimaryScreen());
         _bar.Show();
     }
 
@@ -118,6 +156,7 @@ public partial class App : Application
 
         Try(() => _panicHotkey?.Dispose(), "dispose panic hotkey");
         Try(CloseBar, "close bar");
+        Try(() => _status?.Dispose(), "stop Wi-Fi, volume, and battery monitors");
         Try(() => { if (_shell is not null) _shell.ExplorerHelper.HideExplorerTaskbar = false; }, "stop hiding taskbar");
         Try(() => _shell?.Dispose(), "dispose ManagedShell");
         _guard.RestoreAndForget(reason);

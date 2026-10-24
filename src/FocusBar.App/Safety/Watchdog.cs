@@ -52,7 +52,7 @@ internal static class Watchdog
             var leftover = store.Load();
             if (leftover?.OwnerProcessId == parentId)
             {
-                TaskbarRestorer.Restore(leftover.OriginalAppBarState);
+                TaskbarRestorer.Restore(leftover.OriginalAppBarState, returnTrayIcons: true);
                 store.Clear();
             }
             return 1;
@@ -71,7 +71,7 @@ internal static class Watchdog
         }
 
         log.Warning($"FocusBar (pid {parentId}) exited without restoring the taskbar. Watchdog is restoring it.");
-        TaskbarRestorer.Restore(state!.OriginalAppBarState);
+        TaskbarRestorer.Restore(state!.OriginalAppBarState, returnTrayIcons: true);
         store.Clear();
         return 0;
     }

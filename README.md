@@ -6,7 +6,7 @@
 **Developer:** Suhaas
 **Platform:** Windows 10 / 11
 **Audience:** Middle and high school students
-**Status:** 🟠 In development: Phase 0 (safety net) and Phase 1 (docked bar) built, awaiting testing on Windows
+**Status:** 🟠 In development: Phases 0–2 built (safety net, docked bar, Start launcher, pinned apps, window list, tray, calendar), awaiting testing on Windows
 
 ---
 
@@ -43,11 +43,12 @@ FocusBar replaces the Windows taskbar entirely — the one part of the screen st
 
 ### 🖥️ Full Taskbar Replacement
 FocusBar hides the default Windows taskbar and replaces every core feature:
-- **Start button / app launcher** — search and open installed apps
-- **Open-windows switcher** — see and switch between running apps
-- **Pinned apps** — one-click shortcuts to favorite programs
-- **Clock and system tray** — time, date, Wi-Fi, volume, battery, and tray icons
-- One click restores the standard Windows taskbar at any time
+- **Start button / app launcher** — type to search installed apps, Enter to open, right-click to pin; a button opens the regular Windows Start menu
+- **Open-windows switcher** — click to switch, click the active window to minimize, right-click or middle-click to close
+- **Pinned apps** — one-click shortcuts to favorite programs, pinned from the launcher or from a running window
+- **Clock and system tray** — time and date with a calendar, Wi-Fi, volume (scroll to adjust), battery, and other apps' tray icons
+- Follows Windows light and dark mode
+- One click (or Ctrl+Alt+Shift+F) restores the standard Windows taskbar at any time
 
 ### 📅 Deadline Ticker
 - A **scrolling ticker** cycles through all upcoming deadlines with live countdowns
@@ -171,7 +172,9 @@ While FocusBar runs, it hides the Windows taskbar and takes its place. To get th
 
 Debug builds add a **Developer** submenu to the right-click menu, with options that throw a test exception. Use them to check that a crash brings the Windows taskbar back.
 
-FocusBar's files live in `%AppData%\FocusBar\`. Error logs are in the `logs` folder there (right-click the bar → **Open log folder**).
+FocusBar's files live in `%AppData%\FocusBar\`: `pins.json` (pinned apps), `tray.json` (tray icons shown on the bar), and error logs in the `logs` folder (right-click the bar → **Open log folder**).
+
+The step-by-step Windows test checklist for each phase is in [docs/testing.md](docs/testing.md).
 
 ---
 
@@ -179,7 +182,7 @@ FocusBar's files live in `%AppData%\FocusBar\`. Error logs are in the `logs` fol
 
 FocusBar is built to always give the Windows taskbar back: on normal exit, on a crash, when Windows signs out, and when you press **Ctrl+Alt+Shift+F**. If FocusBar is killed from Task Manager, a small helper process (a second `FocusBar` entry in Task Manager) restores the taskbar for it.
 
-If the taskbar is still missing (for example, both FocusBar processes were ended with "End process tree"), try these in order:
+If the taskbar is still missing (for example, both FocusBar processes were ended with "End process tree"), try these in order. Each one also asks your apps to put their tray icons back on the Windows taskbar.
 
 1. **Start FocusBar again.** On launch it notices it didn't clean up last time and restores the taskbar first. Then exit it normally.
 2. Run `FocusBar.exe --restore-taskbar` (from the folder FocusBar.exe is in). It restores the taskbar and your original auto-hide setting without starting the bar.

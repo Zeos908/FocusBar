@@ -33,6 +33,7 @@ internal static class Win32
     public const uint MOD_NOREPEAT = 0x4000;
 
     public static readonly IntPtr HWND_MESSAGE = new(-3);
+    public static readonly IntPtr HWND_BROADCAST = new(0xFFFF);
 
     [StructLayout(LayoutKind.Sequential)]
     public struct RECT
@@ -70,6 +71,13 @@ internal static class Win32
     [DllImport("user32.dll", SetLastError = true)]
     [return: MarshalAs(UnmanagedType.Bool)]
     public static extern bool SetWindowPos(IntPtr hWnd, IntPtr hWndInsertAfter, int x, int y, int cx, int cy, uint uFlags);
+
+    [DllImport("user32.dll", CharSet = CharSet.Unicode, SetLastError = true)]
+    public static extern uint RegisterWindowMessage(string message);
+
+    [DllImport("user32.dll", SetLastError = true)]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    public static extern bool SendNotifyMessage(IntPtr hWnd, uint msg, UIntPtr wParam, IntPtr lParam);
 
     [DllImport("user32.dll", SetLastError = true)]
     [return: MarshalAs(UnmanagedType.Bool)]

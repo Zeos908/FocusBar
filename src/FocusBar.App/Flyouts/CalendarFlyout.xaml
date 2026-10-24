@@ -1,0 +1,39 @@
+<local:FlyoutWindow x:Class="FocusBar.App.Flyouts.CalendarFlyout"
+                    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:local="clr-namespace:FocusBar.App.Flyouts"
+                    Title="FocusBar Calendar">
+    <Border Style="{StaticResource FlyoutChrome}">
+        <StackPanel Margin="16" Width="300">
+            <TextBlock x:Name="TodayText" Style="{StaticResource FlyoutHeading}" FontSize="16" />
+            <TextBlock x:Name="TimeText" Style="{StaticResource FlyoutMuted}" FontSize="13" Margin="0,2,0,12" />
+
+            <DockPanel Margin="0,0,0,8">
+                <Button DockPanel.Dock="Right" Style="{StaticResource FlyoutButton}" Padding="8,4" Click="NextMonth_Click"
+                        ToolTip="Next month" AutomationProperties.Name="Next month">
+                    <TextBlock Text="&#xE70D;" Style="{StaticResource IconText}" FontSize="12" />
+                </Button>
+                <Button DockPanel.Dock="Right" Style="{StaticResource FlyoutButton}" Padding="8,4" Click="PreviousMonth_Click"
+                        ToolTip="Previous month" AutomationProperties.Name="Previous month">
+                    <TextBlock Text="&#xE70E;" Style="{StaticResource IconText}" FontSize="12" />
+                </Button>
+                <Button Style="{StaticResource FlyoutButton}" HorizontalContentAlignment="Left" Padding="6,4" Click="ThisMonth_Click"
+                        ToolTip="Back to this month">
+                    <TextBlock x:Name="MonthText" Style="{StaticResource FlyoutHeading}" />
+                </Button>
+            </DockPanel>
+
+            <UniformGrid x:Name="WeekdayHeader" Columns="7" Margin="0,0,0,4" />
+            <UniformGrid x:Name="DayGrid" Columns="7" Rows="6" />
+
+            <Border BorderBrush="{DynamicResource FlyoutDivider}" BorderThickness="0,1,0,0" Margin="0,12,0,0" Padding="0,8,0,0">
+                <Button Style="{StaticResource FlyoutButton}" HorizontalAlignment="Right" Click="DateTimeSettings_Click">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="&#xE713;" Style="{StaticResource IconText}" FontSize="12" Margin="0,0,6,0" />
+                        <TextBlock Text="Date &amp; time settings" />
+                    </StackPanel>
+                </Button>
+            </Border>
+        </StackPanel>
+    </Border>
+</local:FlyoutWindow>

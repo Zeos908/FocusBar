@@ -44,4 +44,80 @@ Before each test, start FocusBar and check that the Windows taskbar is hidden an
 | 1.8 | Leave FocusBar running for 10 minutes and look at Task Manager | CPU near 0%. Memory well under 150 MB for the bar process. |
 | 1.9 | Repeat all Phase 0 tests | All still pass. |
 
-Known Phase 1 limits (expected, not bugs): the Start button does nothing yet, and other apps' tray icons aren't reachable while FocusBar runs. Both arrive in Phase 2.
+## Phase 2: Taskbar features
+
+Goal: you can do a normal day's work using only FocusBar. Try it in both light and dark mode (Settings → Personalization → Colors → "Choose your mode").
+
+**Start launcher**
+
+| # | Test | Expected |
+|---|---|---|
+| 2.1 | Click the Start button (four tiles) | A panel opens above it with a search box (already focused) and a list of installed apps with icons. |
+| 2.2 | Type `chr` (or part of any app's name) | List narrows; best match is highlighted at the top. Press **Enter**: that app opens and the panel closes. |
+| 2.3 | Type a name, use **Up/Down** to pick another match, press **Enter** | The picked app opens. |
+| 2.4 | Click an app in the list | It opens. |
+| 2.5 | Type nonsense (`zzzz`) | "No apps match" message. |
+| 2.6 | Press **Esc**; open again and click on the desktop; open again and click Start again | Panel closes each time (clicking Start while it's open closes it, it doesn't reopen). |
+| 2.7 | Click **Windows Start menu** | The normal Windows Start menu opens. |
+| 2.8 | Right-click Start | Windows' power-user menu (same as Win+X) opens. |
+| 2.9 | Install or add a shortcut to the Start Menu, then reopen the launcher | New app appears within a second or two. |
+
+**Pinned apps**
+
+| # | Test | Expected |
+|---|---|---|
+| 2.10 | In the launcher, right-click an app → **Pin to FocusBar** | Its icon appears next to Start; the launcher row shows a pin mark. |
+| 2.11 | Open an app that isn't pinned, right-click its button in the open-windows area → **Pin to FocusBar** | Its icon appears in the pinned area. |
+| 2.12 | Pin Chrome (or any app) from the launcher, then right-click Chrome's open window | Menu says **Unpin from FocusBar** (it knows it's already pinned). |
+| 2.13 | Click a pinned icon | The app opens. |
+| 2.14 | Right-click a pinned icon → **Move left / Move right**, then **Unpin from FocusBar** | Order changes; unpin removes it. |
+| 2.15 | Exit FocusBar and start it again | Pins and their order are kept (`%AppData%\FocusBar\pins.json`). |
+| 2.16 | Pin an app, uninstall it (or delete its shortcut), click the pin | Message says it couldn't be opened and offers to unpin it. |
+
+**Open windows**
+
+| # | Test | Expected |
+|---|---|---|
+| 2.17 | Open a few apps | Each window gets a button with its icon; hover shows the window title. The active window has a wide accent line under it. |
+| 2.18 | Click a background window's button | That window comes to the front. |
+| 2.19 | Click the active window's button | It minimizes. Click again: it comes back. |
+| 2.20 | Right-click a window button → **Close window**; middle-click another | Both windows close (apps may ask to save first). |
+| 2.21 | Open 20+ windows (for example 20 Notepad windows) | Buttons shrink to fit; the deadline area keeps some room; nothing overlaps the tray. |
+| 2.22 | Start something that flashes for attention (for example a finished download in some apps, or a message in Discord) | Its line turns orange until you switch to it. |
+
+**Tray**
+
+| # | Test | Expected |
+|---|---|---|
+| 2.23 | Look at the right side of the bar | `^`, any pinned tray icons, then Wi-Fi (or Ethernet), volume, and battery (laptops only). Hovering each shows a tooltip like "HomeNet: Internet access", "Volume: 40%", "Battery: 76% (3 hr 10 min left)". |
+| 2.24 | Click `^` | A list of every app's tray icon with names (Discord, Steam, OneDrive, antivirus...). |
+| 2.25 | In that list, left-click and right-click an app's row | The app reacts exactly as it would on the normal taskbar (opens its window or menu, near the bar). |
+| 2.26 | Click the pin button on a row | That icon now shows on the bar. Right-click it there: the app's own menu. Restart FocusBar: it's still pinned (`tray.json`). |
+| 2.27 | Click Wi-Fi / volume / battery | Opens the matching Windows Settings page (Wi-Fi, Sound, Battery/Power). |
+| 2.28 | Scroll the mouse wheel over the volume icon; middle-click it; press the keyboard volume keys | Volume changes 2% per notch; middle-click mutes/unmutes; the icon and tooltip follow all of these. |
+| 2.29 | Plug in headphones or switch the output device | Volume icon reflects the new device. |
+| 2.30 | Turn Wi-Fi off and on; on a laptop, unplug and plug in power | Icons change within a few seconds (battery may take up to a minute). |
+
+**Clock and calendar**
+
+| # | Test | Expected |
+|---|---|---|
+| 2.31 | Click the clock | Panel with today's full date, the time, and this month with today highlighted. Weeks start on the day your region uses. |
+| 2.32 | Use the arrow buttons or **Up/Down** keys; click the month name | Changes month; clicking the month name goes back to this month. |
+| 2.33 | Click **Date & time settings** | Windows Settings opens to Date & time. |
+
+**General**
+
+| # | Test | Expected |
+|---|---|---|
+| 2.34 | Switch Windows between light and dark mode while FocusBar runs | Bar and panels switch colors right away. |
+| 2.35 | Click the bar, then press **Tab** repeatedly and **Enter** | Focus ring moves through Start, pins, windows, tray buttons, and clock; Enter activates. |
+| 2.36 | Kill FocusBar from Task Manager (like test 0.6) | Taskbar comes back **and** other apps' tray icons reappear on it within a few seconds. |
+| 2.37 | Exit FocusBar normally | Taskbar comes back with all tray icons. |
+| 2.38 | Leave it running for 10 minutes | CPU near 0%; memory well under 150 MB. |
+| 2.39 | Repeat all Phase 0 and Phase 1 tests | All still pass. |
+
+Known Phase 2 limits (expected, not bugs):
+- The launcher lists apps that have Start Menu shortcuts. Microsoft Store apps without one (such as Calculator or Settings) are reached through the **Windows Start menu** button.
+- Old-style tray "balloon" pop-ups from apps aren't shown. Modern Windows notifications (toasts) work normally.
+- Multiple windows from the same app each get their own button (not grouped).
