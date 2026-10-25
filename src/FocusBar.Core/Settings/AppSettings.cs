@@ -1,12 +1,14 @@
 using FocusBar.Core.Focus;
 using FocusBar.Core.Models;
 using FocusBar.Core.Reminders;
+using FocusBar.Core.Safety;
 using FocusBar.Core.Storage;
 
 namespace FocusBar.Core.Settings;
 
 /// <summary>
-/// The user's settings, saved to <c>settings.json</c>: reminders, Focus Mode, and whether the setup guide has run.
+/// The user's settings, saved to <c>settings.json</c>: reminders, Focus Mode, low-memory closing, and whether the
+/// setup guide has run.
 /// (The look of the bar is in <c>themes.json</c>.)
 /// </summary>
 public record AppSettings(ReminderSettings Reminders, FocusSettings Focus)
@@ -15,6 +17,9 @@ public record AppSettings(ReminderSettings Reminders, FocusSettings Focus)
 
     /// <summary>The first-run setup guide was finished or skipped. False in a new (or pre-Phase 8) settings file.</summary>
     public bool SetupCompleted { get; init; }
+
+    /// <summary>Close FocusBar (giving the Windows taskbar back) when the computer runs low on memory.</summary>
+    public LowMemorySettings LowMemory { get; init; } = LowMemorySettings.Default;
 
     public static AppSettings Default => new(ReminderSettings.Default, FocusSettings.Default);
 }
@@ -39,7 +44,12 @@ public sealed class SettingsStore
         {
             Offsets = [.. (reminders.Offsets ?? []).Where(o => o > TimeSpan.Zero).Distinct().OrderDescending()],
         };
-        return loaded with { Reminders = reminders, Focus = BlockList.Clean(loaded.Focus ?? FocusSettings.Default) };
+        return loaded with
+        {
+            Reminders = reminders,
+            Focus = BlockList.Clean(loaded.Focus ?? FocusSettings.Default),
+            LowMemory = LowMemorySettings.Clean(loaded.LowMemory),
+        };
     }
 
     public void Save(AppSettings settings) => _store.Save(AppSettings.FileName, settings);

@@ -408,3 +408,17 @@ These are good candidates for the technical-challenge answer.
   - **Clicking an app with several windows shows a list** rather than cycling through the windows. Windows 11 shows thumbnails there; titles are simpler and work on every PC. Live thumbnails could be added later.
   - **Middle-click on an app with several windows opens the list** instead of closing anything, so a stray click can't close several windows. With one window it still closes it, as before.
   - **Windows are grouped by the program they come from** (the .exe, or the Store app's ID). Apps that run everything through one program are grouped together; for example, some Java or Python apps all show as one "Java" or "Python" button.
+
+### Third piece of feedback: close automatically when RAM use is above 90%
+- **What the developer asked:** "Automatically close when ram usage is above 90%."
+- **How the AI read it:** FocusBar closes *itself* (the normal way, giving the Windows taskbar back). It does **not** close the student's other apps, because force-closing them could lose unsaved work. *(If you meant closing other apps, say so.)*
+- **What the AI generated:**
+  - `Core/Safety/LowMemoryRule` and `LowMemorySettings` (14 new tests, 427 total).
+  - `Safety/LowMemoryMonitor`: reads Windows' memory status every 5 seconds. When FocusBar closes, a notification explains why; clicking it starts FocusBar again.
+  - A **When memory is low** section in Settings → General: on/off, 80 / 85 / 90 / 95%, and how much memory is in use right now.
+- **Decisions the AI made that the developer should review:**
+  - **Memory has to stay above the limit for 30 seconds** before FocusBar closes, so a quick spike (an app or game loading) doesn't close it.
+  - **On by default at 90%**, as asked. The student can pick 80–95% or turn it off.
+  - **"Above 90%" means more than 90**, so exactly 90% doesn't count.
+  - **It doesn't restart FocusBar by itself** when memory frees up. Clicking the notification (or Start with Windows next time) brings it back. Restarting on its own could keep closing and reopening.
+  - **It closes through the normal exit**, so everything is cleaned up as usual, including asking permission to remove a website block if Focus Mode was blocking sites.

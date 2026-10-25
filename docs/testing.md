@@ -389,6 +389,24 @@ one (a landscape photo or a banner), a square one (a logo), and any photo taken 
 | 8.17 | With FocusBar running, Focus Mode blocking a website, and Start with Windows on: uninstall from Settings → Apps | FocusBar closes and the Windows taskbar comes back. Windows asks permission once to remove the website block. The `Run` value is gone. It asks whether to delete your data: **No** keeps `%AppData%\FocusBar`, **Yes** removes it. |
 | 8.18 | After uninstalling, check the hosts file and Task Manager | No `# FocusBar` lines; no FocusBar processes. (`hosts.focusbar-backup` stays as a copy of your original hosts file.) |
 
+**Low memory** (added after Phase 8)
+
+To fill memory on purpose, save any open work, then paste this into PowerShell. It grabs 256 MB every half second until you press **Ctrl+C**; closing the PowerShell window gives all of it back.
+
+```powershell
+$hog = New-Object System.Collections.ArrayList
+while ($true) { $b = New-Object byte[] 256MB; for ($i = 0; $i -lt $b.Length; $i += 4096) { $b[$i] = 1 }; [void]$hog.Add($b); Start-Sleep -Milliseconds 500 }
+```
+
+| # | Test | Expected |
+|---|---|---|
+| 8.19 | Settings → General → **When memory is low** | "Close FocusBar when the computer is low on memory" is on, at **90%**. The note shows how much memory is in use right now. |
+| 8.20 | Run the script above and watch Task Manager → Performance → Memory. When it passes 90%, keep it there; after ~30 seconds press Ctrl+C | FocusBar closes about 30 seconds after memory goes above 90%. The Windows taskbar comes back with its tray icons, and a notification says "FocusBar closed to free up memory". The log says why. Close PowerShell to free the memory. |
+| 8.21 | Run the script, but press Ctrl+C and close PowerShell within ~20 seconds of passing 90% | FocusBar stays open (short spikes don't close it). |
+| 8.22 | Click the "FocusBar closed to free up memory" notification (with memory back to normal) | FocusBar starts again. No deadline list or other window pops up. |
+| 8.23 | Pick **80%**, or turn the setting off, then repeat 8.20 | At 80% it closes sooner; turned off, it doesn't close at all. The choice is kept after a restart. |
+| 8.24 | Repeat 8.20 during a Focus session that blocks websites | FocusBar closes as above, then asks permission to remove the website block (the usual exit cleanup). |
+
 ## Final checklist (§9 of the build instructions)
 
 Status as of version 0.9.0. "Automated" means it's covered by the unit tests that GitHub Actions runs on Windows for every push. Everything marked **Needs Windows** has to be checked by hand with the tests listed.
@@ -407,4 +425,4 @@ Status as of version 0.9.0. "Automated" means it's covered by the unit tests tha
 | Hosts file is cleaned up after normal exit and after a crash | Automated (hosts file editing tests); tests 6.13, 6.21–6.24, 8.17 | Partly automated; needs Windows |
 | Custom images look right at 100%, 125%, and 150% scaling | Automated (pixel-size math for each scale); test 7.19 | Partly automated; needs Windows |
 | Works on both Windows 10 and Windows 11 | Run the whole list on one PC of each | Needs Windows |
-| All `FocusBar.Core` unit tests pass | `dotnet test` (413 tests), and on every push in GitHub Actions | ✅ Passing |
+| All `FocusBar.Core` unit tests pass | `dotnet test` (427 tests), and on every push in GitHub Actions | ✅ Passing |

@@ -178,7 +178,8 @@ internal sealed class ReminderService : IDisposable
                     _deadlines.SetComplete(id, true);
                     break;
                 case "focus":
-                    break; // Focus Mode's own toasts: nothing to open
+                case "lowmemory":
+                    break; // Focus Mode's and the low-memory notice's own toasts: nothing to open
                 default:
                     OpenList?.Invoke();
                     break;

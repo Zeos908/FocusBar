@@ -34,6 +34,7 @@ public partial class App : Application
 
     private ShellManager? _shell;
     private PanicHotkey? _panicHotkey;
+    private LowMemoryMonitor? _lowMemory;
     private StatusIndicators? _status;
     private ReminderService? _reminders;
     private SyncService? _sync;
@@ -75,6 +76,7 @@ public partial class App : Application
         _services = CreateServices(_shell, store);
         OpenBar();
         _focus!.Start();
+        _lowMemory = new LowMemoryMonitor(_services.Settings, RestoreTaskbarAndExit, _log, Dispatcher);
 
         // First run: the setup guide, once the bar is up (so the student sees what's being set up).
         if (!_services.Settings.Current.SetupCompleted)
@@ -214,6 +216,7 @@ public partial class App : Application
         _cleanedUp = true;
 
         Try(() => _panicHotkey?.Dispose(), "dispose panic hotkey");
+        Try(() => _lowMemory?.Dispose(), "stop memory check");
         Try(() => _focus?.Dispose(), "stop Focus Mode");
         Try(() => _appearance?.Flush(), "save theme");
         Try(CloseBar, "close bar");

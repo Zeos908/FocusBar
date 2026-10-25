@@ -10,6 +10,14 @@
                   Checked="StartupBox_Changed" Unchecked="StartupBox_Changed" />
         <TextBlock x:Name="StartupNote" Style="{StaticResource FlyoutMuted}" TextWrapping="Wrap" Margin="0,4,0,0" />
 
+        <!-- ===== Low memory ===== -->
+        <TextBlock Text="When memory is low" Style="{StaticResource FlyoutHeading}" Margin="0,22,0,6" />
+        <CheckBox x:Name="LowMemoryBox" Style="{StaticResource FlyoutCheckBox}" Content="Close FocusBar when the computer is low on memory"
+                  Checked="LowMemoryBox_Changed" Unchecked="LowMemoryBox_Changed" />
+        <TextBlock Text="Close when more than this much memory (RAM) is in use for 30 seconds" Style="{StaticResource FieldLabel}" />
+        <WrapPanel x:Name="ThresholdChips" />
+        <TextBlock x:Name="MemoryNote" Style="{StaticResource FlyoutMuted}" TextWrapping="Wrap" Margin="0,2,0,0" />
+
         <!-- ===== Setup ===== -->
         <TextBlock Text="Setup guide" Style="{StaticResource FlyoutHeading}" Margin="0,22,0,6" />
         <TextBlock Style="{StaticResource FlyoutMuted}" TextWrapping="Wrap"

@@ -50,6 +50,7 @@ FocusBar hides the default Windows taskbar and replaces every core feature. Dead
 - **Clock and system tray** — time and date with a calendar, Wi-Fi, volume (scroll to adjust), battery, and other apps' tray icons
 - Follows Windows light and dark mode
 - One click (or Ctrl+Alt+Shift+F) restores the standard Windows taskbar at any time
+- Gets out of the way when the computer is low on memory: if more than 90% of RAM stays in use for 30 seconds, FocusBar closes and gives the Windows taskbar back (Settings → General; 80–95%, or off)
 
 ### 📅 Deadline Ticker
 - A **scrolling ticker** cycles through all upcoming deadlines with live countdowns ("Bio lab · Biology 2d 4h")
