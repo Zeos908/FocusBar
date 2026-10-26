@@ -46,7 +46,7 @@ FocusBar replaces the Windows taskbar entirely — the one part of the screen st
 FocusBar hides the default Windows taskbar and replaces every core feature. Deadlines get the left side of the bar; app icons sit on the right with the Focus Mode button, tray, and clock.
 - **Start button / app launcher** — type to search installed apps, Enter to open, right-click to pin; a button opens the regular Windows Start menu
 - **One button per app**, like the Windows taskbar — an app with several windows shows a count badge; click it to pick a window, or right-click to open a new one or close them all. Click a single window to switch to it or minimize it; middle-click closes it
-- **Pinned apps** — one-click shortcuts to favorite programs, pinned from the launcher or from a running window; an open pinned app shares its pinned button
+- **Pinned apps** — starts with the apps pinned to your Windows taskbar; pin more from the launcher or from a running window; an open pinned app shares its pinned button
 - **Clock and system tray** — time and date with a calendar, Wi-Fi, volume (scroll to adjust), battery, and other apps' tray icons
 - Follows Windows light and dark mode
 - One click (or Ctrl+Alt+Shift+F) restores the standard Windows taskbar at any time
@@ -226,7 +226,7 @@ While FocusBar runs, it hides the Windows taskbar and takes its place. To get th
 
 Debug builds add a **Developer** submenu to the right-click menu, with options that throw a test exception. Use them to check that a crash brings the Windows taskbar back.
 
-FocusBar's files live in `%AppData%\FocusBar\`: `deadlines.json` (your deadlines), `settings.json` (settings), `reminders.json` (which reminders were already shown), `school-api.json` (school site settings), `school-session.json` and `calendars.json` (encrypted), `schedule.json` (this week's classes), `focus-state.json` (a running focus session), `themes.json` (your look and saved themes) and the `images` folder (your pictures), `pins.json` (pinned apps), `tray.json` (tray icons shown on the bar), and error logs in the `logs` folder (right-click the bar → **Open log folder**).
+FocusBar's files live in `%AppData%\FocusBar\`: `deadlines.json` (your deadlines), `settings.json` (settings), `reminders.json` (which reminders were already shown), `school-api.json` (school site settings), `school-session.json` and `calendars.json` (encrypted), `schedule.json` (this week's classes), `focus-state.json` (a running focus session), `themes.json` (your look and saved themes) and the `images` folder (your pictures), `pins.json` (pinned apps) and the `pins` folder (shortcuts brought over from the Windows taskbar), `tray.json` (tray icons shown on the bar), and error logs in the `logs` folder (right-click the bar → **Open log folder**).
 
 The step-by-step Windows test checklist for each phase is in [docs/testing.md](docs/testing.md).
 

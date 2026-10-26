@@ -27,7 +27,7 @@ public partial class SettingsWindow : Window
 
         _pageFactories = new()
         {
-            [GeneralPageName] = () => new GeneralPage(services.Settings, services.Log, () => SetupWizard.ShowSingle(services)),
+            [GeneralPageName] = () => new GeneralPage(services.Settings, services.Pins, services.Log, () => SetupWizard.ShowSingle(services)),
             [RemindersPageName] = () => new RemindersPage(services.Settings, services.Reminders),
             [SourcesPageName] = () => new SourcesPage(services.Sync, services.Log),
             [FocusPageName] = () => new FocusPage(services.Settings, services.Apps, services.Focus),

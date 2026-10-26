@@ -58,6 +58,67 @@ internal sealed class PinService
         Save();
     }
 
+    /// <summary>
+    /// Copies the apps pinned to the Windows taskbar into FocusBar's pins (after any already there), skipping ones
+    /// FocusBar already has. Returns how many were added.
+    /// </summary>
+    public int ImportWindowsPins(string copyFolder)
+    {
+        var folder = WindowsTaskbarPins.DefaultFolder;
+        List<WindowsPin> shortcuts;
+        try
+        {
+            if (!Directory.Exists(folder)) return 0;
+            shortcuts = [.. Directory.EnumerateFiles(folder, "*.lnk").Select(path => new WindowsPin(path, TargetOf(path), File.GetCreationTimeUtc(path)))];
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+        {
+            _log.Write(ex, "Could not read the Windows taskbar's pinned apps.");
+            return 0;
+        }
+
+        var added = 0;
+        foreach (var (source, pin) in WindowsTaskbarPins.Plan(shortcuts, copyFolder))
+        {
+            if (_list.Apps.Any(existing => existing.Matches(pin))) continue;
+            try
+            {
+                Directory.CreateDirectory(copyFolder);
+                File.Copy(source.ShortcutPath, pin.Path, overwrite: true);
+            }
+            catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+            {
+                _log.Write(ex, $"Could not copy the pinned shortcut {source.ShortcutPath}.");
+                continue;
+            }
+
+            if (!_list.Add(pin)) continue;
+            Items.Add(new PinnedAppItem(pin));
+            added++;
+        }
+
+        if (added > 0)
+        {
+            Save();
+            _log.Info($"Added {added} app(s) pinned to the Windows taskbar.");
+        }
+        return added;
+    }
+
+    private string? TargetOf(string shortcutPath)
+    {
+        try
+        {
+            var target = ShellLinkHelper.GetLinkTarget(IntPtr.Zero, shortcutPath);
+            return string.IsNullOrWhiteSpace(target) ? null : target;
+        }
+        catch (Exception ex)
+        {
+            _log.Write(ex, $"Could not read shortcut {shortcutPath}.");
+            return null;
+        }
+    }
+
     /// <summary>A pin for a Start Menu shortcut, remembering the program it opens.</summary>
     public PinnedApp ForShortcut(string shortcutPath, string name)
     {

@@ -24,6 +24,9 @@
                     </Button.ContextMenu>
                     <Grid>
                         <Image Source="{Binding Icon}" Width="24" Height="24" RenderOptions.BitmapScalingMode="HighQuality" />
+                        <!-- Shown until (or if) the app's own icon can't be loaded, so a button is never blank. -->
+                        <TextBlock x:Name="FallbackIcon" Text="&#xE71D;" Style="{StaticResource IconText}" FontSize="18"
+                                   Visibility="Collapsed" />
                         <!-- How many windows, when there's more than one. -->
                         <Border x:Name="CountBadge" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,-5,-8,0"
                                 MinWidth="15" Height="15" CornerRadius="7.5" Padding="3,0" Visibility="Collapsed"
@@ -38,6 +41,9 @@
                     </Grid>
                 </Button>
                 <DataTemplate.Triggers>
+                    <DataTrigger Binding="{Binding Icon}" Value="{x:Null}">
+                        <Setter TargetName="FallbackIcon" Property="Visibility" Value="Visible" />
+                    </DataTrigger>
                     <DataTrigger Binding="{Binding ShowCount}" Value="True">
                         <Setter TargetName="CountBadge" Property="Visibility" Value="Visible" />
                     </DataTrigger>

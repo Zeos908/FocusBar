@@ -155,6 +155,15 @@ public partial class App : Application
         var deadlines = new DeadlineService(new DeadlineStore(store), new ScheduleStore(store), _log);
         var settings = new SettingsService(new SettingsStore(store), _log);
 
+        // FocusBar keeps its own pins. The first time it runs with none, it brings over the Windows taskbar's pins so the
+        // bar doesn't start out showing only open apps. This happens once; after that, pins are the student's to change.
+        var pins = new PinService(new PinStore(store), _log);
+        if (!settings.Current.WindowsPinsImported)
+        {
+            if (pins.Items.Count == 0) pins.ImportWindowsPins(AppDataPaths.Default.PinShortcuts);
+            settings.Update(s => s with { WindowsPinsImported = true });
+        }
+
         var protector = new DpapiProtector();
         _sync = new SyncService(deadlines, new SchoolApiConfigStore(store), new SchoolSessionStore(store, protector),
             new CalendarFeedStore(store, protector), _log, Dispatcher);
@@ -172,7 +181,7 @@ public partial class App : Application
         _focus = new FocusController(settings, deadlines, new FocusStateStore(store),
             () => appearance.ImagePath(appearance.Theme.FocusScreenImagePath), _log, Dispatcher);
 
-        return new BarServices(shell, new PinService(new PinStore(store), _log), apps, _status, trayIcons, deadlines,
+        return new BarServices(shell, pins, apps, _status, trayIcons, deadlines,
             settings, _reminders, _sync, _focus, appearance, _log);
     }
 

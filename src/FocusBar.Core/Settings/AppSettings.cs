@@ -18,6 +18,12 @@ public record AppSettings(ReminderSettings Reminders, FocusSettings Focus)
     /// <summary>The first-run setup guide was finished or skipped. False in a new (or pre-Phase 8) settings file.</summary>
     public bool SetupCompleted { get; init; }
 
+    /// <summary>
+    /// The Windows taskbar's pinned apps were offered once (copied in if FocusBar had no pins of its own), so it
+    /// doesn't happen again after the student unpins them.
+    /// </summary>
+    public bool WindowsPinsImported { get; init; }
+
     /// <summary>Close FocusBar (giving the Windows taskbar back) when the computer runs low on memory.</summary>
     public LowMemorySettings LowMemory { get; init; } = LowMemorySettings.Default;
 

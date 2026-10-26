@@ -422,3 +422,18 @@ These are good candidates for the technical-challenge answer.
   - **"Above 90%" means more than 90**, so exactly 90% doesn't count.
   - **It doesn't restart FocusBar by itself** when memory frees up. Clicking the notification (or Start with Windows next time) brings it back. Restarting on its own could keep closing and reopening.
   - **It closes through the normal exit**, so everything is cleaned up as usual, including asking permission to remove a website block if Focus Mode was blocking sites.
+
+### Fourth piece of feedback: pinned apps don't show, only open apps
+- **What the developer reported:** the bar showed only open apps, not pinned apps.
+- **What the AI found:** the code for pinned buttons was working. FocusBar keeps its own list of pins, which starts empty, so on a new PC only open apps appeared. The apps pinned to the Windows taskbar weren't brought over.
+- **What the AI generated:**
+  - `Core/Pins/WindowsTaskbarPins` (5 new tests, 432 total) plans the import: the shortcuts in Windows' pinned-apps folder (`%AppData%\Microsoft\Internet Explorer\Quick Launch\User Pinned\TaskBar`), oldest first, skipping FocusBar itself and duplicates.
+  - `PinService.ImportWindowsPins` copies those shortcuts into `%AppData%\FocusBar\pins` and pins the copies.
+  - **First run:** if FocusBar has no pins, it brings over the Windows taskbar's pins, once (`WindowsPinsImported` in `settings.json`).
+  - **Settings → General → Pinned apps** has "Add the apps pinned to my Windows taskbar", which adds any that are missing.
+  - App buttons show a generic app symbol until the real icon loads (or if it can't), so a pinned button is never an empty space.
+- **Decisions the AI made that the developer should review:**
+  - **Copies, not links.** FocusBar pins its own copy of each shortcut. Unpinning something from the hidden Windows taskbar later can't break FocusBar's pins, and the copies keep the shortcut's settings (like a Chrome profile).
+  - **Only once, and only when FocusBar has no pins.** That avoids bringing back apps the student deliberately unpinned. The Settings button is there to do it again.
+  - **Store apps pinned on Windows** (Microsoft Store, Calculator, and some others on Windows 11) aren't brought over. Windows keeps those in an undocumented registry format, not as shortcuts. They can be pinned from Start.
+  - **Order** follows when each shortcut was created, which is the order they were pinned in. If they were later rearranged on the Windows taskbar, FocusBar's order may differ; Move left/right fixes it.

@@ -18,5 +18,8 @@ public sealed class AppDataPaths
     public string Logs => Path.Combine(Root, "logs");
     public string Images => Path.Combine(Root, "images");
 
+    /// <summary>FocusBar's copies of shortcuts brought over from the Windows taskbar's pins.</summary>
+    public string PinShortcuts => Path.Combine(Root, "pins");
+
     public string File(string fileName) => Path.Combine(Root, fileName);
 }

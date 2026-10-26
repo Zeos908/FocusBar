@@ -12,19 +12,21 @@ using FocusBar.Core.Storage;
 namespace FocusBar.App.Settings;
 
 /// <summary>
-/// Settings → General: Start with Windows, closing when memory is low, the setup guide, the way out, and where
-/// FocusBar keeps its files.
+/// Settings → General: Start with Windows, pinned apps, closing when memory is low, the setup guide, the way out,
+/// and where FocusBar keeps its files.
 /// </summary>
 public partial class GeneralPage : UserControl
 {
     private readonly SettingsService _settings;
+    private readonly PinService _pins;
     private readonly ErrorLog _log;
     private readonly Action _runSetup;
     private bool _loading = true;
 
-    internal GeneralPage(SettingsService settings, ErrorLog log, Action runSetup)
+    internal GeneralPage(SettingsService settings, PinService pins, ErrorLog log, Action runSetup)
     {
         _settings = settings;
+        _pins = pins;
         _log = log;
         _runSetup = runSetup;
         InitializeComponent();
@@ -72,6 +74,18 @@ public partial class GeneralPage : UserControl
         StartupNote.Text = StartupBox.IsChecked == true && StartWithWindows.IsTurnedOffInTaskManager()
             ? "Windows has FocusBar turned off in Task Manager → Startup apps, so it won't start until you turn it on there too."
             : "Off unless you turn it on. You can also change it in Task Manager → Startup apps.";
+    }
+
+    private void ImportPins_Click(object sender, RoutedEventArgs e)
+    {
+        var added = _pins.ImportWindowsPins(AppDataPaths.Default.PinShortcuts);
+        ImportPinsNote.Text = added switch
+        {
+            0 => "Nothing new to add: FocusBar already has everything pinned to your Windows taskbar (or nothing is pinned there).",
+            1 => "Added 1 app to the bar.",
+            _ => $"Added {added} apps to the bar.",
+        };
+        ImportPinsNote.Visibility = Visibility.Visible;
     }
 
     private void LowMemoryBox_Changed(object sender, RoutedEventArgs e)

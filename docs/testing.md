@@ -130,6 +130,16 @@ Goal: you can do a normal day's work using only FocusBar. Try it in both light a
 | 2.46 | Pin Notepad, then close all Notepad windows | The pinned button stays, with no line under it. Open Notepad from the button: the line comes back and there's still only one Notepad button. |
 | 2.47 | Open two Chrome windows and two Edge windows | Chrome and Edge each get one button with a "2" badge, in the order you first opened them. |
 
+**Pinned apps from the Windows taskbar** (added after Phase 8)
+
+| # | Test | Expected |
+|---|---|---|
+| 2.48 | Before starting FocusBar, check what's pinned on the Windows taskbar. Then start FocusBar with no FocusBar pins yet (a first run, or delete `%AppData%\FocusBar\pins.json` and remove `"WindowsPinsImported": true` from `settings.json`) | The same desktop apps appear on FocusBar's bar, in roughly the order they were pinned, with their icons and no line under them while closed. (Store apps pinned on Windows, like Microsoft Store or Calculator, don't come over; pin them from Start.) |
+| 2.49 | Open one of those apps (e.g. File Explorer or Edge) | Its window joins the pinned button (line appears under it); no second button. |
+| 2.50 | Unpin one of the imported apps, restart FocusBar | It stays unpinned (the import only happens once). |
+| 2.51 | Settings → General → **Add the apps pinned to my Windows taskbar** | Puts back any that are missing and says how many were added; if all are already there, says there's nothing new. |
+| 2.52 | Look at `%AppData%\FocusBar\pins` | Copies of the imported shortcuts, so the pins keep working even if they're unpinned from the Windows taskbar. |
+
 Known Phase 2 limits (expected, not bugs):
 - The launcher lists apps that have Start Menu shortcuts. Microsoft Store apps without one (such as Calculator or Settings) are reached through the **Windows Start menu** button.
 - Old-style tray "balloon" pop-ups from apps aren't shown. Modern Windows notifications (toasts) work normally.
@@ -425,4 +435,4 @@ Status as of version 0.9.0. "Automated" means it's covered by the unit tests tha
 | Hosts file is cleaned up after normal exit and after a crash | Automated (hosts file editing tests); tests 6.13, 6.21–6.24, 8.17 | Partly automated; needs Windows |
 | Custom images look right at 100%, 125%, and 150% scaling | Automated (pixel-size math for each scale); test 7.19 | Partly automated; needs Windows |
 | Works on both Windows 10 and Windows 11 | Run the whole list on one PC of each | Needs Windows |
-| All `FocusBar.Core` unit tests pass | `dotnet test` (427 tests), and on every push in GitHub Actions | ✅ Passing |
+| All `FocusBar.Core` unit tests pass | `dotnet test` (432 tests), and on every push in GitHub Actions | ✅ Passing |

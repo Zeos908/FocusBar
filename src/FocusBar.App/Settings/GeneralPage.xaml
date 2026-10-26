@@ -10,6 +10,14 @@
                   Checked="StartupBox_Changed" Unchecked="StartupBox_Changed" />
         <TextBlock x:Name="StartupNote" Style="{StaticResource FlyoutMuted}" TextWrapping="Wrap" Margin="0,4,0,0" />
 
+        <!-- ===== Pinned apps ===== -->
+        <TextBlock Text="Pinned apps" Style="{StaticResource FlyoutHeading}" Margin="0,22,0,6" />
+        <TextBlock Style="{StaticResource FlyoutMuted}" TextWrapping="Wrap"
+                   Text="FocusBar has its own pinned apps. Pin more from Start (right-click an app) or from an open app's button." />
+        <Button Style="{StaticResource FlyoutButton}" Content="Add the apps pinned to my Windows taskbar" HorizontalAlignment="Left"
+                Margin="0,8,0,0" Click="ImportPins_Click" />
+        <TextBlock x:Name="ImportPinsNote" Style="{StaticResource FlyoutMuted}" TextWrapping="Wrap" Margin="0,4,0,0" Visibility="Collapsed" />
+
         <!-- ===== Low memory ===== -->
         <TextBlock Text="When memory is low" Style="{StaticResource FlyoutHeading}" Margin="0,22,0,6" />
         <CheckBox x:Name="LowMemoryBox" Style="{StaticResource FlyoutCheckBox}" Content="Close FocusBar when the computer is low on memory"
