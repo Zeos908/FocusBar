@@ -50,11 +50,8 @@ internal static class PortableUpdater
         if (File.Exists(allUsersExe) && !File.Exists(installedExe))
         {
             var runHere = MessageBox.Show(
-                "FocusBar is installed for all users (in Program Files). To update that copy, run the new FocusBar installer.
-
-" +
-                "Yes: run this downloaded copy for now.
-No: close.",
+                "FocusBar is installed for all users (in Program Files). To update that copy, run the new FocusBar installer.\n\n" +
+                "Yes: run this downloaded copy for now.\nNo: close.",
                 "FocusBar", MessageBoxButton.YesNo, MessageBoxImage.Information);
             return runHere == MessageBoxResult.Yes ? Outcome.RunHere : Outcome.Done;
         }
