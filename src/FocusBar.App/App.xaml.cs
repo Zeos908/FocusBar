@@ -41,6 +41,7 @@ public partial class App : Application
     private SyncService? _sync;
     private FocusController? _focus;
     private AppearanceService? _appearance;
+    private NowPlayingService? _nowPlaying;
     private BarServices? _services;
     private MainBar? _bar;
     private bool _crashing;
@@ -184,8 +185,10 @@ public partial class App : Application
         _focus = new FocusController(settings, deadlines, new FocusStateStore(store),
             () => appearance.ImagePath(appearance.Theme.FocusScreenImagePath), _log, Dispatcher);
 
+        _nowPlaying = new NowPlayingService(_log, Dispatcher);
+
         return new BarServices(shell, pins, apps, _status, trayIcons, deadlines,
-            settings, _reminders, _sync, _focus, appearance, _log);
+            settings, _reminders, _sync, _focus, appearance, _nowPlaying, _log);
     }
 
     /// <summary>
@@ -236,6 +239,7 @@ public partial class App : Application
         Try(() => _status?.Dispose(), "stop Wi-Fi, volume, and battery monitors");
         Try(() => _reminders?.Dispose(), "stop reminders");
         Try(() => _sync?.Dispose(), "stop deadline sync");
+        Try(() => _nowPlaying?.Dispose(), "stop now playing");
         Try(() => { if (_shell is not null) _shell.ExplorerHelper.HideExplorerTaskbar = false; }, "stop hiding taskbar");
         Try(() => _shell?.Dispose(), "dispose ManagedShell");
         _guard.RestoreAndForget(reason);

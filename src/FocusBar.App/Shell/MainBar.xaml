@@ -7,6 +7,7 @@
                      xmlns:controls="clr-namespace:FocusBar.App.Controls"
                      xmlns:ticker="clr-namespace:FocusBar.App.Ticker"
                      xmlns:focus="clr-namespace:FocusBar.App.Focus"
+                     xmlns:media="clr-namespace:FocusBar.App.Media"
                      Title="FocusBar"
                      Background="{DynamicResource BarBackground}"
                      FontFamily="{StaticResource BarFont}"
@@ -28,7 +29,7 @@
     </appbar:AppBarWindow.ContextMenu>
 
     <!-- Left to right: Start | deadline ticker (fills the rest) | app buttons (pinned apps, then other open apps; one
-         button per app) | Focus Mode | tray | clock. The left side belongs to the deadlines. -->
+         button per app) | now playing | Focus Mode | tray | clock. The left side belongs to the deadlines. -->
     <Grid ClipToBounds="True">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="Auto" />
@@ -36,11 +37,12 @@
             <ColumnDefinition Width="Auto" />
             <ColumnDefinition Width="Auto" />
             <ColumnDefinition Width="Auto" />
+            <ColumnDefinition Width="Auto" />
         </Grid.ColumnDefinitions>
 
         <!-- The theme's background image, with a dark scrim so text stays readable on any picture. Sized in code
              to exactly the screen pixels it covers, so it's sharp at any scaling. -->
-        <Grid x:Name="BackgroundLayer" Grid.ColumnSpan="5" Visibility="Collapsed" IsHitTestVisible="False">
+        <Grid x:Name="BackgroundLayer" Grid.ColumnSpan="6" Visibility="Collapsed" IsHitTestVisible="False">
             <Image x:Name="BackgroundImage" Stretch="Fill" HorizontalAlignment="Center" VerticalAlignment="Center"
                    RenderOptions.BitmapScalingMode="HighQuality" />
             <Border Background="#59000000" />
@@ -63,11 +65,13 @@
             <shell:AppStrip x:Name="Apps" />
         </controls:BarMiddlePanel>
 
-        <focus:FocusButton Grid.Column="2" x:Name="FocusMode" />
+        <media:NowPlayingButton Grid.Column="2" x:Name="NowPlaying" />
 
-        <tray:TrayArea Grid.Column="3" x:Name="Tray" />
+        <focus:FocusButton Grid.Column="3" x:Name="FocusMode" />
 
-        <Button Grid.Column="4" x:Name="ClockButton" Style="{StaticResource BarButton}" Margin="2,4,6,4"
+        <tray:TrayArea Grid.Column="4" x:Name="Tray" />
+
+        <Button Grid.Column="5" x:Name="ClockButton" Style="{StaticResource BarButton}" Margin="2,4,6,4"
                 Click="ClockButton_Click" AutomationProperties.Name="Clock and calendar">
             <StackPanel>
                 <TextBlock x:Name="TimeText" FontSize="12" HorizontalAlignment="Right" />

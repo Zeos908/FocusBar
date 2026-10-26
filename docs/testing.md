@@ -196,6 +196,19 @@ Known Phase 3 limits (expected, not bugs):
 - The current/next class only appears once a class schedule exists, which comes from the school API sync in Phase 5.
 - Reminders arrive in Phase 4.
 
+**Now playing** (added after Phase 8)
+
+| # | Test | Expected |
+|---|---|---|
+| 3.31 | Play a song in Spotify (or a YouTube video in Chrome or Edge, or anything in Media Player) | Left of the moon, a chip appears with the cover, title, and artist, plus a play/pause button. Nothing shows when nothing is playing. |
+| 3.32 | Click the play/pause button on the chip | The music pauses; the icon changes to play. Click again: it plays. |
+| 3.33 | Click the chip | A panel with a bigger cover, title, artist, album, "Playing in Spotify", a progress bar that moves, and previous / play-pause / next. Next skips the song; the panel updates. Esc or clicking elsewhere closes it. |
+| 3.34 | Pause a YouTube video, then play a song in Spotify | The chip follows what Windows considers current (the same as the media controls in Windows' volume flyout). |
+| 3.35 | Close the player | The chip disappears (and its panel closes if open). |
+| 3.36 | Settings → General → turn off **Show the music or video that's playing on the bar** | The chip disappears; turning it on brings it back. Kept after a restart. |
+| 3.37 | Set the bar height to 32 (Appearance) | The chip shows just the title. |
+| 3.38 | Watch Task Manager with music playing for a minute | FocusBar's CPU stays near 0% (it only updates when the song or state changes). |
+
 ## Phase 4: Reminders
 
 Tip: to test without waiting a day, add a deadline due a few minutes after one of the reminder times. For example, with the default "1 hour before" reminder, add one due 1 hour 2 minutes from now.
@@ -385,14 +398,14 @@ one (a landscape photo or a banner), a square one (a logo), and any photo taken 
 
 | # | Test | Expected |
 |---|---|---|
-| 8.11 | On a PC **without** .NET installed, unzip `FocusBar-0.9.1-portable.zip` and run `FocusBar.exe` | Starts (after SmartScreen's "Run anyway"). `README-FIRST.txt` is in the folder. |
+| 8.11 | On a PC **without** .NET installed, unzip `FocusBar-0.9.2-portable.zip` and run `FocusBar.exe` | Starts (after SmartScreen's "Run anyway"). `README-FIRST.txt` is in the folder. |
 | 8.12 | Start a Focus session with a website on the list | The permission prompt shows FocusBar's icon and "FocusBar.Blocker"; blocking works (`FocusBar.Blocker.exe` runs without .NET installed). |
 
 **Installer**
 
 | # | Test | Expected |
 |---|---|---|
-| 8.13 | Run `FocusBar-Setup-0.9.1.exe`, choose **Install for all users** | Installs to `C:\Program Files\FocusBar`. "Start FocusBar now" at the end starts it as you (in Task Manager → Details, add the "Elevated" column: FocusBar shows **No**). |
+| 8.13 | Run `FocusBar-Setup-0.9.2.exe`, choose **Install for all users** | Installs to `C:\Program Files\FocusBar`. "Start FocusBar now" at the end starts it as you (in Task Manager → Details, add the "Elevated" column: FocusBar shows **No**). |
 | 8.14 | Run it again and choose **Install for me only** (on a standard, non-admin account if you have one) | Installs to `%LocalAppData%\Programs\FocusBar` without asking for admin. |
 | 8.15 | Start Menu | "FocusBar" and "Restore Windows taskbar (FocusBar)" are there. The second one works when FocusBar isn't running. |
 | 8.16 | Install again over a running FocusBar | Setup offers to close it; the Windows taskbar comes back while it installs; FocusBar starts again at the end if you leave the box checked. |
@@ -421,8 +434,8 @@ while ($true) { $b = New-Object byte[] 256MB; for ($i = 0; $i -lt $b.Length; $i 
 
 | # | Test | Expected |
 |---|---|---|
-| 8.25 | Exit any FocusBar. Extract `FocusBar-0.9.1-portable.zip` to Downloads and run its `FocusBar.exe` | "Install FocusBar 0.9.1?" Click **Yes**: FocusBar starts from `%LocalAppData%\Programs\FocusBar` (Task Manager → Details → right-click FocusBar → Open file location). The Start menu has **FocusBar** and **Restore Windows taskbar (FocusBar)**. Your deadlines and settings are as before. |
-| 8.26 | With that FocusBar running, extract a newer zip (or the same one again) to a different folder and run its `FocusBar.exe` | "Update FocusBar from 0.9.1 to …?" Click **Yes**: the running FocusBar closes on its own (taskbar back for a moment), then the updated one starts from the same folder. Settings → General shows the new version. No second copy anywhere. |
+| 8.25 | Exit any FocusBar. Extract `FocusBar-0.9.2-portable.zip` to Downloads and run its `FocusBar.exe` | "Install FocusBar 0.9.2?" Click **Yes**: FocusBar starts from `%LocalAppData%\Programs\FocusBar` (Task Manager → Details → right-click FocusBar → Open file location). The Start menu has **FocusBar** and **Restore Windows taskbar (FocusBar)**. Your deadlines and settings are as before. |
+| 8.26 | With that FocusBar running, extract a newer zip (or the same one again) to a different folder and run its `FocusBar.exe` | "Update FocusBar from 0.9.2 to …?" Click **Yes**: the running FocusBar closes on its own (taskbar back for a moment), then the updated one starts from the same folder. Settings → General shows the new version. No second copy anywhere. |
 | 8.27 | Delete the extracted folders and the zips | FocusBar still starts from the Start menu. |
 | 8.28 | Turn on Start with Windows while running an **old** copy from a random folder, then install from the zip (8.25) | `HKCU\...\Run\FocusBar` now points at `%LocalAppData%\Programs\FocusBar\FocusBar.exe`; signing out and in starts that one. |
 | 8.29 | Run an older zip's FocusBar.exe after a newer one is installed | It says the installed one is newer and offers to start it (or run the old copy anyway). |
@@ -432,7 +445,7 @@ while ($true) { $b = New-Object byte[] 256MB; for ($i = 0; $i -lt $b.Length; $i 
 
 ## Final checklist (§9 of the build instructions)
 
-Status as of version 0.9.1. "Automated" means it's covered by the unit tests that GitHub Actions runs on Windows for every push. Everything marked **Needs Windows** has to be checked by hand with the tests listed.
+Status as of version 0.9.2. "Automated" means it's covered by the unit tests that GitHub Actions runs on Windows for every push. Everything marked **Needs Windows** has to be checked by hand with the tests listed.
 
 | §9 item | How it's checked | Status |
 |---|---|---|
@@ -448,4 +461,4 @@ Status as of version 0.9.1. "Automated" means it's covered by the unit tests tha
 | Hosts file is cleaned up after normal exit and after a crash | Automated (hosts file editing tests); tests 6.13, 6.21–6.24, 8.17 | Partly automated; needs Windows |
 | Custom images look right at 100%, 125%, and 150% scaling | Automated (pixel-size math for each scale); test 7.19 | Partly automated; needs Windows |
 | Works on both Windows 10 and Windows 11 | Run the whole list on one PC of each | Needs Windows |
-| All `FocusBar.Core` unit tests pass | `dotnet test` (442 tests), and on every push in GitHub Actions | ✅ Passing |
+| All `FocusBar.Core` unit tests pass | `dotnet test` (460 tests), and on every push in GitHub Actions | ✅ Passing |

@@ -459,3 +459,18 @@ These are good candidates for the technical-challenge answer.
   - **FocusBar versions from before this change don't listen for the "please close" signal**, so the first update from one of them asks you to close FocusBar by hand.
   - **The extracted folder isn't deleted automatically.** FocusBar doesn't delete folders you chose; the message says you can delete it.
   - **An all-users install (Program Files) isn't updated by the zip**, since that needs admin rights. Use the installer for that kind of install.
+
+### Sixth request: now playing
+- **What the developer asked:** "add a now playing."
+- **What the AI generated:**
+  - `Services/NowPlayingService` follows the music or video Windows considers current, through Windows' own media session API (`GlobalSystemMediaTransportControlsSessionManager`, the same source as the media controls in the volume flyout). It loads the cover art small and sends play/pause, next, and previous.
+  - `Media/NowPlayingButton` is a chip on the bar, left of the moon: cover, title, artist, and a play/pause button. It's hidden when nothing is playing, and at bar heights under 40 px it shows the title only.
+  - `Media/NowPlayingFlyout` opens from the chip: bigger cover, title, artist, album, which app is playing, a progress bar with times, and previous / play-pause / next.
+  - `Core/Media/MediaText` (17 new tests, 460 total) gives readable app names (including Store app IDs and Firefox's odd ID), the two lines on the chip, and the progress bar.
+  - A setting in Settings → General, on by default. Version bumped to 0.9.2.
+- **Decisions the AI made that the developer should review:**
+  - **It only reacts when Windows says something changed.** The progress bar only ticks while the panel is open, so it adds essentially no CPU to the 2% budget.
+  - **It shows whatever Windows calls the current player.** With two things playing, it follows the same one as Windows' own media controls.
+  - **It works only with apps that tell Windows what they're playing.** Most do (Spotify, browsers, Media Player, VLC 3.0.12+); some games and older players don't.
+  - **Placed on the right** with the other buttons, following the earlier request to keep the left side for deadlines.
+  - **Nothing leaves the PC.** It reads only what Windows already shows.

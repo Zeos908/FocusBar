@@ -24,6 +24,9 @@ public record AppSettings(ReminderSettings Reminders, FocusSettings Focus)
     /// </summary>
     public bool WindowsPinsImported { get; init; }
 
+    /// <summary>Show the music or video that's playing (with play/pause) on the bar.</summary>
+    public bool ShowNowPlaying { get; init; } = true;
+
     /// <summary>Close FocusBar (giving the Windows taskbar back) when the computer runs low on memory.</summary>
     public LowMemorySettings LowMemory { get; init; } = LowMemorySettings.Default;
 

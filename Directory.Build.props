@@ -5,7 +5,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Company>FocusBar</Company>
     <Product>FocusBar</Product>
-    <Version>0.9.1</Version>
+    <Version>0.9.2</Version>
     <!-- Lets the Windows-only app compile on Linux/macOS CI. It still only runs on Windows. -->
     <EnableWindowsTargeting>true</EnableWindowsTargeting>
   </PropertyGroup>

@@ -56,6 +56,7 @@ public partial class MainBar
 
         FontFamily = new FontFamily($"{theme.FontFamily}, Segoe UI");
         DateText.Visibility = theme.BarHeight >= 40 ? Visibility.Visible : Visibility.Collapsed; // two lines don't fit below that
+        NowPlaying.SetCompact(theme.BarHeight < 40);
 
         var hasImage = _services.Appearance.ImagePath(theme.BackgroundImagePath) is not null;
         ApplyColors(theme, hasImage);

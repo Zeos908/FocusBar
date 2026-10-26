@@ -12,8 +12,8 @@ using FocusBar.Core.Storage;
 namespace FocusBar.App.Settings;
 
 /// <summary>
-/// Settings → General: Start with Windows, pinned apps, closing when memory is low, the setup guide, the way out,
-/// and where FocusBar keeps its files.
+/// Settings → General: Start with Windows, pinned apps, now playing, closing when memory is low, the setup guide,
+/// the way out, and where FocusBar keeps its files.
 /// </summary>
 public partial class GeneralPage : UserControl
 {
@@ -33,6 +33,8 @@ public partial class GeneralPage : UserControl
 
         StartupBox.IsChecked = StartWithWindows.IsOn();
         UpdateStartupNote();
+
+        NowPlayingBox.IsChecked = settings.Current.ShowNowPlaying;
 
         var lowMemory = settings.Current.LowMemory;
         LowMemoryBox.IsChecked = lowMemory.Enabled;
@@ -86,6 +88,13 @@ public partial class GeneralPage : UserControl
             _ => $"Added {added} apps to the bar.",
         };
         ImportPinsNote.Visibility = Visibility.Visible;
+    }
+
+    private void NowPlayingBox_Changed(object sender, RoutedEventArgs e)
+    {
+        if (_loading) return;
+        var on = NowPlayingBox.IsChecked == true;
+        _settings.Update(s => s with { ShowNowPlaying = on });
     }
 
     private void LowMemoryBox_Changed(object sender, RoutedEventArgs e)

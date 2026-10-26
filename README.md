@@ -6,7 +6,7 @@
 **Developer:** Suhaas
 **Platform:** Windows 10 / 11
 **Audience:** Middle and high school students
-**Status:** 🟡 Version 0.9.1 test build: all eight build phases are done (safety net, docked bar, taskbar features, deadlines and the ticker, reminders, school and calendar sync, Focus Mode, customization, setup guide and installer). Next: testing on real Windows PCs with classmates, then the demo video.
+**Status:** 🟡 Version 0.9.2 test build: all eight build phases are done (safety net, docked bar, taskbar features, deadlines and the ticker, reminders, school and calendar sync, Focus Mode, customization, setup guide and installer). Next: testing on real Windows PCs with classmates, then the demo video.
 
 ---
 
@@ -48,6 +48,7 @@ FocusBar hides the default Windows taskbar and replaces every core feature. Dead
 - **One button per app**, like the Windows taskbar — an app with several windows shows a count badge; click it to pick a window, or right-click to open a new one or close them all. Click a single window to switch to it or minimize it; middle-click closes it
 - **Pinned apps** — starts with the apps pinned to your Windows taskbar; pin more from the launcher or from a running window; an open pinned app shares its pinned button
 - **Clock and system tray** — time and date with a calendar, Wi-Fi, volume (scroll to adjust), battery, and other apps' tray icons
+- **Now playing** — the song or video that's playing (Spotify, YouTube in a browser, Media Player, and others in Windows' media controls) with cover art and play/pause; click it for previous/next and a progress bar
 - Follows Windows light and dark mode
 - One click (or Ctrl+Alt+Shift+F) restores the standard Windows taskbar at any time
 - Gets out of the way when the computer is low on memory: if more than 90% of RAM stays in use for 30 seconds, FocusBar closes and gives the Windows taskbar back (Settings → General; 80–95%, or off)
@@ -199,8 +200,8 @@ FocusBar.sln
 
 Every push to GitHub builds both of these (open the repository's **Actions** tab → the latest **Build and test** run → **Artifacts**):
 
-- **Installer** (`FocusBar-Setup-0.9.1.exe`): installs for everyone (asks for admin once, recommended) or just for you (no admin). Adds Start Menu shortcuts, including **Restore Windows taskbar (FocusBar)** as an emergency way back. Uninstall from Windows Settings → Apps; it closes FocusBar (giving the taskbar back), removes any leftover website block and the Start with Windows entry, and asks before deleting your data.
-- **Portable zip** (`FocusBar-0.9.1-portable.zip`): extract it anywhere and run `FocusBar.exe`. It offers to install FocusBar in `%LocalAppData%\Programs\FocusBar` (with a Start Menu shortcut), and every newer zip run the same way **updates that copy** instead of making another one: it closes the running FocusBar, replaces the files, and starts the new version. Your deadlines and settings aren't touched, and the extracted folder can be deleted afterwards. See `README-FIRST.txt` inside.
+- **Installer** (`FocusBar-Setup-0.9.2.exe`): installs for everyone (asks for admin once, recommended) or just for you (no admin). Adds Start Menu shortcuts, including **Restore Windows taskbar (FocusBar)** as an emergency way back. Uninstall from Windows Settings → Apps; it closes FocusBar (giving the taskbar back), removes any leftover website block and the Start with Windows entry, and asks before deleting your data.
+- **Portable zip** (`FocusBar-0.9.2-portable.zip`): extract it anywhere and run `FocusBar.exe`. It offers to install FocusBar in `%LocalAppData%\Programs\FocusBar` (with a Start Menu shortcut), and every newer zip run the same way **updates that copy** instead of making another one: it closes the running FocusBar, replaces the files, and starts the new version. Your deadlines and settings aren't touched, and the extracted folder can be deleted afterwards. See `README-FIRST.txt` inside.
 
 This test build isn't code-signed, so Windows SmartScreen may say "Windows protected your PC". Click **More info** → **Run anyway**.
 
@@ -234,7 +235,7 @@ The step-by-step Windows test checklist for each phase is in [docs/testing.md](d
 
 ```powershell
 dotnet publish src/FocusBar.App -c Release -r win-x64 --self-contained -o publish
-iscc packaging\FocusBar.iss /DAppVersion=0.9.1      # Inno Setup 6; the installer lands in dist\
+iscc packaging\FocusBar.iss /DAppVersion=0.9.2      # Inno Setup 6; the installer lands in dist\
 ```
 
 Publishing also makes `FocusBar.Blocker.exe` a single self-contained file next to `FocusBar.exe`. GitHub Actions runs the same steps (see `.github/workflows/build.yml`) and uploads the zip and installer as artifacts.

@@ -34,6 +34,7 @@ internal sealed record BarServices(
     SyncService Sync,
     FocusController Focus,
     AppearanceService Appearance,
+    NowPlayingService NowPlaying,
     ErrorLog Log);
 
 /// <summary>
@@ -75,6 +76,7 @@ public partial class MainBar : AppBarWindow
         Ticker.Initialize(services.Deadlines, services.Sync,
             openList: () => DeadlineListWindow.ShowSingle(services.Deadlines, services.Sync),
             openSourceSettings: () => SettingsWindow.ShowSingle(services, SettingsWindow.SourcesPageName));
+        NowPlaying.Initialize(services.NowPlaying, services.Settings);
         FocusMode.Initialize(services.Focus, services.Deadlines,
             openSettings: () => SettingsWindow.ShowSingle(services, SettingsWindow.FocusPageName));
         TrayIconView.BeforeClick = UpdateTrayHost;
@@ -173,6 +175,7 @@ public partial class MainBar : AppBarWindow
         Ticker.Shutdown();
         FocusMode.Shutdown();
         Apps.Shutdown();
+        NowPlaying.Shutdown();
         _launcher.Close();
         _calendar.Close();
         Tray.CloseFlyouts();

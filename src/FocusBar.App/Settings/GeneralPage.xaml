@@ -18,6 +18,13 @@
                 Margin="0,8,0,0" Click="ImportPins_Click" />
         <TextBlock x:Name="ImportPinsNote" Style="{StaticResource FlyoutMuted}" TextWrapping="Wrap" Margin="0,4,0,0" Visibility="Collapsed" />
 
+        <!-- ===== Now playing ===== -->
+        <TextBlock Text="Now playing" Style="{StaticResource FlyoutHeading}" Margin="0,22,0,6" />
+        <CheckBox x:Name="NowPlayingBox" Style="{StaticResource FlyoutCheckBox}" Content="Show the music or video that's playing on the bar"
+                  Checked="NowPlayingBox_Changed" Unchecked="NowPlayingBox_Changed" />
+        <TextBlock Style="{StaticResource FlyoutMuted}" TextWrapping="Wrap" Margin="0,4,0,0"
+                   Text="Works with apps that show up in Windows' own media controls, like Spotify, YouTube in a browser, and Media Player." />
+
         <!-- ===== Low memory ===== -->
         <TextBlock Text="When memory is low" Style="{StaticResource FlyoutHeading}" Margin="0,22,0,6" />
         <CheckBox x:Name="LowMemoryBox" Style="{StaticResource FlyoutCheckBox}" Content="Close FocusBar when the computer is low on memory"
