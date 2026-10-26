@@ -24,6 +24,9 @@ internal static class Program
         if (mode == Watchdog.Argument) return Watchdog.Run(args, safetyStore, log);
         if (mode == RestoreTaskbarArgument) return RestoreTaskbarCommand(safetyStore, log);
 
+        // Started from a freshly extracted zip: update the installed FocusBar instead of becoming a second copy.
+        if (mode is null && PortableUpdater.ShouldOffer() && PortableUpdater.Run(log) == PortableUpdater.Outcome.Done) return 0;
+
         using var mutex = new Mutex(initiallyOwned: false, SingleInstanceMutexName);
         // After "Restart FocusBar" the old process may take a moment to exit, so wait for it.
         if (!TryAcquire(mutex, mode == RestartedArgument ? TimeSpan.FromSeconds(10) : TimeSpan.Zero))

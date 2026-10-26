@@ -32,13 +32,6 @@ jobs:
           $version = (Select-Xml -Path Directory.Build.props -XPath '//Version').Node.InnerText
           "value=$version" >> $env:GITHUB_OUTPUT
 
-      - name: Portable zip
-        shell: pwsh
-        run: |
-          Copy-Item packaging/README-FIRST.txt publish/
-          New-Item -ItemType Directory -Force dist | Out-Null
-          Compress-Archive -Path publish/* -DestinationPath "dist/FocusBar-${{ steps.version.outputs.value }}-portable.zip"
-
       - name: Installer
         shell: pwsh
         run: |
@@ -46,6 +39,16 @@ jobs:
           if (-not (Test-Path $iscc)) { choco install innosetup --no-progress -y | Out-Null }
           & $iscc "/DAppVersion=${{ steps.version.outputs.value }}" packaging/FocusBar.iss
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
+      # The zip gets the read-me and the FocusBar.portable marker (which makes running it install or update the one
+      # FocusBar in %LocalAppData%\Programs\FocusBar). The installer above must not have the marker.
+      - name: Portable zip
+        shell: pwsh
+        run: |
+          Copy-Item -Recurse publish portable
+          Copy-Item packaging/README-FIRST.txt, packaging/FocusBar.portable portable/
+          New-Item -ItemType Directory -Force dist | Out-Null
+          Compress-Archive -Path portable/* -DestinationPath "dist/FocusBar-${{ steps.version.outputs.value }}-portable.zip"
 
       - uses: actions/upload-artifact@v4
         with:

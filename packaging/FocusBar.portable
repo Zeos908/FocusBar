@@ -1,0 +1,6 @@
+This file marks a FocusBar that came from the portable zip.
+
+When you run FocusBar.exe from this folder, it offers to install or update your FocusBar in
+%LocalAppData%\Programs\FocusBar (closing the running FocusBar first), so every new zip updates the
+same copy instead of making another one. Your deadlines, settings, and pictures (in %AppData%\FocusBar)
+aren't touched. Choose "No" to just run FocusBar from this folder.

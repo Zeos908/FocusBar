@@ -437,3 +437,25 @@ These are good candidates for the technical-challenge answer.
   - **Only once, and only when FocusBar has no pins.** That avoids bringing back apps the student deliberately unpinned. The Settings button is there to do it again.
   - **Store apps pinned on Windows** (Microsoft Store, Calculator, and some others on Windows 11) aren't brought over. Windows keeps those in an undocumented registry format, not as shortcuts. They can be pinned from Start.
   - **Order** follows when each shortcut was created, which is the order they were pinned in. If they were later rearranged on the Windows taskbar, FocusBar's order may differ; Move left/right fixes it.
+
+### Fifth piece of feedback: the zip should update the app, not make a new copy
+- **What the developer asked:** "make it so extracting the zip just updates the app instead of making a new one."
+- **The catch:** Windows' "Extract All" always makes a new folder, and an app can't change how Windows extracts zips. What FocusBar *can* control is what happens when you run the new `FocusBar.exe`.
+- **What the AI generated:**
+  - FocusBar now has one home, `%LocalAppData%\Programs\FocusBar` (the same folder the installer uses for "just for me").
+  - The zip (and only the zip) contains a small marker file, `FocusBar.portable`. A FocusBar started from a folder with that marker, that isn't the home folder, asks **"Install FocusBar?"** the first time and **"Update FocusBar from X to Y?"** after that. On Yes it:
+    1. asks the running FocusBar to close the normal way (through a named signal the running app listens for);
+    2. waits for it and its helper processes to exit;
+    3. copies the new files over the old ones (never deleting anything, so an installer's uninstall files survive);
+    4. creates or refreshes the Start menu shortcuts and keeps Start with Windows pointing at the home folder;
+    5. starts the updated FocusBar.
+
+    No runs that copy as before.
+  - `Core/Updates/PortableInstall` (10 new tests, 442 total) holds the rules: install, update, or "the installed one is newer"; same-folder checks; and which files to copy.
+  - GitHub Actions now builds the installer *before* adding the marker, so the installer never contains it. The version is bumped to **0.9.1** so updates show real version numbers.
+- **Decisions the AI made that the developer should review:**
+  - **It asks first** instead of updating silently. It closes FocusBar and replaces files, so one Yes/No seemed right, and No still lets you just try a copy.
+  - **The same version can be reinstalled** (useful for rebuilt test copies). A *newer* installed version is never replaced without saying so.
+  - **FocusBar versions from before this change don't listen for the "please close" signal**, so the first update from one of them asks you to close FocusBar by hand.
+  - **The extracted folder isn't deleted automatically.** FocusBar doesn't delete folders you chose; the message says you can delete it.
+  - **An all-users install (Program Files) isn't updated by the zip**, since that needs admin rights. Use the installer for that kind of install.

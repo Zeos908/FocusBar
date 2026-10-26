@@ -385,14 +385,14 @@ one (a landscape photo or a banner), a square one (a logo), and any photo taken 
 
 | # | Test | Expected |
 |---|---|---|
-| 8.11 | On a PC **without** .NET installed, unzip `FocusBar-0.9.0-portable.zip` and run `FocusBar.exe` | Starts (after SmartScreen's "Run anyway"). `README-FIRST.txt` is in the folder. |
+| 8.11 | On a PC **without** .NET installed, unzip `FocusBar-0.9.1-portable.zip` and run `FocusBar.exe` | Starts (after SmartScreen's "Run anyway"). `README-FIRST.txt` is in the folder. |
 | 8.12 | Start a Focus session with a website on the list | The permission prompt shows FocusBar's icon and "FocusBar.Blocker"; blocking works (`FocusBar.Blocker.exe` runs without .NET installed). |
 
 **Installer**
 
 | # | Test | Expected |
 |---|---|---|
-| 8.13 | Run `FocusBar-Setup-0.9.0.exe`, choose **Install for all users** | Installs to `C:\Program Files\FocusBar`. "Start FocusBar now" at the end starts it as you (in Task Manager → Details, add the "Elevated" column: FocusBar shows **No**). |
+| 8.13 | Run `FocusBar-Setup-0.9.1.exe`, choose **Install for all users** | Installs to `C:\Program Files\FocusBar`. "Start FocusBar now" at the end starts it as you (in Task Manager → Details, add the "Elevated" column: FocusBar shows **No**). |
 | 8.14 | Run it again and choose **Install for me only** (on a standard, non-admin account if you have one) | Installs to `%LocalAppData%\Programs\FocusBar` without asking for admin. |
 | 8.15 | Start Menu | "FocusBar" and "Restore Windows taskbar (FocusBar)" are there. The second one works when FocusBar isn't running. |
 | 8.16 | Install again over a running FocusBar | Setup offers to close it; the Windows taskbar comes back while it installs; FocusBar starts again at the end if you leave the box checked. |
@@ -417,9 +417,22 @@ while ($true) { $b = New-Object byte[] 256MB; for ($i = 0; $i -lt $b.Length; $i 
 | 8.23 | Pick **80%**, or turn the setting off, then repeat 8.20 | At 80% it closes sooner; turned off, it doesn't close at all. The choice is kept after a restart. |
 | 8.24 | Repeat 8.20 during a Focus session that blocks websites | FocusBar closes as above, then asks permission to remove the website block (the usual exit cleanup). |
 
+**Updating from the zip** (added after Phase 8)
+
+| # | Test | Expected |
+|---|---|---|
+| 8.25 | Exit any FocusBar. Extract `FocusBar-0.9.1-portable.zip` to Downloads and run its `FocusBar.exe` | "Install FocusBar 0.9.1?" Click **Yes**: FocusBar starts from `%LocalAppData%\Programs\FocusBar` (Task Manager → Details → right-click FocusBar → Open file location). The Start menu has **FocusBar** and **Restore Windows taskbar (FocusBar)**. Your deadlines and settings are as before. |
+| 8.26 | With that FocusBar running, extract a newer zip (or the same one again) to a different folder and run its `FocusBar.exe` | "Update FocusBar from 0.9.1 to …?" Click **Yes**: the running FocusBar closes on its own (taskbar back for a moment), then the updated one starts from the same folder. Settings → General shows the new version. No second copy anywhere. |
+| 8.27 | Delete the extracted folders and the zips | FocusBar still starts from the Start menu. |
+| 8.28 | Turn on Start with Windows while running an **old** copy from a random folder, then install from the zip (8.25) | `HKCU\...\Run\FocusBar` now points at `%LocalAppData%\Programs\FocusBar\FocusBar.exe`; signing out and in starts that one. |
+| 8.29 | Run an older zip's FocusBar.exe after a newer one is installed | It says the installed one is newer and offers to start it (or run the old copy anyway). |
+| 8.30 | Click **No** on the install/update question | FocusBar runs from the extracted folder as before; nothing is installed. |
+| 8.31 | While an **older** FocusBar (from before this update) is running, run the new zip's FocusBar.exe and click Yes | After about 15 seconds it asks you to close FocusBar (Ctrl+Alt+Shift+F) and click OK; then it updates. Older versions don't know how to close themselves for an update. |
+| 8.32 | Install with the installer "just for me", then run a newer zip's FocusBar.exe | It updates that same install (same folder); Settings → Apps still shows FocusBar and uninstalling still works. |
+
 ## Final checklist (§9 of the build instructions)
 
-Status as of version 0.9.0. "Automated" means it's covered by the unit tests that GitHub Actions runs on Windows for every push. Everything marked **Needs Windows** has to be checked by hand with the tests listed.
+Status as of version 0.9.1. "Automated" means it's covered by the unit tests that GitHub Actions runs on Windows for every push. Everything marked **Needs Windows** has to be checked by hand with the tests listed.
 
 | §9 item | How it's checked | Status |
 |---|---|---|
@@ -435,4 +448,4 @@ Status as of version 0.9.0. "Automated" means it's covered by the unit tests tha
 | Hosts file is cleaned up after normal exit and after a crash | Automated (hosts file editing tests); tests 6.13, 6.21–6.24, 8.17 | Partly automated; needs Windows |
 | Custom images look right at 100%, 125%, and 150% scaling | Automated (pixel-size math for each scale); test 7.19 | Partly automated; needs Windows |
 | Works on both Windows 10 and Windows 11 | Run the whole list on one PC of each | Needs Windows |
-| All `FocusBar.Core` unit tests pass | `dotnet test` (432 tests), and on every push in GitHub Actions | ✅ Passing |
+| All `FocusBar.Core` unit tests pass | `dotnet test` (442 tests), and on every push in GitHub Actions | ✅ Passing |

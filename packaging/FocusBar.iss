@@ -2,7 +2,7 @@
 ;
 ; Build it after publishing the app (see "Building the zip and installer" in README.md):
 ;   dotnet publish src\FocusBar.App -c Release -r win-x64 --self-contained -o publish
-;   iscc packaging\FocusBar.iss /DAppVersion=0.9.0
+;   iscc packaging\FocusBar.iss /DAppVersion=0.9.1
 ; The installer lands in dist\. GitHub Actions does both steps on every push.
 ;
 ; What it does:
@@ -14,7 +14,7 @@
 ;    removes the "Start with Windows" entry, and asks before deleting your deadlines, settings, and pictures.
 
 #ifndef AppVersion
-  #define AppVersion "0.9.0"
+  #define AppVersion "0.9.1"
 #endif
 #ifndef PublishDir
   #define PublishDir "..\publish"
