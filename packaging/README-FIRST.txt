@@ -25,6 +25,13 @@ INSTALL OR UPDATE
 The first time, the Windows taskbar hides, FocusBar takes its place, and a setup guide opens.
 Choose "No" in step 3 if you'd rather just run FocusBar from the extracted folder.
 
+If Windows says "Smart App Control blocked an app that may be unsafe": this test build isn't
+digitally signed yet, and Smart App Control (on some new Windows 11 PCs) has no "Run anyway".
+Try it on a PC where Smart App Control is off, or wait for a signed build. Turning Smart App
+Control off (Windows Security > App & browser control) works, but on many versions of
+Windows 11 it can't be turned back on without resetting Windows, so think before doing that,
+and don't on a school-managed laptop.
+
 Nothing needs to be installed: .NET is included. The school sign-in window uses Microsoft
 Edge WebView2, which comes with Windows 11 and most Windows 10 PCs.
 

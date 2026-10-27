@@ -205,6 +205,8 @@ Every push to GitHub builds both of these (open the repository's **Actions** tab
 
 This test build isn't code-signed, so Windows SmartScreen may say "Windows protected your PC". Click **More info** → **Run anyway**.
 
+**Smart App Control** (on by default on some new Windows 11 PCs) blocks unsigned apps outright, with no "Run anyway". Until FocusBar is signed, test it on a PC where Smart App Control is off. Turning it off (Windows Security → App & browser control → Smart App Control) works, but on many versions of Windows 11 it can't be turned back on without resetting Windows. 13 of the 263 program files in the build are unsigned: FocusBar's own four and nine third-party libraries (ManagedShell and Ical.Net). Signing them with a trusted code-signing certificate fixes this; see Future Ideas.
+
 The first time FocusBar runs, a **setup guide** walks through deadlines, reminders, Focus Mode, and the look of the bar (you can run it again from Settings → General). FocusBar does **not** start with Windows unless you turn that on in the guide or in Settings → General.
 
 ---
@@ -320,7 +322,7 @@ If the taskbar is still missing (for example, both FocusBar processes were ended
 - [ ] A browser extension, so website blocking works even with secure DNS turned on
 - [ ] Shareable theme packs
 - [ ] Parent/teacher view (opt-in)
-- [ ] A code-signed installer, so Windows doesn't show the SmartScreen warning
+- [ ] Code signing (FocusBar's files, the unsigned libraries, and the installer) so Smart App Control allows it and SmartScreen doesn't warn. Since 2023, signing keys have to live in hardware or a cloud service. Options: Microsoft's Azure Trusted Signing (about $10/month; needs an adult's identity and card), SignPath Foundation (free for open-source projects with an open-source license), or a Certum open-source certificate (yearly fee). Any of them can sign automatically in GitHub Actions.
 
 ---
 

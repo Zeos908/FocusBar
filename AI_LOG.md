@@ -474,3 +474,10 @@ These are good candidates for the technical-challenge answer.
   - **It works only with apps that tell Windows what they're playing.** Most do (Spotify, browsers, Media Player, VLC 3.0.12+); some games and older players don't.
   - **Placed on the right** with the other buttons, following the earlier request to keep the left side for deadlines.
   - **Nothing leaves the PC.** It reads only what Windows already shows.
+
+### Seventh piece of feedback: Smart App Control blocks FocusBar
+- **What the developer reported:** Windows' Smart App Control blocks the app.
+- **What the AI found:** Smart App Control (Windows 11) blocks programs that aren't signed by a trusted publisher and that Microsoft doesn't recognize, and there's no per-app "Run anyway". A scan of the build found 250 of 263 program files signed (all of .NET and Microsoft's libraries). The 13 unsigned ones are FocusBar.exe, FocusBar.dll, FocusBar.Core.dll, FocusBar.Blocker.exe, the eight ManagedShell DLLs, and Ical.Net.dll.
+- **What can and can't be done in code:** nothing in FocusBar's code can get past Smart App Control, and it shouldn't (build instructions: no anti-tamper or evasion). The real fix is **code signing** with a certificate from a trusted authority. Since 2023 the signing key must live in hardware or a cloud signing service, so it costs money or needs approval.
+- **What the AI changed:** a note in `README-FIRST.txt` and `README.md` explaining the block, how to test meanwhile, and the warning that turning Smart App Control off often can't be undone without resetting Windows. Code signing is listed in Future Ideas with options.
+- **Decision for the developer:** pick a signing route: Azure Trusted Signing (about $10/month, needs a parent's identity and card), SignPath Foundation (free for open source, needs an open-source license on the repo and their approval), or a Certum open-source certificate. Then GitHub Actions can sign every build automatically.
